@@ -34,6 +34,7 @@ public:
         value = new int64_t[WIDTH];
         width = WIDTH;
         bzero(value, width * sizeof value[0]);
+        refCount = 1;
     }
 
     bint (int64_t x)
@@ -42,6 +43,7 @@ public:
         width = WIDTH;
         bzero(value, width * sizeof value[0]);
         value[0] = x;
+        refCount = 1;
     }
 
     bint (char* s)
@@ -70,18 +72,25 @@ public:
             }
             r--;
         }
+        refCount = 1;
     }
 
     bint (const bint& k) // copy constructor 
     {
-        value = new int64_t[k.width];
+        //std::cout << "Copy: " << std::endl;
+        value = k.value;
         width = k.width;
+        refCount = k.refCount + 1;
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
     ~bint ()
     {
-        delete[] value;
+        refCount -= 1;
+        if (refCount == 0)
+        {
+            delete[] value;
+        }
     }
 
     void print () const
@@ -220,4 +229,5 @@ public:
 private:
     int64_t* value;
     int32_t  width;
+    int32_t  refCount;
 };
