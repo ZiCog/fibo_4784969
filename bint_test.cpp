@@ -158,7 +158,7 @@ void test_13 (void )
 
 bint f[] = {bint((char*)"0"), bint((char*)"1"), bint((char*)"1")};
 
-bint fibo(int n)
+bint fibo_recursive(int n)
 {
     if (n <= 2)
     {
@@ -166,20 +166,66 @@ bint fibo(int n)
     }
     else
     {
-        return fibo(n - 2).sum(fibo(n - 1));
+        return fibo_recursive(n - 2).sum(fibo_recursive(n - 1));
     }
 }
 
 // Recursive fibo
 void test_14 (void )
 {
-    bint f = fibo(35);
+    bint f = fibo_recursive(35);
     f.print();
 }
 
+void fibo()
+{
+    bint f0 = bint((char*)"0");
+    bint f1 = bint((char*)"1");
+    bint f2;
+    
+    int n = 2;
+    while (1) 
+    {
+        f2 = f0.sum(f1);
+        if (n == 4784969)
+        {
+            std::cout << "fibo " << n << std::endl;
+            f2.print();
+            break;
+        }
+        n++;
+        f0 = f1.sum(f2);
+        if (n == 4784969)
+        {
+            std::cout << "fibo " << n << std::endl;
+            f0.print();
+            break;
+        }
+        n++;
+        f1 = f2.sum(f0);
+        if (n == 4784969)
+        {
+            std::cout << "fibo " << n << std::endl;
+            f1.print();
+            break;
+        }
+        n++;
+    }
+}
+
+// Recursive fibo
+void test_15 (void )
+{
+    fibo();
+}
+
+
+
 int main (int argc, char* argv[])
 {
-    test_14();
+    uint64_t z = 10000000000000000000ULL; 
+
+    test_15();
 
     return 0;
 }
