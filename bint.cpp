@@ -303,10 +303,39 @@ bint& bint::mul (const bint& a)
     bint high2 = a.high();
     bint low2 = a.low();
 
+    std::cout << "high1: " << std::endl; 
     high1.print();
+    std::cout << "low1: " << std::endl; 
     low1.print();
+    std::cout << "high2: " << std::endl; 
     high2.print();
+    std::cout << "low2: " << std::endl; 
     low2.print();
+
+    bint z0 = low1.mul(low2);
+    std::cout << "z0: " << std::endl; 
+    z0.print();
+
+    bint z2 = high1.mul(high2);
+    std::cout << "z2: " << std::endl; 
+    z2.print();
+
+    // z1 = karatsuba((low1 + high1), (low2 + high2))
+    bint s1 = low1 + high1;
+    std::cout << "s1: " << std::endl; 
+    s1.print();
+
+    bint s2 = low2 + high2;
+    std::cout << "s2: " << std::endl; 
+    s2.print();
+
+    bint z1 = s1 * s2;
+    std::cout << "z1: " << std::endl; 
+    z1.print();
+
+    bint bigDiff = z1 - z2 - z0;
+    std::cout << "bigDiff: " << std::endl; 
+    bigDiff.print();
 
     bint *result = new bint();
     return *result; 

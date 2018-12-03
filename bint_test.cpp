@@ -288,7 +288,7 @@ void test_21 (void)
     res.print();
 }
 
-// mul, testing spilt, two elements into 1
+// mul, testing spilt, four elements into 1
 void test_22 (void)
 {
     bint x = bint((char*)"1234");
@@ -299,12 +299,22 @@ void test_22 (void)
     res.print();
 }
 
+// mul, testing z0, calculation
+void test_23 (void)
+{
+    bint x = bint((char*)"23");
+    bint y = bint((char*)"45");
+    x.print();
+    y.print();
+    bint res = x.mul(y);
+    res.print();
+}
 
 int main (int argc, char* argv[])
 {
     uint64_t z = 10000000000000000000ULL; 
 
-    test_22();
+    test_23();
 
     return 0;
 }
