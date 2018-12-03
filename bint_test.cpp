@@ -266,11 +266,35 @@ void test_19 (void)
     res.print();
 }
 
+// mul, the base case, one element in value, no overflow
+void test_20 (void)
+{
+    bint x = bint((char*)"2");
+    bint y = bint((char*)"3");
+    x.print();
+    y.print();
+    bint res = x.mul(y);
+    res.print();
+}
+
+// mul, the base case, one element in value, with overflow
+void test_21 (void)
+{
+    bint x = bint((char*)"9");
+    bint y = bint((char*)"9");
+    x.print();
+    y.print();
+    bint res = x.mul(y);
+    res.print();
+}
+
+
+
 int main (int argc, char* argv[])
 {
     uint64_t z = 10000000000000000000ULL; 
 
-    test_18();
+    test_21();
 
     return 0;
 }

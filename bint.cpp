@@ -170,8 +170,6 @@ bint& bint::high()
     return *high; 
 }
 
-
-
 bint& bint::sum (const bint& n)
 {
     // Ensure "a" operand is longer than "b" operand
@@ -259,11 +257,62 @@ bint& bint::sub (const bint& a)
     return *result; 
 }
 
+/*
+procedure karatsuba(num1, num2)
+  if (num1 < 10) or (num2 < 10)
+    return num1*num2
+  /* calculates the size of the numbers * /
+  m = min(size_base10(num1), size_base10(num2))
+  m2 = floor(m/2)
+  /* split the digit sequences in the middle * /
+  high1, low1 = split_at(num1, m2)
+  high2, low2 = split_at(num2, m2)
+  /* 3 calls made to numbers approximately half the size * /
+  z0 = karatsuba(low1, low2)
+  z1 = karatsuba((low1 + high1), (low2 + high2))
+  z2 = karatsuba(high1, high2)
+  return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
+*/
+
+
 bint& bint::mul (const bint& a)
 {
-    bint *result = new bint();
+    // Demand this operand is same width as a operand. FIXME: Is this required?
+    assert(this->width == a.width);
 
-    result->value[0] = this->value[0] + a.value[0];
+    // The base case, only one element in value, just do the multiply
+    if (width == 1)
+    {
+        bint *result = new bint();
+        int64_t product = value[0] * a.value[0];
+        if (product < BASE) {
+            result->value[0] = product;
+        }
+        else
+        {
+            result->grow();
+            result->value[0] = (product % 10);
+            result->value[1] = (product / 10);
+        }
+        return *result; 
+    }
 
-    return *result; 
+    assert (1 == 2);
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
