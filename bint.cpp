@@ -144,7 +144,7 @@ bint& bint::swap(bint& a)
     return a;
 }
 
-bint& bint::low()
+bint& bint::low() const
 {
     assert(width > 1);
     assert((width & 1) != 1);
@@ -157,7 +157,7 @@ bint& bint::low()
     return *low; 
 }
 
-bint& bint::high()
+bint& bint::high() const
 {
     assert(width > 1);
     assert((width & 1) != 1);
@@ -166,7 +166,7 @@ bint& bint::high()
     int newWidth = this->width / 2;
     bint *high = new bint();
     high->resize(newWidth);
-    std::memcpy(high->value, &value[newWidth], width * sizeof high->value[0]);
+    std::memcpy(high->value, &value[newWidth], newWidth * sizeof high->value[0]);
     return *high; 
 }
 
@@ -297,9 +297,19 @@ bint& bint::mul (const bint& a)
         return *result; 
     }
 
-    assert (1 == 2);
+    // Split the numbers in the middle * /
+    bint high1 = this->high();
+    bint low1 = this->low();
+    bint high2 = a.high();
+    bint low2 = a.low();
 
+    high1.print();
+    low1.print();
+    high2.print();
+    low2.print();
 
+    bint *result = new bint();
+    return *result; 
 
 }
 

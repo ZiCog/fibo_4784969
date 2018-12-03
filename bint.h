@@ -22,7 +22,7 @@ public:
 
     bint (const bint& k); // copy constructor 
 
-    void operator= (bint& k)
+    void operator= (const bint& k)
     {
         if (refCount == 1)
         {
@@ -43,9 +43,9 @@ public:
 
     bint& swap(bint& a);
 
-    bint& high();
+    bint& high() const;
 
-    bint& low();
+    bint& low() const;
 
     bint& sum (const bint& n);
 
