@@ -1,7 +1,7 @@
 #include <bint.h>
 
 // Construct, no params
-void test_01 (void )
+void test_01 (void)
 {
     for (int i = 0; i < 1000; i++)
     {
@@ -11,7 +11,7 @@ void test_01 (void )
 }
 
 // Construct from integer
-void test_02 (void )
+void test_02 (void)
 {
     for (int i = 0; i < 1000; i++)
     {
@@ -21,7 +21,7 @@ void test_02 (void )
 }
 
 // Construct from string
-void test_03 (void )
+void test_03 (void)
 {
     for (int i = 0; i < 1000; i++)
     {
@@ -31,7 +31,7 @@ void test_03 (void )
 }
 
 // Grow
-void test_04 (void )
+void test_04 (void)
 {
     bint x = bint((char*)"1234567812345678");
     x.print();
@@ -44,7 +44,7 @@ void test_04 (void )
 }
 
 // Resise
-void test_05 (void )
+void test_05 (void)
 {
     bint x = bint((char*)"1234567812345678");
     x.print();
@@ -58,7 +58,7 @@ void test_05 (void )
 }
 
 // Swap
-void test_06 (void )
+void test_06 (void)
 {
     bint x = bint((char*)"1111111111111111");
     bint y = bint((char*)"4444444444444444");
@@ -73,7 +73,7 @@ void test_06 (void )
 }
 
 // Sum, same size
-void test_07 (void )
+void test_07 (void)
 {
     bint x = bint((char*)"1111111111111111");
     bint y = bint((char*)"4444444444444444");
@@ -84,7 +84,7 @@ void test_07 (void )
 }
 
 // Sum, small big
-void test_08 (void )
+void test_08 (void)
 {
     bint x = bint((char*)"11111111");
     bint y = bint((char*)"4444444444444444");
@@ -95,7 +95,7 @@ void test_08 (void )
 }
 
 // Sum, big + small
-void test_09 (void )
+void test_09 (void)
 {
     bint x = bint((char*)"1111111111111111");
     bint y = bint((char*)"44444444");
@@ -106,18 +106,18 @@ void test_09 (void )
 }
 
 // Sum, small + big with carry
-void test_10 (void )
+void test_10 (void)
 {
     bint x = bint((char*)"11111111");
     bint y = bint((char*)"9999999999999999");
     x.print();
     y.print();
-    bint res = x.sum(y);
+    bint res = x + y;
     res.print();
 }
 
 // Sum, big + small with carry
-void test_11 (void )
+void test_11 (void)
 {
     bint x = bint((char*)"9999999999999999");
     bint y = bint((char*)"11111111");
@@ -128,7 +128,7 @@ void test_11 (void )
 }
 
 // Chain operations
-void test_12 (void )
+void test_12 (void)
 {
     bint x = bint((char*)"0");
     bint one = bint((char*)"1000");
@@ -141,10 +141,12 @@ void test_12 (void )
 
     bint z = x.sum(one).sum(two).sum(three).sum(four).sum(five).sum(six);
     z.print();
+    z = z + one + two + three + four + five + six;
+    z.print();
 }
 
 // A counter
-void test_13 (void )
+void test_13 (void)
 {
     bint x = bint((char*)"0");
     bint one = bint((char*)"1");
@@ -171,7 +173,7 @@ bint fibo_recursive(int n)
 }
 
 // Recursive fibo
-void test_14 (void )
+void test_14 (void)
 {
     bint f = fibo_recursive(35);
     f.print();
@@ -186,7 +188,7 @@ void fibo()
     int n = 2;
     while (1) 
     {
-        f2 = f0.sum(f1);
+        f2 = f0 + f1;
         if (n == 4784969)
         {
             std::cout << "fibo " << n << std::endl;
@@ -194,7 +196,7 @@ void fibo()
             break;
         }
         n++;
-        f0 = f1.sum(f2);
+        f0 = f1 + f2;
         if (n == 4784969)
         {
             std::cout << "fibo " << n << std::endl;
@@ -202,7 +204,7 @@ void fibo()
             break;
         }
         n++;
-        f1 = f2.sum(f0);
+        f1 = f2 + f0;
         if (n == 4784969)
         {
             std::cout << "fibo " << n << std::endl;
@@ -213,19 +215,62 @@ void fibo()
     }
 }
 
-// Recursive fibo
-void test_15 (void )
+// Schoolboy fibo
+void test_15 (void)
 {
     fibo();
 }
 
+// low / high
+void test_16 (void)
+{
+    bint x = bint((char*)"1234567887654321");
+    x.print();
+    bint low = x.low();
+    low.print();
 
+    bint high = x.high();
+    high.print();
+}
+
+// Sub, same size
+void test_17 (void)
+{
+    bint x = bint((char*)"4444444444444444");
+    bint y = bint((char*)"1111116111111115");
+    x.print();
+    y.print();
+    bint res = x.sub(y);
+    res.print();
+}
+
+// Sub, shorter from longer
+void test_18 (void)
+{
+    bint x = bint((char*)"4444444444444444");
+    bint y = bint((char*)"1116111111115");
+    x.print();
+    y.print();
+    bint res = x - y;
+    res.print();
+}
+
+// Sub, longer from shorter (expect assertion failure)
+void test_19 (void)
+{
+    bint x = bint((char*)"44444");
+    bint y = bint((char*)"1111116111111115");
+    x.print();
+    y.print();
+    bint res = x.sub(y);
+    res.print();
+}
 
 int main (int argc, char* argv[])
 {
     uint64_t z = 10000000000000000000ULL; 
 
-    test_15();
+    test_18();
 
     return 0;
 }

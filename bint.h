@@ -6,7 +6,8 @@
 #include <cassert>
 
 //#define BASE 10000000000000000000ULL
-#define BASE   1000000000000000000ULL
+//#define BASE   1000000000000000000ULL
+#define BASE   10ULL
 #define LIMIT (BASE - 1)
 #define WIDTH 1
 
@@ -42,11 +43,30 @@ public:
 
     bint& swap(bint& a);
 
+    bint& high();
+
+    bint& low();
+
     bint& sum (const bint& n);
+
+    bint& operator+ (const bint& n)
+    {
+        return (*this).sum(n);        
+    }
 
     bint& sub (const bint& a);
 
-    bint& mul (const bint a, const bint b);
+    bint& operator- (const bint& n)
+    {
+        return (*this).sub(n);        
+    }
+
+    bint& mul (const bint& a);
+
+    bint& operator* (const bint& n)
+    {
+        return (*this).mul(n);        
+    }
 
 private:
     int64_t* value;
