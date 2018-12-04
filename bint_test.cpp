@@ -302,15 +302,26 @@ void test_22 (void)
     res.print();
 }
 
-// mul, testing z0, calculation
+// mul, with big integers
 void test_23 (void)
 {
-    bint x = bint((char*)"23");
-    bint y = bint((char*)"45");
-    x.print();
-    y.print();
+    bint x = bint((char*)"99999999");
+    bint y = bint((char*)"99999999");
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.mul(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
+}
+
+// mul, with big integers
+void test_24 (void)
+{
+    bint x = bint((char*)"12345678");
+    bint y = bint((char*)"87654321");
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
+    bint res = x.mul(y);
+    std::cout << "res: " << res << std::endl;
 }
 
 int main (int argc, char* argv[])

@@ -111,6 +111,26 @@ void bint::print ()
     std::cout << std::setfill('*') << std::setw(80) << "*" << std::endl;
 }
 
+std::ostream& operator<<(std::ostream& os, const bint& b)  
+{  
+    int i;
+    int digits = 1;
+    for (i = 0; i < b.width - 1 ; i ++)
+    {
+        os << std::setfill('0') << std::setw(digits) << b.value[i] << ", ";
+    }
+    os << std::setfill('0') << std::setw(digits) << b.value[i];
+
+    os << " : ";
+
+    for (i = b.width - 1; i >= 0; i--)
+    {
+        os << std::setfill('0') << std::setw(digits) << b.value[i];
+    }
+
+    return os;  
+}  
+
 void bint::grow ()
 {
     int32_t newWidth = width * 2;   
@@ -257,25 +277,23 @@ bint& bint::sub (const bint& a)
     return *result; 
 }
 
-bint& bint::shift1 ()
+bint& bint::shift1 (int n)
 {
     // Make a result of the required size
     bint *result = new bint();
     result->resize(this->width * 2);
-    memcpy(&result->value[this->width/2], &value[0], this->width * sizeof value[0]);
+    memmove(&result->value[n], &value[0], width * sizeof value[0]);
     return *result; 
 }
 
-bint& bint::shift2 ()
+bint& bint::shift2 (int n)
 {
     // Make a result of the required size
     bint *result = new bint();
-    result->resize(this->width * 4);
-    memcpy(&result->value[this->width * 2], &value[0], this->width * sizeof value[0]);
+    result->resize(this->width * 2);
+    memmove(&result->value[n], &value[0], width * sizeof value[0]);
     return *result; 
 }
-
-
 
 /*
 procedure karatsuba(num1, num2)
@@ -297,6 +315,8 @@ procedure karatsuba(num1, num2)
 
 bint& bint::mul (const bint& a)
 {
+    std::cout << "Enter: ******************" <<  *this << ", " << a << std::endl; 
+
     // Demand this operand is same width as a operand. FIXME: Is this required?
     assert(this->width == a.width);
 
@@ -304,16 +324,18 @@ bint& bint::mul (const bint& a)
     if (width == 1)
     {
         bint *result = new bint();
+        result->grow();
         int64_t product = value[0] * a.value[0];
         if (product < BASE) {
             result->value[0] = product;
+            result->value[1] = 0;
         }
         else
         {
-            result->grow();
             result->value[0] = (product % 10);
             result->value[1] = (product / 10);
         }
+        std::cout << "Exit: ******************" << std::endl; 
         return *result; 
     }
 
@@ -327,52 +349,40 @@ bint& bint::mul (const bint& a)
     bint high2 = a.high();
     bint low2 = a.low();
 
-    std::cout << "high1: " << std::endl; 
-    high1.print();
-    std::cout << "low1: " << std::endl; 
-    low1.print();
-    std::cout << "high2: " << std::endl; 
-    high2.print();
-    std::cout << "low2: " << std::endl; 
-    low2.print();
+    std::cout << "high1: " << high1 << std::endl; 
+    std::cout << "low1: " << low1 << std::endl; 
+    std::cout << "high2: " << high2 << std::endl; 
+    std::cout << "low2: " << low2 << std::endl; 
 
     bint z0 = low1.mul(low2);
-    std::cout << "z0: " << std::endl; 
-    z0.print();
+    std::cout << "z0: " << z0 << std::endl; 
 
     bint z2 = high1.mul(high2);
-    std::cout << "z2: " << std::endl; 
-    z2.print();
+    std::cout << "z2: " << z2 << std::endl; 
 
     // z1 = karatsuba((low1 + high1), (low2 + high2))
     bint s1 = low1 + high1;
-    std::cout << "s1: " << std::endl; 
-    s1.print();
+    std::cout << "s1: " << s1 << std::endl; 
 
     bint s2 = low2 + high2;
-    std::cout << "s2: " << std::endl; 
-    s2.print();
+    std::cout << "s2: " << s2 << std::endl; 
 
-    bint z1 = s1 * s2;
-    std::cout << "z1: " << std::endl; 
-    z1.print();
-
+    bint z1 = s1.mul(s2);
+    std::cout << "z1: " << z1 << std::endl; 
 
     bint t1 = z1 - z2 - z0;
-    std::cout << "t1: " << std::endl; 
-    t1.print();
+    std::cout << "t1: " << t1 << std::endl; 
 
-    bint t1Shifted = t1.shift1();
-    std::cout << "t1Shifted: " << std::endl; 
-    t1Shifted.print();
+    bint t1Shifted = t1.shift1(m2);
+    std::cout << "t1Shifted: " << t1Shifted << std::endl; 
 
-    bint z2Shifted = z2.shift2();
-    std::cout << "z2Shifted: " << std::endl; 
-    z2Shifted.print();
+    bint z2Shifted = z2.shift2(m);
+    std::cout << "z2Shifted: " << z2Shifted << std::endl; 
 
     bint* result = new bint(z2Shifted + t1Shifted + z0);
-    std::cout << "result: " << std::endl; 
-    result->print();
+    std::cout << "result: " << *result << std::endl; 
+
+    std::cout << "Exit: ******************" << std::endl; 
 
     return *result; 
 }

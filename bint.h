@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <iostream>
+#include <iostream> 
 #include <iomanip>
 #include <cstring>
 #include <ctype.h>
@@ -61,9 +62,9 @@ public:
         return (*this).sub(n);        
     }
 
-    bint& shift1 ();
+    bint& shift1 (int n);
 
-    bint& shift2 ();
+    bint& shift2 (int n);
 
     bint& mul (const bint& a);
 
@@ -72,6 +73,7 @@ public:
         return (*this).mul(n);        
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const bint& b);
 private:
     int64_t* value;
     int32_t  width;
