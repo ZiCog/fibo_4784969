@@ -185,11 +185,14 @@ void fibo()
     bint f1 = bint((char*)"1");
     bint f2;
     
+    //int k = 4784969;
+    int k = 20000;
+
     int n = 2;
     while (1) 
     {
         f2 = f0 + f1;
-        if (n == 4784969)
+        if (n == k)
         {
             std::cout << "fibo " << n << std::endl;
             f2.print();
@@ -197,7 +200,7 @@ void fibo()
         }
         n++;
         f0 = f1 + f2;
-        if (n == 4784969)
+        if (n == k)
         {
             std::cout << "fibo " << n << std::endl;
             f0.print();
@@ -205,7 +208,7 @@ void fibo()
         }
         n++;
         f1 = f2 + f0;
-        if (n == 4784969)
+        if (n == k)
         {
             std::cout << "fibo " << n << std::endl;
             f1.print();

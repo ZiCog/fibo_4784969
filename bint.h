@@ -61,6 +61,10 @@ public:
         return (*this).sub(n);        
     }
 
+    bint& shift1 ();
+
+    bint& shift2 ();
+
     bint& mul (const bint& a);
 
     bint& operator* (const bint& n)

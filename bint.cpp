@@ -257,6 +257,26 @@ bint& bint::sub (const bint& a)
     return *result; 
 }
 
+bint& bint::shift1 ()
+{
+    // Make a result of the required size
+    bint *result = new bint();
+    result->resize(this->width * 2);
+    memcpy(&result->value[this->width/2], &value[0], this->width * sizeof value[0]);
+    return *result; 
+}
+
+bint& bint::shift2 ()
+{
+    // Make a result of the required size
+    bint *result = new bint();
+    result->resize(this->width * 4);
+    memcpy(&result->value[this->width * 2], &value[0], this->width * sizeof value[0]);
+    return *result; 
+}
+
+
+
 /*
 procedure karatsuba(num1, num2)
   if (num1 < 10) or (num2 < 10)
@@ -297,7 +317,11 @@ bint& bint::mul (const bint& a)
         return *result; 
     }
 
-    // Split the numbers in the middle * /
+    // calculates the size of the numbers
+    int m = (this->width);
+    int m2 = m / 2;
+
+    // Split the numbers in the middle
     bint high1 = this->high();
     bint low1 = this->low();
     bint high2 = a.high();
@@ -333,13 +357,24 @@ bint& bint::mul (const bint& a)
     std::cout << "z1: " << std::endl; 
     z1.print();
 
-    bint bigDiff = z1 - z2 - z0;
-    std::cout << "bigDiff: " << std::endl; 
-    bigDiff.print();
 
-    bint *result = new bint();
+    bint t1 = z1 - z2 - z0;
+    std::cout << "t1: " << std::endl; 
+    t1.print();
+
+    bint t1Shifted = t1.shift1();
+    std::cout << "t1Shifted: " << std::endl; 
+    t1Shifted.print();
+
+    bint z2Shifted = z2.shift2();
+    std::cout << "z2Shifted: " << std::endl; 
+    z2Shifted.print();
+
+    bint* result = new bint(z2Shifted + t1Shifted + z0);
+    std::cout << "result: " << std::endl; 
+    result->print();
+
     return *result; 
-
 }
 
 
