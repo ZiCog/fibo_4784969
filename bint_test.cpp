@@ -33,10 +33,24 @@ void test_03 (void)
 // Grow
 void test_04 (void)
 {
-    bint x = "1234567812345678";
-    std::cout << "x: " << x << std::endl;
-    for (int i = 0; i < 2; i++)
     {
+        bint x = "12345678";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "Grow:" << std::endl;
+        x.grow();
+        std::cout << "x: " << x << std::endl;
+    }
+    {
+        bint x;
+        x = "12345678";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "Grow:" << std::endl;
+        x.grow();
+        std::cout << "x: " << x << std::endl;
+    }
+    {
+        bint x("12345678");
+        std::cout << "x: " << x << std::endl;
         std::cout << "Grow:" << std::endl;
         x.grow();
         std::cout << "x: " << x << std::endl;
@@ -46,13 +60,26 @@ void test_04 (void)
 // Resize
 void test_05 (void)
 {
-    bint x = "1234567812345678";
-    std::cout << "x: " << x << std::endl;
-    int newSize = 32;
-    for (int i = 0; i < 4; i++)
     {
+        bint x = "12345678";
+        std::cout << "x: " << x << std::endl;
         std::cout << "Resise:" << std::endl;
-        x.resize(newSize *= 2);
+        x.resize(32);
+        std::cout << "x: " << x << std::endl;
+    }
+    {
+        bint x;
+        x = "12345678";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "Resise:" << std::endl;
+        x.resize(32);
+        std::cout << "x: " << x << std::endl;
+    }
+    {
+        bint x("12345678");
+        std::cout << "x: " << x << std::endl;
+        std::cout << "Resise:" << std::endl;
+        x.resize(32);
         std::cout << "x: " << x << std::endl;
     }
 }
@@ -141,7 +168,8 @@ void test_12 (void)
 
     bint z = x.sum(one).sum(two).sum(three).sum(four).sum(five).sum(six);
     std::cout << "z: " << z << std::endl;
-    z = z + one + two + three + four + five + six;
+
+    z = one + two + three + four + five + six;
     std::cout << "z: " << z << std::endl;
 }
 
@@ -151,20 +179,18 @@ void test_13 (void)
     bint x = "0";
     bint one = "1";
 
-    for (int i = 0; i < 10000; i++)
+    for (int i = 0; i < 1000; i++)
     {
         x = x.sum(one);
         std::cout << "x: " << x << std::endl;
     }
 }
 
-bint f[] = {"0", "1", "1"};
-
 bint fibo_recursive(int n)
 {
-    if (n <= 2)
+    if (n < 2)
     {
-        return f[n];
+        return bint(n);
     }
     else
     {
@@ -175,7 +201,7 @@ bint fibo_recursive(int n)
 // Recursive fibo
 void test_14 (void)
 {
-    bint f = fibo_recursive(35);
+    bint f = fibo_recursive(12);
     std::cout << "f: " << f << std::endl;
 }
 
@@ -326,11 +352,24 @@ void test_24 (void)
 
 int main (int argc, char* argv[])
 {
-    uint64_t z = 10000000000000000000ULL; 
-
+    test_01();
+    test_02();
+    test_03();
+    test_04();
+    test_05();
+    test_06();
     test_07();
-    test_17();
-    test_23();
+    test_08();
+    test_09();
+    test_10();
+    test_11();
+
+    test_12();
+
+    test_13();
+    test_14();
+//    test_17();
+//    test_23();
 
     return 0;
 }

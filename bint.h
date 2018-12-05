@@ -22,16 +22,9 @@ public:
 
     bint (const bint& k); // copy constructor 
 
-    void operator= (const bint& k)
-    {
-        if (refCount == 1)
-        {
-            delete[] value;
-        }
-        value = k.value;
-        width = k.width;
-        refCount = k.refCount;
-    }
+    void operator= (const bint& k);
+
+    void operator= (const char* s);
 
     ~bint ();
 
@@ -63,9 +56,9 @@ public:
 
     bint& shift2 (int n);
 
-    bint& mul (const bint& a);
+    bint mul (const bint& a);
 
-    bint& operator* (const bint& n)
+    bint operator* (const bint& n)
     {
         return (*this).mul(n);        
     }

@@ -31,10 +31,11 @@ char *strrev(char *str)
 
 bint::bint ()
 {
+    std::cout << "Constructor: " << std::endl;
     value = new int64_t[WIDTH];
     width = WIDTH;
     bzero(value, width * sizeof value[0]);
-    refCount = 1;
+//    refCount = 1;
 }
 
 bint::bint (int64_t x)
@@ -43,20 +44,19 @@ bint::bint (int64_t x)
     width = WIDTH;
     bzero(value, width * sizeof value[0]);
     value[0] = x;
-    refCount = 1;
+//    refCount = 1;
 }
 
 bint::bint (const char* s)
 {
     if (!s || ! *s)
     {
-        bint();
         return;
     }
     std::cout << "Constructed with string: " << s << std::endl;
     // FIXME Only one decimal digit per element here!
-    value = new int64_t[WIDTH];
-    width = WIDTH;
+    width = strlen(s);
+    value = new int64_t[width];
     bzero(value, width * sizeof value[0]);
 
     int i = 0;
@@ -66,31 +66,55 @@ bint::bint (const char* s)
     {
         value[i] = *r - '0';
         i++;
-        if ((i == width) && (r > s))
-        {
-            grow();
-        }
         r--;
     }
-    refCount = 1;
 }
 
 bint::bint (const bint& k) // copy constructor 
 {
     value = k.value;
     width = k.width;
-    refCount = k.refCount + 1;
+//    refCount = k.refCount + 1;
 }
+
+void bint::operator= (const bint& k)
+{
+    std::cout << "operator=:  bint: " << k << std::endl;
+    width = k.width;
+    delete[] value;    
+    value = new int64_t[k.width];
+    memcpy(value, k.value, width * sizeof value[0]);
+}
+
+void bint::operator= (const char* s)
+{
+    std::cout << "operator=: string: " << s << std::endl;
+    width = strlen(s);
+    delete[] value;    
+    value = new int64_t[width];
+    bzero(value, width * sizeof value[0]);
+
+    int i = 0;
+    const char* r = s + strlen(s) - 1;
+
+    while (r >= s)
+    {
+        value[i] = *r - '0';
+        i++;
+        r--;
+    }
+}
+
 
 bint::~bint ()
 {
     std::cout << "Destructor: " << std::endl;
-    refCount -= 1;
-    if (refCount == 0)
-    {
+//    refCount -= 1;
+//    if (refCount == 0)
+//    {
         std::cout << "Deleting: " << std::endl;
         delete[] value;
-    }
+//    }
 }
 
 std::ostream& operator<<(std::ostream& os, const bint& b)  
@@ -295,9 +319,10 @@ procedure karatsuba(num1, num2)
 */
 
 
-bint& bint::mul (const bint& a)
+bint bint::mul (const bint& a)
 {
     std::cout << "Enter: ******************" <<  *this << ", " << a << std::endl; 
+    bint result;
 
     // Demand this operand is same width as a operand. FIXME: Is this required?
     assert(this->width == a.width);
@@ -305,23 +330,22 @@ bint& bint::mul (const bint& a)
     // The base case, only one element in value, just do the multiply
     if (width == 1)
     {
-        bint *result = new bint();
-        result->grow();
+        result.grow();
         int64_t product = value[0] * a.value[0];
         if (product < BASE) {
-            result->value[0] = product;
-            result->value[1] = 0;
+            result.value[0] = product;
+            result.value[1] = 0;
         }
         else
         {
-            result->value[0] = (product % 10);
-            result->value[1] = (product / 10);
+            result.value[0] = (product % 10);
+            result.value[1] = (product / 10);
         }
         std::cout << "Exit: ******************" << std::endl; 
-        return *result; 
+        return result; 
     }
 
-    // calculates the size of the numbers
+    // Calculates the size of the numbers
     int m = (this->width);
     int m2 = m / 2;
 
@@ -344,29 +368,29 @@ bint& bint::mul (const bint& a)
 
     // z1 = karatsuba((low1 + high1), (low2 + high2))
     bint s1 = low1 + high1;
-    std::cout << "s1: " << s1 << std::endl; 
+//    std::cout << "s1: " << s1 << std::endl; 
 
     bint s2 = low2 + high2;
-    std::cout << "s2: " << s2 << std::endl; 
+//    std::cout << "s2: " << s2 << std::endl; 
 
     bint z1 = s1.mul(s2);
-    std::cout << "z1: " << z1 << std::endl; 
+//    std::cout << "z1: " << z1 << std::endl; 
 
     bint t1 = z1 - z2 - z0;
-    std::cout << "t1: " << t1 << std::endl; 
+//    std::cout << "t1: " << t1 << std::endl; 
 
     bint t1Shifted = t1.shift1(m2);
-    std::cout << "t1Shifted: " << t1Shifted << std::endl; 
+//    std::cout << "t1Shifted: " << t1Shifted << std::endl; 
 
     bint z2Shifted = z2.shift2(m);
-    std::cout << "z2Shifted: " << z2Shifted << std::endl; 
+//    std::cout << "z2Shifted: " << z2Shifted << std::endl; 
 
-    bint* result = new bint(z2Shifted + t1Shifted + z0);
-    std::cout << "result: " << *result << std::endl; 
+    result = z2Shifted + t1Shifted + z0;
+//    std::cout << "result: " << result << std::endl; 
 
     std::cout << "Exit: ******************" << std::endl; 
 
-    return *result; 
+    return result; 
 }
 
 
