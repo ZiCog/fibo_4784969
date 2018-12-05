@@ -368,7 +368,10 @@ int main (int argc, char* argv[])
     test_14();
     test_15();
     test_16();
-//    test_17();
+    test_17();
+    test_18();
+    test_19();
+
 //    test_23();
 
     return 0;
