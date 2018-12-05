@@ -212,7 +212,7 @@ void fibo()
     bint f2;
     
     //int k = 4784969;
-    int k = 20000;
+    int k = 12;
 
     int n = 2;
     while (1) 
@@ -363,11 +363,11 @@ int main (int argc, char* argv[])
     test_09();
     test_10();
     test_11();
-
     test_12();
-
     test_13();
     test_14();
+    test_15();
+    test_16();
 //    test_17();
 //    test_23();
 
