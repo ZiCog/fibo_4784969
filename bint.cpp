@@ -91,26 +91,6 @@ bint::~bint ()
     }
 }
 
-void bint::print ()
-{
-    int i;
-    int digits = 1;
-    std::cout << "Elements: " << std::endl;
-    for (i = 0; i < width - 1 ; i ++)
-    {
-        std::cout << std::setfill('0') << std::setw(digits) << value[i] << ", ";
-    }
-    std::cout << std::setfill('0') << std::setw(digits) << value[i] << std::endl;
-
-    std::cout << "As number: " << std::endl;
-    for (i = width - 1; i >= 0; i--)
-    {
-        std::cout << std::setfill('0') << std::setw(digits) << value[i];
-    }
-    std::cout << std::endl;
-    std::cout << std::setfill('*') << std::setw(80) << "*" << std::endl;
-}
-
 std::ostream& operator<<(std::ostream& os, const bint& b)  
 {  
     int i;

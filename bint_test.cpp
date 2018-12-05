@@ -6,7 +6,7 @@ void test_01 (void)
     for (int i = 0; i < 1000; i++)
     {
         bint x = bint();
-        x.print();
+        std::cout << "x: " << x << std::endl;
     }
 }
 
@@ -16,7 +16,7 @@ void test_02 (void)
     for (int i = 0; i < 1000; i++)
     {
         bint x = bint(4);
-        x.print();
+        std::cout << "x: " << x << std::endl;
     }
 }
 
@@ -26,7 +26,7 @@ void test_03 (void)
     for (int i = 0; i < 1000; i++)
     {
         bint x = bint((char*)"1234567899999999");
-        x.print();
+        std::cout << "x: " << x << std::endl;
     }
 }
 
@@ -34,12 +34,12 @@ void test_03 (void)
 void test_04 (void)
 {
     bint x = bint((char*)"1234567812345678");
-    x.print();
+    std::cout << "x: " << x << std::endl;
     for (int i = 0; i < 2; i++)
     {
         std::cout << "Grow:" << std::endl;
         x.grow();
-        x.print();
+        std::cout << "x: " << x << std::endl;
     }
 }
 
@@ -47,13 +47,13 @@ void test_04 (void)
 void test_05 (void)
 {
     bint x = bint((char*)"1234567812345678");
-    x.print();
+    std::cout << "x: " << x << std::endl;
     int newSize = 32;
     for (int i = 0; i < 4; i++)
     {
         std::cout << "Resise:" << std::endl;
         x.resize(newSize *= 2);
-        x.print();
+        std::cout << "x: " << x << std::endl;
     }
 }
 
@@ -62,14 +62,14 @@ void test_06 (void)
 {
     bint x = bint((char*)"1111111111111111");
     bint y = bint((char*)"4444444444444444");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     x.swap(y);
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     x.swap(y);
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
 }
 
 // Sum, same size
@@ -77,10 +77,10 @@ void test_07 (void)
 {
     bint x = bint((char*)"1111111111111111");
     bint y = bint((char*)"4444444444444444");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.sum(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // Sum, small big
@@ -88,10 +88,10 @@ void test_08 (void)
 {
     bint x = bint((char*)"11111111");
     bint y = bint((char*)"4444444444444444");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.sum(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // Sum, big + small
@@ -99,10 +99,10 @@ void test_09 (void)
 {
     bint x = bint((char*)"1111111111111111");
     bint y = bint((char*)"44444444");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.sum(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // Sum, small + big with carry
@@ -110,10 +110,10 @@ void test_10 (void)
 {
     bint x = bint((char*)"11111111");
     bint y = bint((char*)"9999999999999999");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x + y;
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // Sum, big + small with carry
@@ -121,10 +121,10 @@ void test_11 (void)
 {
     bint x = bint((char*)"9999999999999999");
     bint y = bint((char*)"11111111");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.sum(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // Chain operations
@@ -137,12 +137,12 @@ void test_12 (void)
     bint four = bint((char*)"4000");
     bint five = bint((char*)"5000");
     bint six = bint((char*)"6000");
-    x.print();
+    std::cout << "x: " << x << std::endl;
 
     bint z = x.sum(one).sum(two).sum(three).sum(four).sum(five).sum(six);
-    z.print();
+    std::cout << "z: " << z << std::endl;
     z = z + one + two + three + four + five + six;
-    z.print();
+    std::cout << "z: " << z << std::endl;
 }
 
 // A counter
@@ -154,7 +154,7 @@ void test_13 (void)
     for (int i = 0; i < 10000; i++)
     {
         x = x.sum(one);
-        x.print();
+        std::cout << "x: " << x << std::endl;
     }
 }
 
@@ -176,7 +176,7 @@ bint fibo_recursive(int n)
 void test_14 (void)
 {
     bint f = fibo_recursive(35);
-    f.print();
+    std::cout << "f: " << f << std::endl;
 }
 
 void fibo()
@@ -194,24 +194,23 @@ void fibo()
         f2 = f0 + f1;
         if (n == k)
         {
-            std::cout << "fibo " << n << std::endl;
-            f2.print();
-            break;
+            std::cout << "fibo " << n << " = ";
+            std::cout << f2 << std::endl;
         }
         n++;
         f0 = f1 + f2;
         if (n == k)
         {
-            std::cout << "fibo " << n << std::endl;
-            f0.print();
+            std::cout << "fibo " << n << " = ";
+            std::cout << f0 << std::endl;
             break;
         }
         n++;
         f1 = f2 + f0;
         if (n == k)
         {
-            std::cout << "fibo " << n << std::endl;
-            f1.print();
+            std::cout << "fibo " << n << " = ";
+            std::cout << f1 << std::endl;
             break;
         }
         n++;
@@ -228,12 +227,12 @@ void test_15 (void)
 void test_16 (void)
 {
     bint x = bint((char*)"1234567887654321");
-    x.print();
+    std::cout << "x: " << x << std::endl;
     bint low = x.low();
-    low.print();
+    std::cout << "low: " << low << std::endl;
 
     bint high = x.high();
-    high.print();
+    std::cout << "high " << high << std::endl;
 }
 
 // Sub, same size
@@ -241,10 +240,10 @@ void test_17 (void)
 {
     bint x = bint((char*)"4444444444444444");
     bint y = bint((char*)"1111116111111115");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.sub(y);
-    res.print();
+    std::cout << "x: " << x << std::endl;
 }
 
 // Sub, shorter from longer
@@ -252,10 +251,10 @@ void test_18 (void)
 {
     bint x = bint((char*)"4444444444444444");
     bint y = bint((char*)"1116111111115");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x - y;
-    res.print();
+    std::cout << "x: " << x << std::endl;
 }
 
 // Sub, longer from shorter (expect assertion failure)
@@ -263,10 +262,10 @@ void test_19 (void)
 {
     bint x = bint((char*)"44444");
     bint y = bint((char*)"1111116111111115");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.sub(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // mul, the base case, one element in value, no overflow
@@ -274,10 +273,10 @@ void test_20 (void)
 {
     bint x = bint((char*)"2");
     bint y = bint((char*)"3");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.mul(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // mul, the base case, one element in value, with overflow
@@ -285,10 +284,10 @@ void test_21 (void)
 {
     bint x = bint((char*)"9");
     bint y = bint((char*)"9");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.mul(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // mul, testing spilt, four elements into 1
@@ -296,10 +295,10 @@ void test_22 (void)
 {
     bint x = bint((char*)"1234");
     bint y = bint((char*)"5678");
-    x.print();
-    y.print();
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
     bint res = x.mul(y);
-    res.print();
+    std::cout << "res: " << res << std::endl;
 }
 
 // mul, with big integers

@@ -36,8 +36,6 @@ public:
 
     ~bint ();
 
-    void print ();
-
     void grow ();
 
     void resize (int32_t newWidth);
