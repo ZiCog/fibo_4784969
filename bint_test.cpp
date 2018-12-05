@@ -3,7 +3,7 @@
 // Construct, no params
 void test_01 (void)
 {
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10; i++)
     {
         bint x = bint();
         std::cout << "x: " << x << std::endl;
@@ -13,7 +13,7 @@ void test_01 (void)
 // Construct from integer
 void test_02 (void)
 {
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10; i++)
     {
         bint x = bint(4);
         std::cout << "x: " << x << std::endl;
@@ -23,7 +23,7 @@ void test_02 (void)
 // Construct from string
 void test_03 (void)
 {
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10; i++)
     {
         bint x = "1234567899999999";
         std::cout << "x: " << x << std::endl;
@@ -43,7 +43,7 @@ void test_04 (void)
     }
 }
 
-// Resise
+// Resize
 void test_05 (void)
 {
     bint x = "1234567812345678";
@@ -244,7 +244,7 @@ void test_17 (void)
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
     bint res = x.sub(y);
-    std::cout << "x: " << x << std::endl;
+    std::cout << "res: " << res << std::endl;
 }
 
 // Sub, shorter from longer
@@ -255,7 +255,7 @@ void test_18 (void)
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
     bint res = x - y;
-    std::cout << "x: " << x << std::endl;
+    std::cout << "res: " << res << std::endl;
 }
 
 // Sub, longer from shorter (expect assertion failure)
@@ -328,7 +328,9 @@ int main (int argc, char* argv[])
 {
     uint64_t z = 10000000000000000000ULL; 
 
-    test_15();
+    test_07();
+    test_17();
+    test_23();
 
     return 0;
 }

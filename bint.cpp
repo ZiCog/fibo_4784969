@@ -84,9 +84,11 @@ bint::bint (const bint& k) // copy constructor
 
 bint::~bint ()
 {
+    std::cout << "Destructor: " << std::endl;
     refCount -= 1;
     if (refCount == 0)
     {
+        std::cout << "Deleting: " << std::endl;
         delete[] value;
     }
 }
@@ -144,33 +146,33 @@ bint& bint::swap(bint& a)
     return a;
 }
 
-bint& bint::low() const
+bint bint::low() const
 {
     assert(width > 1);
     assert((width & 1) != 1);
  
     // Make a result half the size of this, containing low half of this
     int newWidth = this->width / 2;
-    bint *low = new bint();
-    low->resize(newWidth);
-    std::memcpy(low->value, value, newWidth * sizeof low->value[0]);
-    return *low; 
+    bint low;
+    low.resize(newWidth);
+    std::memcpy(low.value, value, newWidth * sizeof low.value[0]);
+    return low; 
 }
 
-bint& bint::high() const
+bint bint::high() const
 {
     assert(width > 1);
     assert((width & 1) != 1);
 
     // Make a result half the size of this, containing high half of this
     int newWidth = this->width / 2;
-    bint *high = new bint();
-    high->resize(newWidth);
-    std::memcpy(high->value, &value[newWidth], newWidth * sizeof high->value[0]);
-    return *high; 
+    bint high;
+    high.resize(newWidth);
+    std::memcpy(high.value, &value[newWidth], newWidth * sizeof high.value[0]);
+    return high; 
 }
 
-bint& bint::sum (const bint& n)
+bint bint::sum (const bint& n)
 {
     // Ensure "a" operand is longer than "b" operand
     const bint *a = this;
@@ -182,8 +184,8 @@ bint& bint::sum (const bint& n)
     }
 
     // Make a result of the same size as operand "a"
-    bint *result = new bint();
-    result->resize(a->width);
+    bint result;
+    result.resize(a->width);
 
     int i;
     uint64_t sum = 0;
@@ -208,25 +210,25 @@ bint& bint::sum (const bint& n)
         {
             carry = 0;
         }
-        result->value[i] = sum;
+        result.value[i] = sum;
     }
     // If carry is set here we need more digits!
     if (carry)
     {
-        result->grow();
-        result->value[i] = 1;
+        result.grow();
+        result.value[i] = 1;
     }
-    return *result; 
+    return result; 
 }
 
-bint& bint::sub (const bint& a)
+bint bint::sub (const bint& a)
 {
     // Demand this operand is wider than the a operand
     assert(this->width >= a.width);
 
     // Make a result of the same size as this
-    bint *result = new bint();
-    result->resize(this->width);
+    bint result;
+    result.resize(this->width);
 
     int64_t diff = 0;
     int64_t borrow = 0;
@@ -249,12 +251,12 @@ bint& bint::sub (const bint& a)
         {
             borrow = 0;
         }
-        result->value[i] = diff;
+        result.value[i] = diff;
     }
 
     // If borrow is set here we have an error
     assert(borrow == 0);
-    return *result; 
+    return result; 
 }
 
 bint& bint::shift1 (int n)

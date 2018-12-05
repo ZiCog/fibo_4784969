@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <iostream>
-#include <iostream> 
 #include <iomanip>
 #include <cstring>
 #include <ctype.h>
@@ -42,20 +41,20 @@ public:
 
     bint& swap(bint& a);
 
-    bint& high() const;
+    bint high() const;
 
-    bint& low() const;
+    bint low() const;
 
-    bint& sum (const bint& n);
+    bint sum (const bint& n);
 
-    bint& operator+ (const bint& n)
+    bint operator+ (const bint& n)
     {
         return (*this).sum(n);        
     }
 
-    bint& sub (const bint& a);
+    bint sub (const bint& a);
 
-    bint& operator- (const bint& n)
+    bint operator- (const bint& n)
     {
         return (*this).sub(n);        
     }
