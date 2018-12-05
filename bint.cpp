@@ -46,7 +46,7 @@ bint::bint (int64_t x)
     refCount = 1;
 }
 
-bint::bint (char* s)
+bint::bint (const char* s)
 {
     if (!s || ! *s)
     {
@@ -60,7 +60,7 @@ bint::bint (char* s)
     bzero(value, width * sizeof value[0]);
 
     int i = 0;
-    char* r = s + strlen(s) - 1;
+    const char* r = s + strlen(s) - 1;
 
     while (r >= s)
     {

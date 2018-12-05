@@ -19,7 +19,7 @@ public:
 
     bint (int64_t x);
 
-    bint (char* s);
+    bint (const char* s);
 
     bint (const bint& k); // copy constructor 
 
