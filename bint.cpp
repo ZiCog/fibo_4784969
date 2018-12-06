@@ -282,30 +282,44 @@ bint bint::shift2 (int n)
 }
 
 /*
-procedure karatsuba(num1, num2)
-  if (num1 < 10) or (num2 < 10)
-    return num1*num2
-  /* calculates the size of the numbers * /
-  m = min(size_base10(num1), size_base10(num2))
-  m2 = floor(m/2)
-  /* split the digit sequences in the middle * /
-  high1, low1 = split_at(num1, m2)
-  high2, low2 = split_at(num2, m2)
-  /* 3 calls made to numbers approximately half the size * /
-  z0 = karatsuba(low1, low2)
-  z1 = karatsuba((low1 + high1), (low2 + high2))
-  z2 = karatsuba(high1, high2)
-  return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
+Karatsuba pseudo code from wikpedia:
+https://en.wikipedia.org/wiki/Karatsuba_algorithm
+
+    procedure karatsuba(num1, num2)
+        if (num1 < 10) or (num2 < 10)
+            return num1*num2
+
+        /* calculates the size of the numbers * /
+        m = min(size_base10(num1), size_base10(num2))
+        m2 = floor(m/2)
+
+        /* split the digit sequences in the middle * /
+        high1, low1 = split_at(num1, m2)
+        high2, low2 = split_at(num2, m2)
+
+        /* 3 calls made to numbers approximately half the size * /
+        z0 = karatsuba(low1, low2)
+        z1 = karatsuba((low1 + high1), (low2 + high2))
+        z2 = karatsuba(high1, high2)
+
+        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 */
 
-
-bint bint::mul (const bint& a)
+bint bint::mul (    bint& a)
 {
-    std::cout << "Enter: ******************" <<  *this << ", " << a << std::endl; 
-    bint result(a.width * 2);
-
+    // Ensure operands are same width.
+    while (this->width > a.width)
+    {
+        a.grow();
+    }
+    while (a.width > this->width)
+    {
+        this->grow();
+    }
     // Demand this operand is same width as a operand. FIXME: Is this required?
     assert(this->width == a.width);
+
+    bint result(a.width * 2);
 
     // The base case, only one element in value, just do the multiply
     if (width == 1)
@@ -320,7 +334,6 @@ bint bint::mul (const bint& a)
             result.value[0] = (product % 10);
             result.value[1] = (product / 10);
         }
-        std::cout << "Exit: ******************" << std::endl; 
         return result; 
     }
 
@@ -334,39 +347,15 @@ bint bint::mul (const bint& a)
     bint high2 = a.high();
     bint low2 = a.low();
 
-    std::cout << "high1: " << high1 << std::endl; 
-    std::cout << "low1: " << low1 << std::endl; 
-    std::cout << "high2: " << high2 << std::endl; 
-    std::cout << "low2: " << low2 << std::endl; 
-
     bint z0 = low1 * low2;
-    std::cout << "z0: " << z0 << std::endl; 
-
     bint z2 = high1 * high2;
-    std::cout << "z2: " << z2 << std::endl; 
-
-    // z1 = karatsuba((low1 + high1), (low2 + high2))
     bint s1 = low1 + high1;
-//    std::cout << "s1: " << s1 << std::endl; 
-
     bint s2 = low2 + high2;
-//    std::cout << "s2: " << s2 << std::endl; 
-
     bint z1 = s1 * s2;
-//    std::cout << "z1: " << z1 << std::endl; 
-
     bint t1 = z1 - z2 - z0;
-//    std::cout << "t1: " << t1 << std::endl; 
-
     bint t1Shifted = t1.shift1(m2);
-//    std::cout << "t1Shifted: " << t1Shifted << std::endl; 
-
     bint z2Shifted = z2.shift2(m);
-//    std::cout << "z2Shifted: " << z2Shifted << std::endl; 
-
     result = z2Shifted + t1Shifted + z0;
-//    std::cout << "result: " << result << std::endl; 
-
     return result; 
 }
 

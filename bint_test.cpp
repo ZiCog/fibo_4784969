@@ -348,7 +348,7 @@ int main (int argc, char* argv[])
 
     allocCount = 0;
     test_23();    // PASS !!
-//    test_24();    // FAIL: Width mismatch in mul(). It should not!
+    test_24();    // FAIL: Width mismatch in mul(). It should not!
 
     std::cout << "Number of array allocations: " << allocCount << std::endl;
 

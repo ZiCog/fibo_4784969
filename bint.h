@@ -52,9 +52,9 @@ public:
 
     bint shift2 (int n);
 
-    bint mul (const bint& a);
+    bint mul (bint& a);
 
-    bint operator* (const bint& n)
+    bint operator* (bint& n)
     {
         return (*this).mul(n);        
     }
