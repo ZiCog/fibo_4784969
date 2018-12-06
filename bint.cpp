@@ -339,10 +339,10 @@ bint bint::mul (const bint& a)
     std::cout << "high2: " << high2 << std::endl; 
     std::cout << "low2: " << low2 << std::endl; 
 
-    bint z0 = low1.mul(low2);
+    bint z0 = low1 * low2;
     std::cout << "z0: " << z0 << std::endl; 
 
-    bint z2 = high1.mul(high2);
+    bint z2 = high1 * high2;
     std::cout << "z2: " << z2 << std::endl; 
 
     // z1 = karatsuba((low1 + high1), (low2 + high2))
@@ -352,7 +352,7 @@ bint bint::mul (const bint& a)
     bint s2 = low2 + high2;
 //    std::cout << "s2: " << s2 << std::endl; 
 
-    bint z1 = s1.mul(s2);
+    bint z1 = s1 * s2;
 //    std::cout << "z1: " << z1 << std::endl; 
 
     bint t1 = z1 - z2 - z0;
@@ -366,8 +366,6 @@ bint bint::mul (const bint& a)
 
     result = z2Shifted + t1Shifted + z0;
 //    std::cout << "result: " << result << std::endl; 
-
-    std::cout << "Exit: ******************" << std::endl; 
 
     return result; 
 }
