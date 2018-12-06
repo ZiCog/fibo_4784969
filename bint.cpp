@@ -110,7 +110,6 @@ void bint::operator= (const char* s)
     }
 }
 
-
 bint::~bint ()
 {
     std::cout << "Destructor: " << std::endl;
@@ -154,17 +153,6 @@ void bint::grow ()
     delete[] value;
     value = newValue;
     width = newWidth;
-}
-
-bint& bint::swap(bint& a)
-{
-    int64_t* valueTemp = value;
-    int32_t  widthTemp = width;
-    value = a.value;
-    width = a.width;
-    a.value = valueTemp;
-    a.width = widthTemp;
-    return a;
 }
 
 const bint bint::low() const

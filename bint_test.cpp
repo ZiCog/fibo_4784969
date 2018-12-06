@@ -62,19 +62,9 @@ void test_05 (void)
 {
 }
 
-// Swap
+//
 void test_06 (void)
 {
-    bint x = "1111111111111111";
-    bint y = "4444444444444444";
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
-    x.swap(y);
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
-    x.swap(y);
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
 }
 
 // Sum, same size

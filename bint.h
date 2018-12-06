@@ -30,8 +30,6 @@ public:
 
     void grow ();
 
-    bint& swap(bint& a);
-
     const bint high() const;
 
     const bint low() const;
