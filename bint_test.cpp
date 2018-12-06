@@ -1,6 +1,6 @@
 #include <bint.h>
 
-// Construct, no params
+// Construct, NULL value
 void test_01 (void)
 {
     for (int i = 0; i < 10; i++)
@@ -10,12 +10,12 @@ void test_01 (void)
     }
 }
 
-// Construct from integer
+// Construct from size_t
 void test_02 (void)
 {
     for (int i = 0; i < 10; i++)
     {
-        bint x = bint(4);
+        bint x = bint(8);
         std::cout << "x: " << x << std::endl;
     }
 }
@@ -57,31 +57,9 @@ void test_04 (void)
     }
 }
 
-// Resize
+// 
 void test_05 (void)
 {
-    {
-        bint x = "12345678";
-        std::cout << "x: " << x << std::endl;
-        std::cout << "Resise:" << std::endl;
-        x.resize(32);
-        std::cout << "x: " << x << std::endl;
-    }
-    {
-        bint x;
-        x = "12345678";
-        std::cout << "x: " << x << std::endl;
-        std::cout << "Resise:" << std::endl;
-        x.resize(32);
-        std::cout << "x: " << x << std::endl;
-    }
-    {
-        bint x("12345678");
-        std::cout << "x: " << x << std::endl;
-        std::cout << "Resise:" << std::endl;
-        x.resize(32);
-        std::cout << "x: " << x << std::endl;
-    }
 }
 
 // Swap
@@ -350,10 +328,12 @@ void test_24 (void)
     std::cout << "res: " << res << std::endl;
 }
 
+extern int allocCount;
+
 int main (int argc, char* argv[])
 {
     test_01();
-    test_02();
+//    test_02();
     test_03();
     test_04();
     test_05();
@@ -365,7 +345,7 @@ int main (int argc, char* argv[])
     test_11();
     test_12();
     test_13();
-    test_14();
+//    test_14();   Skip recursive fibo()
     test_15();
     test_16();
     test_17();
@@ -375,8 +355,12 @@ int main (int argc, char* argv[])
     test_21();
 //    test_22();  // FAIL: Width mismatch in mul(). It should not!
 
+
+//    allocCount = 0;
     test_23();    // PASS !!
 //    test_24();    // FAIL: Width mismatch in mul(). It should not!
+
+    std::cout << "Number of array allocations: " << allocCount << std::endl;
 
     return 0;
 }

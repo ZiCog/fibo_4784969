@@ -16,7 +16,7 @@ class bint
 public:
     bint ();
 
-    bint (int64_t x);
+    bint (size_t width);
 
     bint (const char* s);
 
@@ -29,8 +29,6 @@ public:
     ~bint ();
 
     void grow ();
-
-    void resize (int32_t newWidth);
 
     bint& swap(bint& a);
 

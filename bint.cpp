@@ -29,21 +29,21 @@ char *strrev(char *str)
     return str;
 }
 
+
+int allocCount = 0;
+
 bint::bint ()
+: value(0), width(0)
 {
     std::cout << "Constructor: " << std::endl;
-    value = new int64_t[WIDTH];
-    width = WIDTH;
-    bzero(value, width * sizeof value[0]);
 }
 
-bint::bint (int64_t x)
+bint::bint (size_t width)
+: width(width)
 {
-    value = new int64_t[WIDTH];
-    width = WIDTH;
+    value = new int64_t[width];
+    allocCount++;
     bzero(value, width * sizeof value[0]);
-    value[0] = x;
-
 }
 
 bint::bint (const char* s)
@@ -56,6 +56,7 @@ bint::bint (const char* s)
     // FIXME Only one decimal digit per element here!
     width = strlen(s);
     value = new int64_t[width];
+    allocCount++;
     bzero(value, width * sizeof value[0]);
 
     int i = 0;
@@ -81,6 +82,7 @@ void bint::operator= (const bint& k)
     width = k.width;
     delete[] value;    
     value = new int64_t[k.width];
+    allocCount++;
     memcpy(value, k.value, width * sizeof value[0]);
 }
 
@@ -90,6 +92,7 @@ void bint::operator= (const char* s)
     width = strlen(s);
     delete[] value;    
     value = new int64_t[width];
+    allocCount++;
     bzero(value, width * sizeof value[0]);
 
     int i = 0;
@@ -112,7 +115,12 @@ bint::~bint ()
 }
 
 std::ostream& operator<<(std::ostream& os, const bint& b)  
-{  
+{
+    if (b.width == 0) 
+    {
+        os << "BIGNULL";
+        return os;
+    }  
     int i;
     int digits = 1;
     for (i = 0; i < b.width - 1 ; i ++)
@@ -136,16 +144,7 @@ void bint::grow ()
     int32_t newWidth = width * 2;   
     std::cout << "Grow:" << newWidth << std::endl;
     int64_t *newValue = new int64_t[newWidth];
-    bzero(newValue, newWidth * sizeof newValue[0]);
-    std::memcpy(newValue, value, width * sizeof newValue[0]);
-    delete[] value;
-    value = newValue;
-    width = newWidth;
-}
-
-void bint::resize (int32_t newWidth)
-{
-    int64_t *newValue = new int64_t[newWidth];
+    allocCount++;
     bzero(newValue, newWidth * sizeof newValue[0]);
     std::memcpy(newValue, value, width * sizeof newValue[0]);
     delete[] value;
@@ -171,9 +170,9 @@ const bint bint::low() const
  
     // Make a result half the size of this, containing low half of this
     int newWidth = this->width / 2;
-    bint low;
-    low.resize(newWidth);
+    bint low(newWidth);
     std::memcpy(low.value, value, newWidth * sizeof low.value[0]);
+
     return low; 
 }
 
@@ -184,8 +183,7 @@ const bint bint::high() const
 
     // Make a result half the size of this, containing high half of this
     int newWidth = this->width / 2;
-    bint high;
-    high.resize(newWidth);
+    bint high(newWidth);
     std::memcpy(high.value, &value[newWidth], newWidth * sizeof high.value[0]);
     return high; 
 }
@@ -202,8 +200,7 @@ bint bint::sum (const bint& n)
     }
 
     // Make a result of the same size as operand "a"
-    bint result;
-    result.resize(a->width);
+    bint result(a->width);
 
     int i;
     uint64_t sum = 0;
@@ -245,8 +242,7 @@ bint bint::sub (const bint& a)
     assert(this->width >= a.width);
 
     // Make a result of the same size as this
-    bint result;
-    result.resize(this->width);
+    bint result(this->width);
 
     int64_t diff = 0;
     int64_t borrow = 0;
@@ -280,8 +276,7 @@ bint bint::sub (const bint& a)
 bint bint::shift1 (int n)
 {
     // Make a result of the required size
-    bint result;
-    result.resize(this->width * 2);
+    bint result(this->width * 2);
     memmove(&result.value[n], &value[0], width * sizeof value[0]);
     return result; 
 }
@@ -289,8 +284,7 @@ bint bint::shift1 (int n)
 bint bint::shift2 (int n)
 {
     // Make a result of the required size
-    bint result;
-    result.resize(this->width * 2);
+    bint result(this->width * 2);
     memmove(&result.value[n], &value[0], width * sizeof value[0]);
     return result; 
 }
@@ -316,7 +310,7 @@ procedure karatsuba(num1, num2)
 bint bint::mul (const bint& a)
 {
     std::cout << "Enter: ******************" <<  *this << ", " << a << std::endl; 
-    bint result;
+    bint result(a.width * 2);
 
     // Demand this operand is same width as a operand. FIXME: Is this required?
     assert(this->width == a.width);
@@ -324,7 +318,6 @@ bint bint::mul (const bint& a)
     // The base case, only one element in value, just do the multiply
     if (width == 1)
     {
-        result.grow();
         int64_t product = value[0] * a.value[0];
         if (product < BASE) {
             result.value[0] = product;
