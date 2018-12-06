@@ -79,10 +79,14 @@ bint::bint (const bint& k) // copy constructor
 void bint::operator= (const bint& k)
 {
     std::cout << "operator=:  bint: " << k << std::endl;
-    width = k.width;
-    delete[] value;    
-    value = new int64_t[k.width];
-    allocCount++;
+
+    if (width != k.width)
+    {
+        width = k.width;
+        delete[] value;    
+        value = new int64_t[k.width];
+        allocCount++;
+    }
     memcpy(value, k.value, width * sizeof value[0]);
 }
 

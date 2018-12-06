@@ -356,7 +356,7 @@ int main (int argc, char* argv[])
 //    test_22();  // FAIL: Width mismatch in mul(). It should not!
 
 
-//    allocCount = 0;
+    allocCount = 0;
     test_23();    // PASS !!
 //    test_24();    // FAIL: Width mismatch in mul(). It should not!
 
