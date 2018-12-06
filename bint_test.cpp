@@ -370,9 +370,13 @@ int main (int argc, char* argv[])
     test_16();
     test_17();
     test_18();
-    test_19();
+//    test_19();   FAILS: As it should!
+    test_20();
+    test_21();
+//    test_22();  // FAIL: Width mismatch in mul(). It should not!
 
-//    test_23();
+    test_23();    // PASS !!
+//    test_24();    // FAIL: Width mismatch in mul(). It should not!
 
     return 0;
 }

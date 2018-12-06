@@ -35,7 +35,6 @@ bint::bint ()
     value = new int64_t[WIDTH];
     width = WIDTH;
     bzero(value, width * sizeof value[0]);
-//    refCount = 1;
 }
 
 bint::bint (int64_t x)
@@ -44,7 +43,7 @@ bint::bint (int64_t x)
     width = WIDTH;
     bzero(value, width * sizeof value[0]);
     value[0] = x;
-//    refCount = 1;
+
 }
 
 bint::bint (const char* s)
@@ -74,7 +73,6 @@ bint::bint (const bint& k) // copy constructor
 {
     value = k.value;
     width = k.width;
-//    refCount = k.refCount + 1;
 }
 
 void bint::operator= (const bint& k)
@@ -109,12 +107,8 @@ void bint::operator= (const char* s)
 bint::~bint ()
 {
     std::cout << "Destructor: " << std::endl;
-//    refCount -= 1;
-//    if (refCount == 0)
-//    {
-        std::cout << "Deleting: " << std::endl;
-        delete[] value;
-//    }
+    std::cout << "Deleting: " << std::endl;
+    delete[] value;
 }
 
 std::ostream& operator<<(std::ostream& os, const bint& b)  
@@ -170,7 +164,7 @@ bint& bint::swap(bint& a)
     return a;
 }
 
-bint bint::low() const
+const bint bint::low() const
 {
     assert(width > 1);
     assert((width & 1) != 1);
@@ -183,7 +177,7 @@ bint bint::low() const
     return low; 
 }
 
-bint bint::high() const
+const bint bint::high() const
 {
     assert(width > 1);
     assert((width & 1) != 1);
@@ -283,22 +277,22 @@ bint bint::sub (const bint& a)
     return result; 
 }
 
-bint& bint::shift1 (int n)
+bint bint::shift1 (int n)
 {
     // Make a result of the required size
-    bint *result = new bint();
-    result->resize(this->width * 2);
-    memmove(&result->value[n], &value[0], width * sizeof value[0]);
-    return *result; 
+    bint result;
+    result.resize(this->width * 2);
+    memmove(&result.value[n], &value[0], width * sizeof value[0]);
+    return result; 
 }
 
-bint& bint::shift2 (int n)
+bint bint::shift2 (int n)
 {
     // Make a result of the required size
-    bint *result = new bint();
-    result->resize(this->width * 2);
-    memmove(&result->value[n], &value[0], width * sizeof value[0]);
-    return *result; 
+    bint result;
+    result.resize(this->width * 2);
+    memmove(&result.value[n], &value[0], width * sizeof value[0]);
+    return result; 
 }
 
 /*

@@ -34,9 +34,9 @@ public:
 
     bint& swap(bint& a);
 
-    bint high() const;
+    const bint high() const;
 
-    bint low() const;
+    const bint low() const;
 
     bint sum (const bint& n);
 
@@ -52,9 +52,9 @@ public:
         return (*this).sub(n);        
     }
 
-    bint& shift1 (int n);
+    bint shift1 (int n);
 
-    bint& shift2 (int n);
+    bint shift2 (int n);
 
     bint mul (const bint& a);
 
@@ -67,5 +67,4 @@ public:
 private:
     int64_t* value;
     int32_t  width;
-    int32_t  refCount;
 };
