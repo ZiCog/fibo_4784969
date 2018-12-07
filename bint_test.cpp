@@ -318,6 +318,18 @@ void test_24 (void)
     std::cout << "res: " << res << std::endl;
 }
 
+// mul, with big integers
+void test_25 (void)
+{
+    bint x = "3463463462345678";
+    bint y = "7654321634677457";
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
+    bint res = x.mul(y);
+    std::cout << "res: " << res << std::endl;
+}
+
+
 extern int allocCount;
 
 int main (int argc, char* argv[])
@@ -346,10 +358,11 @@ int main (int argc, char* argv[])
 //    test_22();  // FAIL: Width mismatch in mul(). It should not!
 
 
-    allocCount = 0;
     test_23();    // PASS !!
-    test_24();    // FAIL: Width mismatch in mul(). It should not!
+    test_24();    // PASS !!
 
+    allocCount = 0;
+    test_25();    //
     std::cout << "Number of array allocations: " << allocCount << std::endl;
 
     return 0;

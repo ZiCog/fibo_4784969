@@ -85,7 +85,6 @@ void bint::operator= (const bint& k)
         width = k.width;
         delete[] value;    
         value = new int64_t[k.width];
-        allocCount++;
     }
     memcpy(value, k.value, width * sizeof value[0]);
 }
@@ -95,6 +94,7 @@ void bint::operator= (const char* s)
     std::cout << "operator=: string: " << s << std::endl;
     width = strlen(s);
     delete[] value;    
+
     value = new int64_t[width];
     allocCount++;
     bzero(value, width * sizeof value[0]);
@@ -151,6 +151,7 @@ void bint::grow ()
     bzero(newValue, newWidth * sizeof newValue[0]);
     std::memcpy(newValue, value, width * sizeof newValue[0]);
     delete[] value;
+
     value = newValue;
     width = newWidth;
 }
@@ -231,6 +232,10 @@ bint bint::sum (const bint& n)
 bint bint::sub (const bint& a)
 {
     // Demand this operand is wider than the a operand
+    if (this->width < a.width)
+    {
+        std::cout << "!!!!! this: " << *this << " a: " << a << std::endl; 
+    }
     assert(this->width >= a.width);
 
     // Make a result of the same size as this
@@ -305,7 +310,7 @@ https://en.wikipedia.org/wiki/Karatsuba_algorithm
         return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 */
 
-bint bint::mul (    bint& a)
+bint bint::mul (bint& a)
 {
     // Ensure operands are same width.
     while (this->width > a.width)
@@ -331,8 +336,8 @@ bint bint::mul (    bint& a)
         }
         else
         {
-            result.value[0] = (product % 10);
-            result.value[1] = (product / 10);
+            result.value[0] = (product % BASE);
+            result.value[1] = (product / BASE);
         }
         return result; 
     }
@@ -358,17 +363,3 @@ bint bint::mul (    bint& a)
     result = z2Shifted + t1Shifted + z0;
     return result; 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
