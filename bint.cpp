@@ -148,19 +148,17 @@ void bint::grow ()
     width = newWidth;
 }
 
-void bint::shrink ()
+void bint::shrink (int newWidth)
 {
-    for (int i = this->width - 1; i > this->width / 2 - 1; i--)
-    {
-        if (this->value[i] != 0)
-        {
-            return;
-        }
-    }
-    if (width > 1)
-    {
-        this->width = this->width / 2;
-    }
+    std::cout << "Shrinking width " << width << " to newWidth " << newWidth << std::endl;
+    int64_t *newValue = new int64_t[newWidth];
+    allocCount++;
+    bzero(newValue, newWidth * sizeof newValue[0]);
+    std::memcpy(newValue, value, newWidth * sizeof newValue[0]);
+    delete[] value;
+
+    value = newValue;
+    width = newWidth;
 }
 
 const bint bint::low() const
@@ -368,6 +366,6 @@ bint bint::mul (bint& a)
     bint t1Shifted = t1.shift1(m2);
     bint z2Shifted = z2.shift2(m);
     result = z2Shifted + t1Shifted + z0;
-    result.shrink();
+    result.shrink(m * 2);
     return result; 
 }

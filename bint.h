@@ -9,7 +9,6 @@
 //#define BASE   1000000000000000000ULL
 #define BASE   10ULL
 #define LIMIT (BASE - 1)
-#define WIDTH 1
 
 class bint
 {
@@ -30,7 +29,7 @@ public:
 
     void grow ();
 
-    void shrink ();
+    void shrink (int newWidth);
 
     const bint high() const;
 
