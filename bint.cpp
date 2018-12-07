@@ -150,15 +150,17 @@ void bint::grow ()
 
 void bint::shrink (int newWidth)
 {
-    std::cout << "Shrinking width " << width << " to newWidth " << newWidth << std::endl;
-    int64_t *newValue = new int64_t[newWidth];
-    allocCount++;
-    bzero(newValue, newWidth * sizeof newValue[0]);
-    std::memcpy(newValue, value, newWidth * sizeof newValue[0]);
-    delete[] value;
+    if (newWidth < width)
+    {
+        int64_t *newValue = new int64_t[newWidth];
+        allocCount++;
+        bzero(newValue, newWidth * sizeof newValue[0]);
+        std::memcpy(newValue, value, newWidth * sizeof newValue[0]);
+        delete[] value;
 
-    value = newValue;
-    width = newWidth;
+        value = newValue;
+        width = newWidth;
+    }
 }
 
 const bint bint::low() const
@@ -317,6 +319,7 @@ https://en.wikipedia.org/wiki/Karatsuba_algorithm
 
 bint bint::mul (bint& a)
 {
+
     // Ensure operands are same width.
     while (this->width > a.width)
     {
@@ -326,8 +329,10 @@ bint bint::mul (bint& a)
     {
         this->grow();
     }
-    // Demand this operand is same width as a operand. FIXME: Is this required?
-    assert(this->width == a.width);
+
+    // Calculates the size of the numbers
+    int m = (this->width);
+    int m2 = m / 2;
 
     bint result(a.width * 2);
 
@@ -344,28 +349,26 @@ bint bint::mul (bint& a)
             result.value[0] = (product % BASE);
             result.value[1] = (product / BASE);
         }
-        return result; 
     }
+    else
+    {
+        // Split the numbers in the middle
+        bint high1 = this->high();
+        bint low1 = this->low();
+        bint high2 = a.high();
+        bint low2 = a.low();
 
-    // Calculates the size of the numbers
-    int m = (this->width);
-    int m2 = m / 2;
-
-    // Split the numbers in the middle
-    bint high1 = this->high();
-    bint low1 = this->low();
-    bint high2 = a.high();
-    bint low2 = a.low();
-
-    bint z0 = low1 * low2;
-    bint z2 = high1 * high2;
-    bint s1 = low1 + high1;
-    bint s2 = low2 + high2;
-    bint z1 = s1 * s2;
-    bint t1 = z1 - z2 - z0;
-    bint t1Shifted = t1.shift1(m2);
-    bint z2Shifted = z2.shift2(m);
-    result = z2Shifted + t1Shifted + z0;
+        // Do da karatsaba shuffle, yabba dabba do.
+        bint z0 = low1 * low2;
+        bint z2 = high1 * high2;
+        bint s1 = low1 + high1;
+        bint s2 = low2 + high2;
+        bint z1 = s1 * s2;
+        bint t1 = z1 - z2 - z0;
+        bint t1Shifted = t1.shift1(m2);
+        bint z2Shifted = z2.shift2(m);
+        result = z2Shifted + t1Shifted + z0;
+    }
     result.shrink(m * 2);
     return result; 
 }

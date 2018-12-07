@@ -391,6 +391,10 @@ void test_25 (void)
     bint x = "3463463462345678";
     bint y = "7654321634677457";
 
+    std::cout << "x: " << x << std::endl;
+    std::cout << "y: " << y << std::endl;
+
+
     double startTime = (float)clock()/CLOCKS_PER_SEC;
 
     bint res;
@@ -404,10 +408,34 @@ void test_25 (void)
     // Expect "26510463310747415068608167980846"
 }
 
+// mul, with big integers
+void test_26 (void)
+{
+    std::cout << std::endl << "Test 26: " << std::endl;
+
+    bint two = "2";
+    bint res = "1";
+
+    std::cout << "two: " << two << std::endl;
+
+    for (int i = 0; i < 400; i++)
+    {
+        std::cout << "************************" << std::endl;
+        res = res.mul(two);
+        res.shrink(8);
+        std::cout << "res: " << res << std::endl;
+    }
+
+    // Expect 
+}
+
+
+
 extern int allocCount;
 
 int main (int argc, char* argv[])
 {
+/*
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
@@ -432,10 +460,12 @@ int main (int argc, char* argv[])
     test_22();   // PASS !!
     test_23();   // PASS !!
     test_24();   // PASS !!
-
+    test_25();   // PASS !!
+*/
     allocCount = 0;
 
-    test_25();
+    test_26();
+
 
     std::cout << "Number of array allocations: " << allocCount << std::endl;
 

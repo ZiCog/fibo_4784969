@@ -6,8 +6,8 @@
 #include <cassert>
 
 //#define BASE 10000000000000000000ULL
-//#define BASE   1000000000000000000ULL
-#define BASE   10ULL
+#define BASE  1000000000000000000ULL
+//#define BASE   1000000ULL
 #define LIMIT (BASE - 1)
 
 class bint
