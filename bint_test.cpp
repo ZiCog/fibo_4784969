@@ -1,4 +1,5 @@
 #include <bint.h>
+#include <time.h> 
 
 // Construct, NULL value
 void test_01 (void)
@@ -323,19 +324,24 @@ void test_25 (void)
 {
     bint x = "3463463462345678";
     bint y = "7654321634677457";
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
-    bint res = x.mul(y);
+
+    double startTime = (float)clock()/CLOCKS_PER_SEC;
+
+    bint res;
+    res = x.mul(y);
+    double endTime = (float)clock()/CLOCKS_PER_SEC;
+    double timeElapsed = endTime - startTime;
+    std::cout << "Elapsted time: " << timeElapsed << std::endl;
+
     std::cout << "res: " << res << std::endl;
 }
-
 
 extern int allocCount;
 
 int main (int argc, char* argv[])
 {
     test_01();
-//    test_02();
+    test_02();
     test_03();
     test_04();
     test_05();
@@ -355,14 +361,16 @@ int main (int argc, char* argv[])
 //    test_19();   FAILS: As it should!
     test_20();
     test_21();
-//    test_22();  // FAIL: Width mismatch in mul(). It should not!
-
-
+    test_22();
     test_23();    // PASS !!
     test_24();    // PASS !!
 
     allocCount = 0;
-    test_25();    //
+
+
+    test_25();    // PASS !!
+
+
     std::cout << "Number of array allocations: " << allocCount << std::endl;
 
     return 0;

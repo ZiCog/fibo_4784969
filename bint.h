@@ -30,6 +30,8 @@ public:
 
     void grow ();
 
+    void shrink ();
+
     const bint high() const;
 
     const bint low() const;

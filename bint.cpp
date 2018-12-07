@@ -35,7 +35,6 @@ int allocCount = 0;
 bint::bint ()
 : value(0), width(0)
 {
-    std::cout << "Constructor: " << std::endl;
 }
 
 bint::bint (size_t width)
@@ -52,7 +51,6 @@ bint::bint (const char* s)
     {
         return;
     }
-    std::cout << "Constructed with string: " << s << std::endl;
     // FIXME Only one decimal digit per element here!
     width = strlen(s);
     value = new int64_t[width];
@@ -78,8 +76,6 @@ bint::bint (const bint& k) // copy constructor
 
 void bint::operator= (const bint& k)
 {
-    std::cout << "operator=:  bint: " << k << std::endl;
-
     if (width != k.width)
     {
         width = k.width;
@@ -91,7 +87,6 @@ void bint::operator= (const bint& k)
 
 void bint::operator= (const char* s)
 {
-    std::cout << "operator=: string: " << s << std::endl;
     width = strlen(s);
     delete[] value;    
 
@@ -112,8 +107,6 @@ void bint::operator= (const char* s)
 
 bint::~bint ()
 {
-    std::cout << "Destructor: " << std::endl;
-    std::cout << "Deleting: " << std::endl;
     delete[] value;
 }
 
@@ -145,7 +138,6 @@ std::ostream& operator<<(std::ostream& os, const bint& b)
 void bint::grow ()
 {
     int32_t newWidth = width * 2;   
-    std::cout << "Grow:" << newWidth << std::endl;
     int64_t *newValue = new int64_t[newWidth];
     allocCount++;
     bzero(newValue, newWidth * sizeof newValue[0]);
@@ -154,6 +146,21 @@ void bint::grow ()
 
     value = newValue;
     width = newWidth;
+}
+
+void bint::shrink ()
+{
+    for (int i = this->width - 1; i > this->width / 2 - 1; i--)
+    {
+        if (this->value[i] != 0)
+        {
+            return;
+        }
+    }
+    if (width > 1)
+    {
+        this->width = this->width / 2;
+    }
 }
 
 const bint bint::low() const
@@ -281,7 +288,7 @@ bint bint::shift1 (int n)
 bint bint::shift2 (int n)
 {
     // Make a result of the required size
-    bint result(this->width * 2);
+    bint result(this->width * 4);
     memmove(&result.value[n], &value[0], width * sizeof value[0]);
     return result; 
 }
@@ -361,5 +368,6 @@ bint bint::mul (bint& a)
     bint t1Shifted = t1.shift1(m2);
     bint z2Shifted = z2.shift2(m);
     result = z2Shifted + t1Shifted + z0;
+    result.shrink();
     return result; 
 }
