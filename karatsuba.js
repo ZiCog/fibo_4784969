@@ -125,6 +125,14 @@ function scalarMul(vector, scalar) {
     return result
 }
 
+function shift2(a) {
+    return Array(a.length * 2).fill(0).concat(a)
+}
+
+function shift1(a) {
+    return Array(a.length).fill(0).concat(a)
+}
+
 function karatsuba(num1, num2) {
     let result
     if (num1.length === 1) {
@@ -162,7 +170,7 @@ let num2 = [3, 2]
 
 //let k = karatsuba(num1, num2)
 
-let k = sub(num1, num2)
+let k = shift1(num1)
 console.log(k)
 
 
