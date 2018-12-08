@@ -61,6 +61,6 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const bint& b);
 private:
-    int64_t* value;
+    uint64_t* value;
     int32_t  width;
 };

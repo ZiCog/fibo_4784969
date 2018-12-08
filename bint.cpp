@@ -40,7 +40,7 @@ bint::bint ()
 bint::bint (size_t width)
 : width(width)
 {
-    value = new int64_t[width];
+    value = new uint64_t[width];
     allocCount++;
     bzero(value, width * sizeof value[0]);
 }
@@ -53,7 +53,7 @@ bint::bint (const char* s)
     }
     // FIXME Only one decimal digit per element here!
     width = strlen(s);
-    value = new int64_t[width];
+    value = new uint64_t[width];
     allocCount++;
     bzero(value, width * sizeof value[0]);
 
@@ -80,7 +80,7 @@ void bint::operator= (const bint& k)
     {
         width = k.width;
         delete[] value;    
-        value = new int64_t[k.width];
+        value = new uint64_t[k.width];
     }
     memcpy(value, k.value, width * sizeof value[0]);
 }
@@ -90,7 +90,7 @@ void bint::operator= (const char* s)
     width = strlen(s);
     delete[] value;    
 
-    value = new int64_t[width];
+    value = new uint64_t[width];
     allocCount++;
     bzero(value, width * sizeof value[0]);
 
@@ -138,7 +138,7 @@ std::ostream& operator<<(std::ostream& os, const bint& b)
 void bint::grow ()
 {
     int32_t newWidth = width * 2;   
-    int64_t *newValue = new int64_t[newWidth];
+    uint64_t *newValue = new uint64_t[newWidth];
     allocCount++;
     bzero(newValue, newWidth * sizeof newValue[0]);
     std::memcpy(newValue, value, width * sizeof newValue[0]);
@@ -152,7 +152,7 @@ void bint::shrink (int newWidth)
 {
     if (newWidth < width)
     {
-        int64_t *newValue = new int64_t[newWidth];
+        uint64_t *newValue = new uint64_t[newWidth];
         allocCount++;
         bzero(newValue, newWidth * sizeof newValue[0]);
         std::memcpy(newValue, value, newWidth * sizeof newValue[0]);
@@ -249,8 +249,8 @@ bint bint::sub (const bint& a)
     bint result(this->width);
 
     int i;
-    int64_t diff = 0;
-    int64_t borrow = 0;
+    uint64_t diff = 0;
+    uint64_t borrow = 0;
     for (i = 0; i < this->width; i ++)
     {
         if (i < a.width)
@@ -349,7 +349,7 @@ bint bint::mul (bint& a)
     // The base case, only one element in value, just do the multiply
     if (width == 1)
     {
-        int64_t product = value[0] * a.value[0];
+        uint64_t product = value[0] * a.value[0];
         if (product < BASE) {
             result.value[0] = product;
             result.value[1] = 0;
