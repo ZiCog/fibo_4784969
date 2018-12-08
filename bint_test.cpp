@@ -418,24 +418,42 @@ void test_26 (void)
 
     std::cout << "two: " << two << std::endl;
 
-    for (int i = 0; i < 400; i++)
+    for (int i = 0; i < 1000; i++)
     {
-        std::cout << "************************" << std::endl;
         res = res.mul(two);
-        res.shrink(8);
-        std::cout << "res: " << res << std::endl;
+        res.shrink(32);
     }
+    std::cout << "res: " << res << std::endl;
 
-    // Expect 
 }
 
 
+// mul, with big integers
+void test_27 (void)
+{
+    std::cout << std::endl << "Test 27: " << std::endl;
+
+    bint two = "2";
+    bint res1 = "1";
+
+    std::cout << "two: " << two << std::endl;
+
+    for (int i = 0; i < 1000; i++)
+    {
+        res1 = res1.mul(two);
+        res1.shrink(32);
+    }
+    std::cout << "res1: " << res1 << std::endl;
+
+    bint res2 = res1 * res1;
+    std::cout << "res2: " << res2 << std::endl;
+}
 
 extern int allocCount;
 
 int main (int argc, char* argv[])
 {
-/*
+
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
@@ -461,11 +479,11 @@ int main (int argc, char* argv[])
     test_23();   // PASS !!
     test_24();   // PASS !!
     test_25();   // PASS !!
-*/
+    test_26();   // PASS !!
+
     allocCount = 0;
 
-    test_26();
-
+//    test_27();   // FAIL  subtracts going negative
 
     std::cout << "Number of array allocations: " << allocCount << std::endl;
 

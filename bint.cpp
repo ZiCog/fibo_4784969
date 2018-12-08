@@ -118,18 +118,18 @@ std::ostream& operator<<(std::ostream& os, const bint& b)
         return os;
     }  
     int i;
-    int digits = 1;
+    int digits = 18;
     for (i = 0; i < b.width - 1 ; i ++)
     {
-        os << std::setfill('0') << std::setw(digits) << b.value[i] << ", ";
+        os << std::setfill('0') << std::setw(DIGITS) << b.value[i] << ", ";
     }
-    os << std::setfill('0') << std::setw(digits) << b.value[i];
+    os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
 
     os << " : ";
 
     for (i = b.width - 1; i >= 0; i--)
     {
-        os << std::setfill('0') << std::setw(digits) << b.value[i];
+        os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
     }
 
     return os;  
@@ -248,9 +248,10 @@ bint bint::sub (const bint& a)
     // Make a result of the same size as this
     bint result(this->width);
 
+    int i;
     int64_t diff = 0;
     int64_t borrow = 0;
-    for (int i = 0; i < this->width; i ++)
+    for (i = 0; i < this->width; i ++)
     {
         if (i < a.width)
         {
@@ -260,6 +261,7 @@ bint bint::sub (const bint& a)
         {
             diff = this->value[i] - borrow;
         }
+
         if (diff < 0)
         {
             diff = diff + BASE;
@@ -273,8 +275,12 @@ bint bint::sub (const bint& a)
     }
 
     // If borrow is set here we have an error
+    if (borrow != 0)
+    {
+        std::cout << "!!!!! this: " << *this << " a: " << a << std::endl; 
+    }
     assert(borrow == 0);
-    return result; 
+    return result;
 }
 
 bint bint::shift1 (int n)
@@ -317,8 +323,12 @@ https://en.wikipedia.org/wiki/Karatsuba_algorithm
         return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 */
 
+int mulRecursions = 0;
+
 bint bint::mul (bint& a)
 {
+//    mulRecursions++;
+//    std::cout << "mulRecursions: " << mulRecursions << std::endl;
 
     // Ensure operands are same width.
     while (this->width > a.width)
@@ -370,5 +380,8 @@ bint bint::mul (bint& a)
         result = z2Shifted + t1Shifted + z0;
     }
     result.shrink(m * 2);
+
+    mulRecursions--;
+
     return result; 
 }
