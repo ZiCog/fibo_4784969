@@ -73,6 +73,39 @@ function sum(x, y)
     return sum
 }
 
+// Assume that a > b
+function sub(a, b) {
+    result = []
+    let carry = 0;
+    for (let i = 0; i < a.length; i++) {
+        let x = a[i]
+        let y = b[i]
+
+        if (isNaN(y)) {
+            y = 0
+        }
+
+        if (carry) {
+            x--;
+        }
+
+        let s;
+        if (x < y) {
+            s = x + BASE - y
+            carry = 1
+        } else {
+            s = x - y
+            carry = 0
+        }
+        result[i] = s
+    }
+    if (carry) {
+        console.log('sub: Nobody expects a negative result!')
+        process.exit(1)
+    }
+    return result
+}
+
 function scalarMul(vector, scalar) {
     let result = []
     carry = 0
@@ -124,10 +157,12 @@ function karatsuba(num1, num2) {
     return result
 }
 
-let num1 = [5, 1, 1, 1, 1, 1]
-let num2 = [3]
+let num1 = [2, 1, 0, 0, 0, 0]
+let num2 = [3, 2]
 
-let k = karatsuba(num1, num2)
+//let k = karatsuba(num1, num2)
+
+let k = sub(num1, num2)
 console.log(k)
 
 
