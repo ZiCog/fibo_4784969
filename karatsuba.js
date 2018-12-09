@@ -20,8 +20,9 @@
 //        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 //
 
-let BASE = 100
+let BASE = 1000000000
 let LIMIT = BASE - 1
+let DIGITS = 9
 
 function sum(x, y)
 {
@@ -157,8 +158,7 @@ function printBigInteger (k) {
     process.stdout.write(digits); 
     for (let i = k.length - 2; i >= 0; i--) {
         let digits = "" + k[i]
-        let padLen = 2 - digits.length + 1
-        process.stdout.write(digits.padStart(padLen, '0')); 
+        process.stdout.write(digits.padStart(DIGITS, '0')); 
     }
     process.stdout.write("\n"); 
 }
