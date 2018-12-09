@@ -1,7 +1,5 @@
 //
-// Karatsaba
-//
-// Pseudo code from: https://en.wikipedia.org/wiki/Karatsuba_algorithm
+// Karatsaba multiply: pseudo code from: https://en.wikipedia.org/wiki/Karatsuba_algorithm
 //
 //    procedure karatsuba(num1, num2)
 //        if (num1 < 10) or (num2 < 10)
@@ -22,7 +20,7 @@
 //        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 //
 
-let BASE = 10
+let BASE = 100
 let LIMIT = BASE - 1
 
 function sum(x, y)
@@ -114,7 +112,7 @@ function simpleMul(a, k) {
         else
         {
             carry = (r / BASE)|0;
-            result[i] = (r % 10)|0;
+            result[i] = (r % BASE)|0;
         }
     }
     if (carry) {
@@ -155,20 +153,23 @@ function mul(a, b) {
 }
 
 function printBigInteger (k) {
-    for (let i = k.length - 1; i >= 0; i--) {
-        process.stdout.write("" + k[i]); 
+    let digits = "" + k[k.length - 1]
+    process.stdout.write(digits); 
+    for (let i = k.length - 2; i >= 0; i--) {
+        let digits = "" + k[i]
+        let padLen = 2 - digits.length + 1
+        process.stdout.write(digits.padStart(padLen, '0')); 
     }
     process.stdout.write("\n"); 
 }
 
-let a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-let b = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+let two = [2];
+let r = [1]
 
-let k = mul(a, b)
-printBigInteger(k)
+for (let i = 0; i < 1000; i++) {
+    r = mul(r, two)
+}
 
-k = mul(k, k)
-printBigInteger(k)
+printBigInteger(r)
+printBigInteger(mul(r, r))
 
-k = mul(k, k)
-printBigInteger(k)
