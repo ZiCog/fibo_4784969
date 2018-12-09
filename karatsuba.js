@@ -99,12 +99,6 @@ function sub(a, b) {
         }
         result[i] = s
     }
-    if (carry) {
-        console.log('sub: Nobody expects a negative result!')
-        console.log(a)
-        console.log(b)
-//        process.exit(1)
-    }
     return result
 }
 
@@ -124,7 +118,7 @@ function simpleMul(a, k) {
         }
     }
     if (carry) {
-        result.push(1)
+        result.push(carry)
     }
     return result
 }
@@ -140,58 +134,41 @@ function mul(a, b) {
     } else if (b.length === 1) {
         result = simpleMul(a, b[0])
     } else {
-        console.log("Will do bigint multiply")
-
         let m = a.length < b.length ? a.length : b.length
-        console.log('m = ', m)
         let m2 = (m/2)|0
-        console.log('m2 = ', m2)
 
         let high1 = a.slice(m2, a.length)
         let low1 = a.slice(0, m2)
-        console.log('low1', low1, 'high1', high1)
-
         let high2 = b.slice(m2, b.length)
         let low2 = b.slice(0, m2)
-        console.log('low2', low2, 'high2', high2)
 
         let z0 = mul(low1, low2)
-        console.log('z0', z0)
         let z1 = mul(sum(low1, high1), sum(low2, high2))
-        console.log('z1', z1)
         let z2 = mul(high1, high2)
-        console.log('z2', z2)
 
         let s1 = sub(z1, z2)
-        console.log('s1', s1)
         let s2 = sub(s1, z0)
-        console.log('s2', s2)
-//        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
+
         result = sum(sum(shift(z2, m2 * 2), shift(s2, m2)), z0)
     }
     return result
 }
 
-let a
-let b
-let k
+function printBigInteger (k) {
+    for (let i = k.length - 1; i >= 0; i--) {
+        process.stdout.write("" + k[i]); 
+    }
+    process.stdout.write("\n"); 
+}
 
-a = [1, 1, 1, 1, 1]
-b = [1, 1, 1, 1]
+let a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+let b = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-k = mul(a, b)
-console.log(k)   // OK
+let k = mul(a, b)
+printBigInteger(k)
 
-a = [1, 1, 1, 1, 1]
-b = [1, 1, 1, 1, 1]
+k = mul(k, k)
+printBigInteger(k)
 
-k = mul(a, b)
-console.log(k)   // FAIL
-
-
-
-
-
-
-
-
+k = mul(k, k)
+printBigInteger(k)
