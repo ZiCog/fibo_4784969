@@ -99,21 +99,20 @@ function sub(a, b) {
         }
         result[i] = s
     }
-    console.log('carry = ', carry)
     if (carry) {
         console.log('sub: Nobody expects a negative result!')
         console.log(a)
         console.log(b)
-        process.exit(1)
+//        process.exit(1)
     }
     return result
 }
 
-function scalarMul(vector, scalar) {
+function simpleMul(a, k) {
     let result = []
     carry = 0
-    for (let i = 0; i < vector.length; i++) {
-        let r = vector[i] * scalar + carry
+    for (let i = 0; i < a.length; i++) {
+        let r = a[i] * k + carry
         if (r < BASE) {
             result[i] = r;
             carry = 0
@@ -124,6 +123,9 @@ function scalarMul(vector, scalar) {
             result[i] = (r % 10)|0;
         }
     }
+    if (carry) {
+        result.push(1)
+    }
     return result
 }
 
@@ -131,12 +133,12 @@ function shift(a, m) {
     return Array(m).fill(0).concat(a)
 }
 
-function karatsuba(a, b) {
+function mul(a, b) {
     let result
     if (a.length === 1) {
-        result = scalarMul(b, a[0])
+        result = simpleMul(b, a[0])
     } else if (b.length === 1) {
-        result = scalarMul(a, b[0])
+        result = simpleMul(a, b[0])
     } else {
         console.log("Will do bigint multiply")
 
@@ -153,11 +155,11 @@ function karatsuba(a, b) {
         let low2 = b.slice(0, m2)
         console.log('low2', low2, 'high2', high2)
 
-        let z0 = karatsuba(low1, low2)
+        let z0 = mul(low1, low2)
         console.log('z0', z0)
-        let z1 = karatsuba(sum(low1, high1), sum(low2, high2))
+        let z1 = mul(sum(low1, high1), sum(low2, high2))
         console.log('z1', z1)
-        let z2 = karatsuba(high1, high2)
+        let z2 = mul(high1, high2)
         console.log('z2', z2)
 
         let s1 = sub(z1, z2)
@@ -170,11 +172,23 @@ function karatsuba(a, b) {
     return result
 }
 
-let a = [1, 1, 1, 1]
-let b = [1, 1, 1, 1]
+let a
+let b
+let k
 
-let k = karatsuba(a, b)
-console.log(k)
+a = [1, 1, 1, 1, 1]
+b = [1, 1, 1, 1]
+
+k = mul(a, b)
+console.log(k)   // OK
+
+a = [1, 1, 1, 1, 1]
+b = [1, 1, 1, 1, 1]
+
+k = mul(a, b)
+console.log(k)   // FAIL
+
+
 
 
 
