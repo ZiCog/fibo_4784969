@@ -20,9 +20,9 @@
 //        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 //
 
-let BASE = 1000000000
+let BASE = 1000000000000
 let LIMIT = BASE - 1
-let DIGITS = 9
+let DIGITS = 12
 
 function sum(x, y)
 {
@@ -112,8 +112,8 @@ function simpleMul(a, k) {
         }
         else
         {
-            carry = (r / BASE)|0;
-            result[i] = (r % BASE)|0;
+            carry = Math.floor(r / BASE);
+            result[i] = Math.floor(r % BASE);
         }
     }
     if (carry) {
