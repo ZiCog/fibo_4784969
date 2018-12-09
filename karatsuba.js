@@ -99,8 +99,11 @@ function sub(a, b) {
         }
         result[i] = s
     }
+    console.log('carry = ', carry)
     if (carry) {
         console.log('sub: Nobody expects a negative result!')
+        console.log(a)
+        console.log(b)
         process.exit(1)
     }
     return result
@@ -121,57 +124,59 @@ function scalarMul(vector, scalar) {
             result[i] = (r % 10)|0;
         }
     }
-    console.log('carry = ', carry)
     return result
 }
 
-function shift2(a) {
-    return Array(a.length * 2).fill(0).concat(a)
+function shift(a, m) {
+    return Array(m).fill(0).concat(a)
 }
 
-function shift1(a) {
-    return Array(a.length).fill(0).concat(a)
-}
-
-function karatsuba(num1, num2) {
+function karatsuba(a, b) {
     let result
-    if (num1.length === 1) {
-        result = scalarMul(num2, num1[0])
-    } else if (num2.length === 1) {
-        result = scalarMul(num1, num2[0])
+    if (a.length === 1) {
+        result = scalarMul(b, a[0])
+    } else if (b.length === 1) {
+        result = scalarMul(a, b[0])
     } else {
         console.log("Will do bigint multiply")
 
-        let m = num1.length < num2.length ? num1.length : num2.length
+        let m = a.length < b.length ? a.length : b.length
         console.log('m = ', m)
-        let m2 = m/2
+        let m2 = (m/2)|0
         console.log('m2 = ', m2)
 
-        let high1 = num1.splice(m2, num1.length)
-        let low1 = num1.splice(0, m2)
+        let high1 = a.slice(m2, a.length)
+        let low1 = a.slice(0, m2)
         console.log('low1', low1, 'high1', high1)
 
-        let high2 = num2.splice(m2, num2.length)
-        let low2 = num2.splice(0, m2)
+        let high2 = b.slice(m2, b.length)
+        let low2 = b.slice(0, m2)
         console.log('low2', low2, 'high2', high2)
 
         let z0 = karatsuba(low1, low2)
+        console.log('z0', z0)
         let z1 = karatsuba(sum(low1, high1), sum(low2, high2))
+        console.log('z1', z1)
         let z2 = karatsuba(high1, high2)
+        console.log('z2', z2)
 
-        //...
-
+        let s1 = sub(z1, z2)
+        console.log('s1', s1)
+        let s2 = sub(s1, z0)
+        console.log('s2', s2)
+//        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
+        result = sum(sum(shift(z2, m2 * 2), shift(s2, m2)), z0)
     }
     return result
 }
 
-let num1 = [2, 1, 0, 0, 0, 0]
-let num2 = [3, 2]
+let a = [1, 1, 1, 1]
+let b = [1, 1, 1, 1]
 
-//let k = karatsuba(num1, num2)
-
-let k = shift1(num1)
+let k = karatsuba(a, b)
 console.log(k)
+
+
 
 
 
