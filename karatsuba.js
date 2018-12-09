@@ -20,9 +20,8 @@
 //        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 //
 
-let BASE = 1000000000000
-let LIMIT = BASE - 1
-let DIGITS = 12
+let DIGITS = 7                  // Decimal digits in each big integer array element.
+let BASE = Math.pow(10, DIGITS)
 
 function sum(x, y)
 {
@@ -163,13 +162,36 @@ function printBigInteger (k) {
     process.stdout.write("\n"); 
 }
 
+function isEven(n) {
+    return (n & 1) === 0;
+}
+  
+let zero = [0];
+let one = [1];
 let two = [2];
-let r = [1]
 
-for (let i = 0; i < 1000; i++) {
-    r = mul(r, two)
+let memo = [zero, one, one]
+  
+function fibo (n) {
+    if (memo[n]) {
+        let res = memo[n]
+        return res
+    }
+    let k = (n / 2) | 0
+    let fk = fibo(k)
+    let fk1 = fibo(k + 1)
+    if (isEven(n)) {
+        let res = memo[n] = mul(fk, sub(mul(fk1, two,), fk))
+        return res
+    }
+    let res = memo[n] = sum(mul(fk, fk), mul(fk1, fk1))
+    return res
 }
 
+r = fibo(4784969)
 printBigInteger(r)
-printBigInteger(mul(r, r))
+
+
+
+
 
