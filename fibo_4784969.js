@@ -33,10 +33,6 @@ function timeIt (f, k) {
   console.log(dur + "ms")
 }
 
-timeIt(fibo, 4784965)
-timeIt(fibo, 4784966)
-timeIt(fibo, 4784967)
-timeIt(fibo, 4784968)
 timeIt(fibo, 4784969)
 console.log(res.toString(10))
 
