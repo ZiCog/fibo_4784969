@@ -45,7 +45,7 @@ function sum(x, y)
     
         // Sum the elements with carry
         let s
-        if (isNaN(b[i])) {
+        if (b[i] === undefined) {
             s = a[i]
         } else {
             s = a[i] + b[i]
