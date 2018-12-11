@@ -31,9 +31,9 @@ public:
 
     void shrink (int newWidth);
 
-    const bint high() const;
+    const bint high(int mid) const;
 
-    const bint low() const;
+    const bint low(int mid) const;
 
     bint sum (const bint& n);
 

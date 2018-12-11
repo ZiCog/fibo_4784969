@@ -243,12 +243,12 @@ void test_16 (void)
 {
     std::cout << std::endl << "Test 16: " << std::endl;
 
-    bint x = "1234567887654321";
+    bint x = "99999998888888333333322222221111111";
     std::cout << "x: " << x << std::endl;
-    bint low = x.low();
+    bint low = x.low(2);
     std::cout << "low: " << low << std::endl;
 
-    bint high = x.high();
+    bint high = x.high(2);
     std::cout << "high " << high << std::endl;
 }
 
@@ -266,8 +266,6 @@ void test_17 (void)
 
     // expect "3333328333333329"
 }
-
-
 
 // Sub, shorter from longer
 void test_18 (void)
@@ -457,11 +455,12 @@ int main (int argc, char* argv[])
     test_13();   // PASS !!
     test_14();   // PASS !!
     test_15();   // PASS !!
-/*
     test_16();   // PASS !!
     test_17();   // PASS !!
     test_18();   // PASS !!
 //    test_19();   // FAILS: As it should!
+/*
+
     test_20();   // PASS !!
     test_21();   // PASS !!
     test_22();   // PASS !!

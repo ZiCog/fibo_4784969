@@ -182,28 +182,25 @@ void bint::shrink (int newWidth)
     }
 }
 
-const bint bint::low() const
+const bint bint::low(int mid) const
 {
     assert(width > 1);
-    assert((width & 1) != 1);
+    assert(mid < width);
  
     // Make a result half the size of this, containing low half of this
-    int newWidth = this->width / 2;
-    bint low(newWidth);
-    std::memcpy(low.value, value, newWidth * sizeof low.value[0]);
-
+    bint low(mid);
+    std::memcpy(low.value, value, mid * sizeof low.value[0]);
     return low; 
 }
 
-const bint bint::high() const
+const bint bint::high(int mid) const
 {
     assert(width > 1);
-    assert((width & 1) != 1);
+    assert(mid < width);
 
     // Make a result half the size of this, containing high half of this
-    int newWidth = this->width / 2;
-    bint high(newWidth);
-    std::memcpy(high.value, &value[newWidth], newWidth * sizeof high.value[0]);
+    bint high(width - mid);
+    std::memcpy(high.value, &value[mid], (width - mid) * sizeof high.value[0]);
     return high; 
 }
 
@@ -259,51 +256,42 @@ bint bint::sum (const bint& n)
     return sum; 
 }
 
-bint bint::sub (const bint& a)
+bint bint::sub (const bint& b)
 {
     // Demand this operand is wider than the a operand
-    if (this->width < a.width)
+    if (this->width < b.width)
     {
-        std::cout << "!!!!! this: " << *this << " a: " << a << std::endl; 
+        std::cout << "!!!!! this: " << *this << " b: " << b << std::endl; 
     }
-    assert(this->width >= a.width);
+    assert(this->width >= b.width);
 
     // Make a result of the same size as this
-    bint result(this->width);
+    bint difference(this->width);
 
-    int i;
-    uint64_t diff = 0;
     uint64_t borrow = 0;
-    for (i = 0; i < this->width; i ++)
+    for (int i = 0; i < this->width; i ++)
     {
-        if (i < a.width)
-        {
-            diff = this->value[i] - a.value[i] - borrow;
-        }
-        else
-        {
-            diff = this->value[i] - borrow;
+        uint64_t x = this->value[i];
+        uint64_t y = (i < b.width) ? b.value[i] : 0;
+
+        if (borrow) {
+            x--;
         }
 
-        if (diff < 0)
+        uint64_t d;
+        if (x < y)
         {
-            diff = diff + BASE;
+            d = x + BASE - y;
             borrow = 1;
         }
         else
         {
+            d = x - y;
             borrow = 0;
         }
-        result.value[i] = diff;
+        difference.value[i] = d;
     }
-
-    // If borrow is set here we have an error
-    if (borrow != 0)
-    {
-        std::cout << "!!!!! this: " << *this << " a: " << a << std::endl; 
-    }
-    assert(borrow == 0);
-    return result;
+    return difference;
 }
 
 bint bint::shift1 (int n)
@@ -386,10 +374,10 @@ bint bint::mul (bint& a)
     else
     {
         // Split the numbers in the middle
-        bint high1 = this->high();
-        bint low1 = this->low();
-        bint high2 = a.high();
-        bint low2 = a.low();
+        bint high1 = this->high(m2);
+        bint low1 = this->low(m2);
+        bint high2 = a.high(m2);
+        bint low2 = a.low(m2);
 
         // Do da karatsaba shuffle, yabba dabba do.
         bint z0 = low1 * low2;
