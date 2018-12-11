@@ -42,35 +42,13 @@ void test_03 (void)
     bint q = "1111111222222233333334444444555555";
     std::cout << "q: " << q << std::endl;
 
+    bint t = "";
+    std::cout << "t: " << t << std::endl;
 }
 
-// Grow
+//
 void test_04 (void)
 {
-    std::cout << std::endl << "Test 04: " << std::endl;
-
-    {
-        bint x = "12345678";
-        std::cout << "x: " << x << std::endl;
-        std::cout << "Grow:" << std::endl;
-        x.grow();
-        std::cout << "x: " << x << std::endl;
-    }
-    {
-        bint x;
-        x = "12345678";
-        std::cout << "x: " << x << std::endl;
-        std::cout << "Grow:" << std::endl;
-        x.grow();
-        std::cout << "x: " << x << std::endl;
-    }
-    {
-        bint x("12345678");
-        std::cout << "x: " << x << std::endl;
-        std::cout << "Grow:" << std::endl;
-        x.grow();
-        std::cout << "x: " << x << std::endl;
-    }
 }
 
 // 
@@ -179,7 +157,7 @@ void test_13 (void)
     bint x = "0";
     bint one = "1";
 
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 1000000; i++)
     {
         x = x.sum(one);
     }
@@ -220,7 +198,7 @@ void fibo()
     bint f2;
     
     //int k = 4784969;
-    int k = 14;
+    int k = 20000;
 
     int n = 2;
     while (1) 
@@ -467,7 +445,6 @@ int main (int argc, char* argv[])
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
-/*
     test_04();   // PASS !!
     test_05();   // PASS !!
     test_06();   // PASS !!
@@ -480,6 +457,7 @@ int main (int argc, char* argv[])
     test_13();   // PASS !!
     test_14();   // PASS !!
     test_15();   // PASS !!
+/*
     test_16();   // PASS !!
     test_17();   // PASS !!
     test_18();   // PASS !!

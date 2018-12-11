@@ -39,7 +39,7 @@ bint::bint ()
 bint::bint (size_t width)
 : width(width)
 {
-    value = new uint64_t[width];
+    value = new uint64_t[width + 1];
     allocCount++;
     bzero(value, width * sizeof value[0]);
 }
@@ -56,9 +56,10 @@ uint64_t parseDigits(const char* s, int len)
 
 bint::bint (const char* s)
 {
-    std::cout << "Construct from string: " << s << std::endl;
     if (!s || ! *s)
     {
+        width = 0;
+        value = 0;
         return;
     }
 
@@ -155,7 +156,7 @@ std::ostream& operator<<(std::ostream& os, const bint& b)
 
 void bint::grow ()
 {
-    int32_t newWidth = width * 2;   
+    int32_t newWidth = width + 1;   
     uint64_t *newValue = new uint64_t[newWidth];
     allocCount++;
     bzero(newValue, newWidth * sizeof newValue[0]);
@@ -218,40 +219,44 @@ bint bint::sum (const bint& n)
     }
 
     // Make a result of the same size as operand "a"
-    bint result(a->width);
+    bint sum(a->width);
 
     int i;
-    uint64_t sum = 0;
+    uint64_t s = 0;
     uint64_t carry = 0;
     for (i = 0; i < a->width; i ++)
     {
         if (i < b->width)
         {
-            sum = a->value[i] + b->value[i] + carry;
+            s = a->value[i] + b->value[i];
         }
         else
         {
-            sum = a->value[i] + carry;
+            s = a->value[i];
         }
+        s += carry;
 
-        if (sum > LIMIT)
+
+        if (s >= BASE)
         {
-            sum = sum - LIMIT - 1;
+            s -= BASE;
             carry = 1;
         }
         else
         {
             carry = 0;
         }
-        result.value[i] = sum;
+        sum.value[i] = s;
     }
+
     // If carry is set here we need more digits!
     if (carry)
     {
-        result.grow();
-        result.value[i] = 1;
+        sum.grow();
+        //width++;
+        sum.value[i] = 1;
     }
-    return result; 
+    return sum; 
 }
 
 bint bint::sub (const bint& a)
