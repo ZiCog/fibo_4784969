@@ -5,9 +5,6 @@
 
 #define N 100000
 
-// 18 9's
-//#define LIM  999999999999999999
-//#define LIM  99999999999
 #define LIM 100000000000
 
 uint64_t a[N];
@@ -76,8 +73,6 @@ int main (int argc, char* argv[])
     c[0] = 1;
 
     int n = 4784969;  // The first fibo with 1 million digits
-    n = 1528930; // Gives error
-    n = 1528931;
 
     while (1)
     {
@@ -85,7 +80,6 @@ int main (int argc, char* argv[])
         count++;
         if (count == n)
         {
-            //printf("%7d: ", count);
             puti(a);
             printf("\n");
             break;
@@ -95,7 +89,6 @@ int main (int argc, char* argv[])
         count++;
         if (count == n)
         {
-            //printf("%7d: ", count);
             puti(c);
             printf("\n");
             break;
@@ -105,7 +98,6 @@ int main (int argc, char* argv[])
         count++;
         if (count == n)
         {
-            //printf("%7d: ", count);
             puti(b);
             printf("\n");
             break;
