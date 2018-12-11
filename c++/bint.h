@@ -49,9 +49,7 @@ public:
         return (*this).sub(n);        
     }
 
-    bint shift1 (int n);
-
-    bint shift2 (int n);
+    bint shift (int n);
 
     bint simpleMul (uint64_t k);
 

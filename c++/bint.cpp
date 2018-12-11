@@ -294,18 +294,10 @@ bint bint::sub (const bint& b)
     return difference;
 }
 
-bint bint::shift1 (int n)
+bint bint::shift (int n)
 {
     // Make a result of the required size
-    bint result(this->width * 2);
-    memmove(&result.value[n], &value[0], width * sizeof value[0]);
-    return result; 
-}
-
-bint bint::shift2 (int n)
-{
-    // Make a result of the required size
-    bint result(this->width * 4);
+    bint result(this->width + n);
     memmove(&result.value[n], &value[0], width * sizeof value[0]);
     return result; 
 }
@@ -393,8 +385,8 @@ bint bint::mul (bint& b)
         bint s2 = low2 + high2;
         bint z1 = s1 * s2;
         bint t1 = z1 - z2 - z0;
-        bint t1Shifted = t1.shift1(m2);
-        bint z2Shifted = z2.shift2(m);
+        bint t1Shifted = t1.shift(m2);
+        bint z2Shifted = z2.shift(m);
         product = z2Shifted + t1Shifted + z0;
     }
     return product; 

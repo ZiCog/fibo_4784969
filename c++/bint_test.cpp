@@ -46,9 +46,20 @@ void test_03 (void)
     std::cout << "t: " << t << std::endl;
 }
 
-//
+// shift
 void test_04 (void)
 {
+
+//  [1, 2, 3, 4]
+//  shift 3 becomes
+//  [ 0, 0, 0, 1, 2, 3, 4 ]
+
+    std::cout << std::endl << "Test 03: " << std::endl;
+
+    bint x = "1111111222222233333334444444";
+    std::cout << "x: " << x << std::endl;
+    bint res = x.shift(3);  
+    std::cout << "res: " << res << std::endl;
 }
 
 // 
@@ -482,9 +493,8 @@ int main (int argc, char* argv[])
 //    test_19();   // FAILS: As it should!
     test_20_1(); // PASS !!
     test_20();   // PASS !!
-
-/*
     test_21();   // PASS !!
+/*
     test_22();   // PASS !!
     test_23();   // PASS !!
     test_24();   // PASS !!
