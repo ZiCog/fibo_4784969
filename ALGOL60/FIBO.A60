@@ -1,0 +1,87 @@
+FIBONACCI NUMBERS'
+
+BEGIN INTEGER N,M,COUNT,LIM'
+INTEGER ARRAY A, B, C(1:10)' 
+
+PROCEDURE PUTI(A)' INTEGER ARRAY A' 
+BEGIN INTEGER J' 
+BOOLEAN ALLZERO'
+COMMENT SKIP ZERO VALUES IN ARRAY UNTIL FIRST ONE TO PRINT'
+
+   ALLZERO := TRUE'
+   LEADZERO(£?)'
+   
+   PRINT £  ?' 
+   FOR J := N STEP -1 UNTIL 1 DO 
+   BEGIN
+       IF NOT ALLZERO  THEN
+             PRINT SAMELINE, SPECIAL(1), DIGITS(11), A(J)
+       
+       ELSE
+       BEGIN
+         IF A(J) GR 0 THEN
+         BEGIN
+           PRINT SAMELINE, SPECIAL(1), DIGITS(11), A(J)'
+           LEADZERO(£0?)'
+           ALLZERO := FALSE'
+         END
+       END 
+           
+   END' 
+   LEADZERO(£ ?)'
+END OF PUTI' 
+
+PROCEDURE ADDI(A, B, C)' INTEGER ARRAY A, B, C' 
+BEGIN INTEGER J, CARRY, SUM' 
+   CARRY := 0' 
+   FOR J:= 1 STEP 1 UNTIL N DO 
+   BEGIN 
+      SUM := B(J) + C(J) + CARRY' 
+      IF SUM GR LIM THEN 
+      BEGIN 
+         A(J) := SUM - LIM' 
+         CARRY := 1 
+      END 
+      ELSE 
+      BEGIN 
+          A(J) := SUM' 
+          CARRY := 0 
+      END 
+     END 
+END OF ADDI' 
+
+N := 10'
+LIM := 100000000000'
+
+FOR M:= 1 STEP 1 UNTIL N DO
+BEGIN
+   A(M) := 0'
+   B(M) := 0'
+   C(M) := 0'
+END'
+
+B(1) := 1'
+C(1) := 1'
+
+PRINT DIGITS(3),1'
+PUTI(B)'
+PRINT DIGITS(3),2'
+PUTI(C)'
+
+COUNT := 0'
+FOR COUNT := COUNT + 3 WHILE COUNT LESS 500 DO
+BEGIN
+    PRINT DIGITS(3),COUNT'
+    ADDI(A,B,C)'
+    PUTI(A)'
+
+    PRINT DIGITS(3),COUNT+1'
+    ADDI(C,B,A)'
+    PUTI(C)'
+
+    PRINT DIGITS(3),COUNT+2'
+    ADDI(B,A,C)'
+    PUTI(B)'
+
+END'
+END'
