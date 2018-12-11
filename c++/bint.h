@@ -10,16 +10,6 @@ constexpr int DIGITS = 7;                  // Decimal digits in each big integer
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
 
-
-
-
-
-
-
-
-
-
-
 class bint
 {
 public:
