@@ -29,7 +29,6 @@ char *strrev(char *str)
     return str;
 }
 
-
 int allocCount = 0;
 
 bint::bint ()
@@ -45,26 +44,45 @@ bint::bint (size_t width)
     bzero(value, width * sizeof value[0]);
 }
 
+uint64_t parseDigits(const char* s, int len)
+{
+    uint32_t num = 0;
+    for (int i = 0; i < len; i++)
+    {
+        num = num * 10 + *s++ - '0';
+    }
+    return num;
+}
+
 bint::bint (const char* s)
 {
+    std::cout << "Construct from string: " << s << std::endl;
     if (!s || ! *s)
     {
         return;
     }
-    // FIXME Only one decimal digit per element here!
-    width = strlen(s);
+
+    int d1 = strlen(s) / DIGITS;
+    int d2 = strlen(s) % DIGITS;
+
+    width = d1;
+    if (d2) width++;
+
     value = new uint64_t[width];
+    bzero(value, width * sizeof(uint64_t));
     allocCount++;
-    bzero(value, width * sizeof value[0]);
 
-    int i = 0;
-    const char* r = s + strlen(s) - 1;
-
-    while (r >= s)
+    int w = width - 1;
+    if(d2)
     {
-        value[i] = *r - '0';
-        i++;
-        r--;
+        value[w--] = parseDigits(s, d2);
+        s = s + d2;
+    }
+
+    while (w >= 0)
+    {
+        value[w--] = parseDigits(s, DIGITS);
+        s = s + DIGITS;
     }
 }
 
@@ -84,6 +102,7 @@ void bint::operator= (const bint& k)
     }
     memcpy(value, k.value, width * sizeof value[0]);
 }
+
 
 void bint::operator= (const char* s)
 {

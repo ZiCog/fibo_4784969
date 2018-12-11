@@ -30,11 +30,18 @@ void test_03 (void)
 {
     std::cout << std::endl << "Test 03: " << std::endl;
 
-    for (int i = 0; i < 10; i++)
-    {
-        bint x = "1234567899999999";
-        std::cout << "x: " << x << std::endl;
-    }
+    bint x = "1111111222222233333334444444";
+    std::cout << "x: " << x << std::endl;
+
+    bint y = "11111112222222333333344444445";
+    std::cout << "y: " << y << std::endl;
+
+    bint z = "11111112222222333333344444445555";
+    std::cout << "z: " << z << std::endl;
+
+    bint q = "1111111222222233333334444444555555";
+    std::cout << "q: " << q << std::endl;
+
 }
 
 // Grow
@@ -455,12 +462,12 @@ int main (int argc, char* argv[])
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
-    std::cout << "LIMIT = " << LIMIT << std::endl;
-    exit(1);
+    std::cout << "LIMIT = " << LIMIT << std::endl << std::endl;
 
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
+/*
     test_04();   // PASS !!
     test_05();   // PASS !!
     test_06();   // PASS !!
@@ -490,7 +497,7 @@ int main (int argc, char* argv[])
     test_27();   // FAIL  subtracts going negative
 
     std::cout << "Number of array allocations: " << allocCount << std::endl;
-
+*/
     return 0;
 }
 
