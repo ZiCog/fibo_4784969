@@ -53,6 +53,8 @@ public:
 
     bint shift2 (int n);
 
+    bint simpleMul (uint64_t k);
+
     bint mul (bint& a);
 
     bint operator* (bint& n)

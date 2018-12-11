@@ -295,6 +295,27 @@ void test_19 (void)
     std::cout << "res: " << res << std::endl;
 }
 
+// simpleMul
+void test_20_1 (void)
+{
+    std::cout << std::endl << "Test 20_1: " << std::endl;
+
+    bint a = "2";
+    std::cout << "a: " << a << std::endl;
+    bint res = a.simpleMul(3);
+    std::cout << "res: " << res << std::endl;
+
+    bint b = "2222222222222222222222222222";
+    std::cout << "b: " << a << std::endl;
+    res = b.simpleMul(3);
+    std::cout << "res: " << res << std::endl;
+
+    bint c = "9999999999999999999999999999";
+    std::cout << "b: " << c << std::endl;
+    res = c.simpleMul(9);
+    std::cout << "res: " << res << std::endl;
+}
+
 // mul, the base case, one element in value, no overflow
 void test_20 (void)
 {
@@ -459,9 +480,10 @@ int main (int argc, char* argv[])
     test_17();   // PASS !!
     test_18();   // PASS !!
 //    test_19();   // FAILS: As it should!
-/*
-
+    test_20_1(); // PASS !!
     test_20();   // PASS !!
+
+/*
     test_21();   // PASS !!
     test_22();   // PASS !!
     test_23();   // PASS !!

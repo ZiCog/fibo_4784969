@@ -334,50 +334,57 @@ https://en.wikipedia.org/wiki/Karatsuba_algorithm
         return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
 */
 
-int mulRecursions = 0;
-
-bint bint::mul (bint& a)
+bint bint::simpleMul (uint64_t k)
 {
-//    mulRecursions++;
-//    std::cout << "mulRecursions: " << mulRecursions << std::endl;
-
-    // Ensure operands are same width.
-    while (this->width > a.width)
-    {
-        a.grow();
-    }
-    while (a.width > this->width)
-    {
-        this->grow();
-    }
-
-    // Calculates the size of the numbers
-    int m = (this->width);
-    int m2 = m / 2;
-
-    bint result(a.width * 2);
-
-    // The base case, only one element in value, just do the multiply
-    if (width == 1)
-    {
-        uint64_t product = value[0] * a.value[0];
-        if (product < BASE) {
-            result.value[0] = product;
-            result.value[1] = 0;
+    bint product(width);
+    uint64_t carry = 0;
+    int i = 0;
+    for (i = 0; i < width; i++) {
+        uint64_t p = value[i] * k + carry;
+        if (p < BASE)
+        {
+            product.value[i] = p;
+            carry = 0;
         }
         else
         {
-            result.value[0] = (product % BASE);
-            result.value[1] = (product / BASE);
+            carry = p / BASE;
+            product.value[i] = p % BASE;
         }
+    }
+    if (carry)
+    {
+        product.grow();
+        //width++;
+        product.value[i] = carry;
+    }
+    return product;
+}
+
+bint bint::mul (bint& b)
+{
+    bint product;
+
+    // The base case(s), only one element in value, just do the multiply
+    if (width == 1)
+    {
+        product = b.simpleMul(value[0]);
+    }
+    else if (b.width == 1)
+    {
+        product = simpleMul(b.value[0]);
     }
     else
     {
+        // Calculates the size of the numbers
+        int m = (this->width);
+        int m2 = m / 2;
+
         // Split the numbers in the middle
         bint high1 = this->high(m2);
         bint low1 = this->low(m2);
-        bint high2 = a.high(m2);
-        bint low2 = a.low(m2);
+        bint high2 = b.high(m2);
+        bint low2 = b.low(m2);
 
         // Do da karatsaba shuffle, yabba dabba do.
         bint z0 = low1 * low2;
@@ -388,11 +395,7 @@ bint bint::mul (bint& a)
         bint t1 = z1 - z2 - z0;
         bint t1Shifted = t1.shift1(m2);
         bint z2Shifted = z2.shift2(m);
-        result = z2Shifted + t1Shifted + z0;
+        product = z2Shifted + t1Shifted + z0;
     }
-    result.shrink(m * 2);
-
-    mulRecursions--;
-
-    return result; 
+    return product; 
 }
