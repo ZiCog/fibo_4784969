@@ -6,7 +6,7 @@
 #include <cassert>
 #include <math.h>
 
-constexpr int DIGITS = 7;                  // Decimal digits in each big integer array element.
+constexpr int DIGITS = 9;                  // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
 
