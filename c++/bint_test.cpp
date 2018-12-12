@@ -494,11 +494,11 @@ int main (int argc, char* argv[])
     test_20_1(); // PASS !!
     test_20();   // PASS !!
     test_21();   // PASS !!
-/*
     test_22();   // PASS !!
     test_23();   // PASS !!
     test_24();   // PASS !!
     test_25();   // PASS !!
+/*
     test_26();   // PASS !!
 
     allocCount = 0;

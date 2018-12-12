@@ -379,15 +379,18 @@ bint bint::mul (bint& b)
         bint low2 = b.low(m2);
 
         // Do da karatsaba shuffle, yabba dabba do.
-        bint z0 = low1 * low2;
-        bint z2 = high1 * high2;
-        bint s1 = low1 + high1;
-        bint s2 = low2 + high2;
-        bint z1 = s1 * s2;
-        bint t1 = z1 - z2 - z0;
-        bint t1Shifted = t1.shift(m2);
-        bint z2Shifted = z2.shift(m);
-        product = z2Shifted + t1Shifted + z0;
+        bint z0 = low1.mul(low2);
+
+        bint t1 = low1.sum(high1);
+        bint t2 = low2.sum(high2);
+
+        bint z1 = t1.mul(t2);
+        bint z2 = high1.mul(high2);
+
+        bint s1 = z1.sub(z2);
+        bint s2 = s1.sub(z0);
+
+        product = z2.shift(m2 * 2).sum(s2.shift(m2)).sum(z0);
     }
     return product; 
 }
