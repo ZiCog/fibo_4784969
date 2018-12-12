@@ -7,29 +7,7 @@
 // uncomment to disable assert()
 // #define NDEBUG
 #include <cassert>
-
 #include <bint.h>
-
-char *strrev(char *str)
-{
-    if (!str || ! *str)
-        return str;
-
-    int i = strlen(str) - 1, j = 0;
-
-    char ch;
-    while (i > j)
-    {
-        ch = str[i];
-        str[i] = str[j];
-        str[j] = ch;
-        i--;
-        j++;
-    }
-    return str;
-}
-
-int allocCount = 0;
 
 bint::bint ()
 : value(0), width(0)
@@ -40,7 +18,6 @@ bint::bint (size_t width)
 : width(width)
 {
     value = new uint64_t[width + 1];
-    allocCount++;
     bzero(value, width * sizeof value[0]);
 }
 
@@ -71,7 +48,6 @@ bint::bint (const char* s)
 
     value = new uint64_t[width];
     bzero(value, width * sizeof(uint64_t));
-    allocCount++;
 
     int w = width - 1;
     if(d2)
@@ -111,7 +87,6 @@ void bint::operator= (const char* s)
     delete[] value;    
 
     value = new uint64_t[width];
-    allocCount++;
     bzero(value, width * sizeof value[0]);
 
     int i = 0;
@@ -158,7 +133,6 @@ void bint::grow ()
 {
     int32_t newWidth = width + 1;   
     uint64_t *newValue = new uint64_t[newWidth];
-    allocCount++;
     bzero(newValue, newWidth * sizeof newValue[0]);
     std::memcpy(newValue, value, width * sizeof newValue[0]);
     delete[] value;
@@ -172,7 +146,6 @@ void bint::shrink (int newWidth)
     if (newWidth < width)
     {
         uint64_t *newValue = new uint64_t[newWidth];
-        allocCount++;
         bzero(newValue, newWidth * sizeof newValue[0]);
         std::memcpy(newValue, value, newWidth * sizeof newValue[0]);
         delete[] value;
