@@ -65,8 +65,9 @@ bint::bint (const char* s)
 
 bint::bint (const bint& k) // copy constructor 
 {
-    value = k.value;
     width = k.width;
+    value = new uint64_t[k.width];
+    memcpy(value, k.value, width * sizeof value[0]);
 }
 
 void bint::operator= (const bint& k)
@@ -128,6 +129,30 @@ std::ostream& operator<<(std::ostream& os, const bint& b)
 
     return os;  
 }  
+
+
+void bint::print ()
+{
+    if (width == 0) 
+    {
+        std::cout << "BIGNULL";
+    }  
+    int i;
+    for (i = 0; i < width - 1 ; i ++)
+    {
+        std::cout << std::setfill('0') << std::setw(DIGITS) << value[i] << ", ";
+    }
+    std::cout << std::setfill('0') << std::setw(DIGITS) << value[i];
+
+    std::cout << " : ";
+
+    for (i = width - 1; i >= 0; i--)
+    {
+        std::cout << std::setfill('0') << std::setw(DIGITS) << value[i];
+    }
+}
+
+
 
 void bint::grow ()
 {
@@ -328,7 +353,7 @@ bint bint::simpleMul (uint64_t k)
 
 bint bint::mul (bint& b)
 {
-    bint product;
+    bint product(width + b.width);
 
     // The base case(s), only one element in value, just do the multiply
     if (width == 1)

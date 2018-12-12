@@ -60,6 +60,8 @@ public:
         return (*this).mul(n);        
     }
 
+    void print ();
+
     friend std::ostream& operator<<(std::ostream& os, const bint& b);
 private:
     uint64_t* value;

@@ -460,7 +460,57 @@ void test_27 (void)
     std::cout << "res2: " << res2 << std::endl;
 }
 
-extern int allocCount;
+bint zero = "0";
+bint one = "1";
+bint two = "2";
+
+int isEven(int n)
+{
+    return (n & 1) == 0;
+}
+
+bint fibok (int n)
+{
+    switch (n)
+    {
+        case 0:
+            return bint("0");
+            break;
+        case 1:
+            return bint("1");
+            break;
+        case 2:
+            return bint("1");
+            break;
+        default:
+            int k = (n / 2);
+            bint fk = fibok(k);
+            bint fk1 = fibok(k + 1);
+            if (isEven(n))
+            {
+                bint x = fk1.mul(two).sub(fk);
+                bint res = fk.mul(x);
+                return res;
+            }
+            bint t1 = fk.mul(fk);
+            bint t2 = fk1.mul(fk1);
+            bint res;
+            res = t1.sum(t2);
+            return res;
+    }
+}
+
+// mul, with big integers
+void test_28 (void)
+{
+    std::cout << std::endl << "Test 28: " << std::endl;
+
+    //bint res = fibok(4784969);
+    bint res = fibok(20000);
+    std::cout << std::endl;
+    res.print();
+    std::cout << std::endl;
+}
 
 int main (int argc, char* argv[])
 {
@@ -496,6 +546,7 @@ int main (int argc, char* argv[])
     test_25();   // PASS !!
     test_26();   // PASS !!
     test_27();   // PASS !!
+    test_28();   // PASS !!
     return 0;
 }
 
