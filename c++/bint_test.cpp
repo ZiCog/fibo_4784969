@@ -434,14 +434,11 @@ void test_26 (void)
     std::cout << "two: " << two << std::endl;
 
     for (int i = 0; i < 1000; i++)
-    {
+    {   
         res = res.mul(two);
-        res.shrink(32);
     }
     std::cout << "res: " << res << std::endl;
-
 }
-
 
 // mul, with big integers
 void test_27 (void)
@@ -456,7 +453,6 @@ void test_27 (void)
     for (int i = 0; i < 1000; i++)
     {
         res1 = res1.mul(two);
-        res1.shrink(32);
     }
     std::cout << "res1: " << res1 << std::endl;
 
@@ -498,15 +494,8 @@ int main (int argc, char* argv[])
     test_23();   // PASS !!
     test_24();   // PASS !!
     test_25();   // PASS !!
-/*
     test_26();   // PASS !!
-
-    allocCount = 0;
-
-    test_27();   // FAIL  subtracts going negative
-
-    std::cout << "Number of array allocations: " << allocCount << std::endl;
-*/
+    test_27();   // PASS !!
     return 0;
 }
 
