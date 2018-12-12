@@ -110,49 +110,17 @@ std::ostream& operator<<(std::ostream& os, const bint& b)
 {
     if (b.width == 0) 
     {
-        os << "BIGNULL";
-        return os;
-    }  
-    int i;
-    for (i = 0; i < b.width - 1 ; i ++)
-    {
-        os << std::setfill('0') << std::setw(DIGITS) << b.value[i] << ", ";
+        os << "BINTNULL";
     }
-    os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
-
-    os << " : ";
-
-    for (i = b.width - 1; i >= 0; i--)
+    else
     {
-        os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
+        for (int i = b.width - 1; i >= 0; i--)
+        {
+            os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
+        }
     }
-
     return os;  
 }  
-
-
-void bint::print ()
-{
-    if (width == 0) 
-    {
-        std::cout << "BIGNULL";
-    }  
-    int i;
-    for (i = 0; i < width - 1 ; i ++)
-    {
-        std::cout << std::setfill('0') << std::setw(DIGITS) << value[i] << ", ";
-    }
-    std::cout << std::setfill('0') << std::setw(DIGITS) << value[i];
-
-    std::cout << " : ";
-
-    for (i = width - 1; i >= 0; i--)
-    {
-        std::cout << std::setfill('0') << std::setw(DIGITS) << value[i];
-    }
-}
-
-
 
 void bint::grow ()
 {
@@ -164,20 +132,6 @@ void bint::grow ()
 
     value = newValue;
     width = newWidth;
-}
-
-void bint::shrink (int newWidth)
-{
-    if (newWidth < width)
-    {
-        uint64_t *newValue = new uint64_t[newWidth];
-        bzero(newValue, newWidth * sizeof newValue[0]);
-        std::memcpy(newValue, value, newWidth * sizeof newValue[0]);
-        delete[] value;
-
-        value = newValue;
-        width = newWidth;
-    }
 }
 
 const bint bint::low(int mid) const
@@ -248,7 +202,6 @@ bint bint::sum (const bint& n)
     if (carry)
     {
         sum.grow();
-        //width++;
         sum.value[i] = 1;
     }
     return sum; 
@@ -300,31 +253,7 @@ bint bint::shift (int n)
     return result; 
 }
 
-/*
-Karatsuba pseudo code from wikpedia:
-https://en.wikipedia.org/wiki/Karatsuba_algorithm
-
-    procedure karatsuba(num1, num2)
-        if (num1 < 10) or (num2 < 10)
-            return num1*num2
-
-        // calculates the size of the numbers
-        m = min(size_base10(num1), size_base10(num2))
-        m2 = floor(m/2)
-
-        // split the digit sequences in the middle
-        high1, low1 = split_at(num1, m2)
-        high2, low2 = split_at(num2, m2)
-
-        // 3 calls made to numbers approximately half the size
-        z0 = karatsuba(low1, low2)
-        z1 = karatsuba((low1 + high1), (low2 + high2))
-        z2 = karatsuba(high1, high2)
-
-        return (z2 * 10 ^ (m2 * 2)) + ((z1 - z2 - z0) * 10 ^ m2) + z0
-*/
-
-bint bint::simpleMul (uint64_t k)
+bint bint::simpleMul (uint64_t k) const
 {
     bint product(width);
     uint64_t carry = 0;
@@ -345,50 +274,39 @@ bint bint::simpleMul (uint64_t k)
     if (carry)
     {
         product.grow();
-        //width++;
         product.value[i] = carry;
     }
     return product;
 }
 
-bint bint::mul (bint& b)
+bint bint::mul (const bint& b)
 {
-    bint product(width + b.width);
-
     // The base case(s), only one element in value, just do the multiply
     if (width == 1)
     {
-        product = b.simpleMul(value[0]);
+        return b.simpleMul(value[0]);
     }
-    else if (b.width == 1)
+    if (b.width == 1)
     {
-        product = simpleMul(b.value[0]);
+        return simpleMul(b.value[0]);
     }
-    else
-    {
-        // Calculates the size of the numbers
-        int m = (this->width);
-        int m2 = m / 2;
+    // Calculates the size of the numbers
+    int m = (this->width);
+    int m2 = m / 2;
 
-        // Split the numbers in the middle
-        bint high1 = this->high(m2);
-        bint low1 = this->low(m2);
-        bint high2 = b.high(m2);
-        bint low2 = b.low(m2);
+    // Split the numbers in the middle
+    bint high1 = this->high(m2);
+    bint low1 = this->low(m2);
+    bint high2 = b.high(m2);
+    bint low2 = b.low(m2);
 
-        // Do da karatsaba shuffle, yabba dabba do.
-        bint z0 = low1.mul(low2);
+    // Do da karatsaba shuffle, yabba dabba do.
+    bint z0 = low1 * low2;
+    bint z1 = (low1 + high1) * (low2 + high2);
+    bint z2 = high1 * high2;
 
-        bint t1 = low1.sum(high1);
-        bint t2 = low2.sum(high2);
+    bint s1 = z1 - z2;
+    bint s2 = s1 - z0;
 
-        bint z1 = t1.mul(t2);
-        bint z2 = high1.mul(high2);
-
-        bint s1 = z1.sub(z2);
-        bint s2 = s1.sub(z0);
-
-        product = z2.shift(m2 * 2).sum(s2.shift(m2)).sum(z0);
-    }
-    return product; 
+    return  z2.shift(m2 * 2) + s2.shift(m2) + z0;
 }

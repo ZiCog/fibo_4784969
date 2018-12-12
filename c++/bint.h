@@ -29,8 +29,6 @@ public:
 
     void grow ();
 
-    void shrink (int newWidth);
-
     const bint high(int mid) const;
 
     const bint low(int mid) const;
@@ -51,16 +49,14 @@ public:
 
     bint shift (int n);
 
-    bint simpleMul (uint64_t k);
+    bint simpleMul (uint64_t k) const;
 
-    bint mul (bint& a);
+    bint mul (const bint& a);
 
-    bint operator* (bint& n)
+    bint operator* (const bint& n)
     {
         return (*this).mul(n);        
     }
-
-    void print ();
 
     friend std::ostream& operator<<(std::ostream& os, const bint& b);
 private:
