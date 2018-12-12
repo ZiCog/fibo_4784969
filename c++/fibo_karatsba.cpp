@@ -18,14 +18,14 @@ bint fibo (int n)
     {
         return memo[n];
     }
-    else{
+    else
+    {
         int k = (n / 2);
         bint fk = fibo(k);
         bint fk1 = fibo(k + 1);
         if (isEven(n))
         {
-            bint res = fk * (fk1 * two - fk);
-            return res;
+            return fk * (fk1 * two - fk);
         }
         return (fk * fk) + (fk1 * fk1);
     }
