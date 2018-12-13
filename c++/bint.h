@@ -1,51 +1,41 @@
 #ifndef BINT_H
 #define BINT_H
 
+#include <cassert>
 #include <cstdint>
-#include <iostream>
-#include <iomanip>
 #include <cstring>
 #include <ctype.h>
-#include <cassert>
+#include <iomanip>
+#include <iostream>
 #include <math.h>
 
 // Uncomment to disable assert()
 // #define NDEBUG
 #include <cassert>
 
-constexpr int DIGITS = 9;                  // Decimal digits in each big integer array element.
+constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
 
-class bint
-{
-public:
-    inline bint ()
-    : value(0), width(0)
-    {
-    }
+class bint {
+  public:
+    inline bint() : value(0), width(0) {}
 
-    bint (size_t width)
-    : width(width)
-    {
+    bint(size_t width) : width(width) {
         value = new uint64_t[width + 1];
         bzero(value, width * sizeof value[0]);
     }
 
-    inline uint64_t parseDigits(const char* s, int len)
-    {
+    inline uint64_t parseDigits(const char *s, int len) {
         uint32_t num = 0;
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             num = num * 10 + *s++ - '0';
         }
         return num;
     }
 
-    inline bint (const char* s)
-    {
-        if (!s || ! *s)
-        {
+    inline bint(const char *s) {
+        if (!s || !*s) {
             width = 0;
             value = 0;
             return;
@@ -55,104 +45,92 @@ public:
         int d2 = strlen(s) % DIGITS;
 
         width = d1;
-        if (d2) width++;
+        if (d2)
+            width++;
 
         value = new uint64_t[width];
         bzero(value, width * sizeof(uint64_t));
 
         int w = width - 1;
-        if(d2)
-        {
+        if (d2) {
             value[w--] = parseDigits(s, d2);
             s = s + d2;
         }
 
-        while (w >= 0)
-        {
+        while (w >= 0) {
             value[w--] = parseDigits(s, DIGITS);
             s = s + DIGITS;
         }
     }
 
-    inline bint (const bint& k) // copy constructor 
-    {
+    // copy constructor
+    inline bint(const bint &k) {
         width = k.width;
         value = new uint64_t[k.width];
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    inline ~bint ()
-    {
-        delete[] value;
-    }
+    inline ~bint() { delete[] value; }
 
-    inline void operator= (const bint& k) 
-    {
-        if (width != k.width)
-        {
+    inline void operator=(const bint &k) {
+        if (width != k.width) {
             width = k.width;
-            delete[] value;    
+            delete[] value;
             value = new uint64_t[k.width];
         }
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    void operator= (const char* s)
-    {
+    void operator=(const char *s) {
         width = strlen(s);
-        delete[] value;    
+        delete[] value;
 
         value = new uint64_t[width];
         bzero(value, width * sizeof value[0]);
 
         int i = 0;
-        const char* r = s + strlen(s) - 1;
+        const char *r = s + strlen(s) - 1;
 
-        while (r >= s)
-        {
+        while (r >= s) {
             value[i] = *r - '0';
             i++;
             r--;
         }
     }
 
-    inline const bint low(int mid) const
-    {
+    inline const bint low(int mid) const {
         assert(width > 1);
         assert(mid < width);
-    
+
         // Make a result half the size of this, containing low half of this
         bint low(mid);
         std::memcpy(low.value, value, mid * sizeof low.value[0]);
-        return low; 
+        return low;
     }
 
-    inline const bint high(int mid) const
-    {
+    inline const bint high(int mid) const {
         assert(width > 1);
         assert(mid < width);
 
         // Make a result half the size of this, containing high half of this
         bint high(width - mid);
-        std::memcpy(high.value, &value[mid], (width - mid) * sizeof high.value[0]);
-        return high; 
+        std::memcpy(high.value, &value[mid],
+                    (width - mid) * sizeof high.value[0]);
+        return high;
     }
 
-    inline bint shift (int n) const
-    {
+    inline bint shift(int n) const {
         // Make a result of the required size
         bint result(this->width + n);
         memmove(&result.value[n], &value[0], width * sizeof value[0]);
-        return result; 
+        return result;
     }
 
-    inline bint operator+ (const bint& n) const
-    {
+    inline bint operator+(const bint &n) const {
         // Ensure "a" operand is longer than "b" operand
         const bint *a = this;
         const bint *b = &n;
-        if (n.width > width)
-        {
+        if (n.width > width) {
             a = &n;
             b = this;
         }
@@ -166,16 +144,14 @@ public:
         uint64_t *aPtr = a->value;
         uint64_t *bPtr = b->value;
         uint64_t *sPtr = sum.value;
-        while (i < b->width)
-        {
+        while (i < b->width) {
             s = *aPtr++ + *bPtr++ + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
             *sPtr++ = s;
             i++;
         }
-        while (i < a->width)
-        {
+        while (i < a->width) {
             s = *aPtr++ + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
@@ -184,15 +160,13 @@ public:
         }
         sum.width += carry;
         *sPtr = carry;
-        return sum; 
+        return sum;
     }
 
-    inline bint operator- (const bint& b) const
-    {
+    inline bint operator-(const bint &b) const {
         // Demand this operand is wider than the a operand
-        if (this->width < b.width)
-        {
-            std::cout << "!!!!! this: " << *this << " b: " << b << std::endl; 
+        if (this->width < b.width) {
+            std::cout << "!!!!! this: " << *this << " b: " << b << std::endl;
         }
         assert(this->width >= b.width);
 
@@ -204,8 +178,7 @@ public:
         uint64_t *aPtr = this->value;
         uint64_t *bPtr = b.value;
         uint64_t *dPtr = difference.value;
-        while (i < b.width)
-        {
+        while (i < b.width) {
             *aPtr -= borrow;
             borrow = (*aPtr < *bPtr);
             *dPtr = *aPtr + (BASE * borrow) - *bPtr;
@@ -214,10 +187,9 @@ public:
             bPtr++;
             i++;
         }
-        while (i < this->width)
-        {
+        while (i < this->width) {
             *aPtr -= borrow;
-            borrow = (*aPtr < 0);                           // FIXME: WTF? unsigned less than zero ?!
+            borrow = (*aPtr < 0); // FIXME: WTF? unsigned less than zero ?!
             *dPtr = *aPtr + (BASE * borrow);
             dPtr++;
             aPtr++;
@@ -226,41 +198,33 @@ public:
         return difference;
     }
 
-    inline bint simpleMul (uint64_t k) const
-    {
+    inline bint simpleMul(uint64_t k) const {
         bint product(width);
         uint64_t carry = 0;
         int i = 0;
         for (i = 0; i < width; i++) {
             uint64_t p = value[i] * k + carry;
-            if (p < BASE)
-            {
+            if (p < BASE) {
                 product.value[i] = p;
                 carry = 0;
-            }
-            else
-            {
+            } else {
                 carry = p / BASE;
                 product.value[i] = p % BASE;
             }
         }
-        if (carry)
-        {
+        if (carry) {
             product.width++;
             product.value[i] = carry;
         }
         return product;
     }
 
-    inline bint operator* (const bint& b) const
-    {
+    inline bint operator*(const bint &b) const {
         // The base case(s), only one element in value, just do the multiply
-        if (width == 1)
-        {
+        if (width == 1) {
             return b.simpleMul(value[0]);
         }
-        if (b.width == 1)
-        {
+        if (b.width == 1) {
             return simpleMul(b.value[0]);
         }
         // Calculates the size of the numbers
@@ -281,28 +245,23 @@ public:
         bint s1 = z1 - z2;
         bint s2 = s1 - z0;
 
-        return  z2.shift(m2 * 2) + s2.shift(m2) + z0;
+        return z2.shift(m2 * 2) + s2.shift(m2) + z0;
     }
 
-    inline friend std::ostream& operator<<(std::ostream& os, const bint& b)
-    {
-        if (b.width == 0) 
-        {
+    inline friend std::ostream &operator<<(std::ostream &os, const bint &b) {
+        if (b.width == 0) {
             os << "BINTNULL";
-        }
-        else
-        {
-            for (int i = b.width - 1; i >= 0; i--)
-            {
+        } else {
+            for (int i = b.width - 1; i >= 0; i--) {
                 os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
             }
         }
-        return os;  
-    }  
+        return os;
+    }
 
-private:
-    uint64_t* value;
-    int32_t  width;
+  private:
+    uint64_t *value;
+    int32_t width;
 };
 
 #endif // BINT_H
