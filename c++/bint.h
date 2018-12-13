@@ -274,7 +274,8 @@ class bint {
         if (b.width == 0) {
             os << "BINTNULL";
         } else {
-            for (int i = b.width - 1; i >= 0; i--) {
+            os << b.value[b.width - 1];
+            for (int i = b.width - 2; i >= 0; i--) {
                 os << std::setfill('0') << std::setw(DIGITS) << b.value[i];
             }
         }
