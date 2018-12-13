@@ -1,5 +1,6 @@
-#include <bint.h>
 #include <time.h> 
+
+#include "bint.h"
 
 bint zero = "0";
 bint one = "1";
@@ -34,6 +35,7 @@ bint fibo (int n)
 int main (int argc, char* argv[])
 {
     bint res = fibo(4784969);
+    //bint res = fibo(20000);
 
     std::cout << res << std::endl;
     return 0;
