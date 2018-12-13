@@ -20,7 +20,7 @@ constexpr uint64_t LIMIT = BASE - 1;
 class bint
 {
 public:
-    bint ()
+    inline bint ()
     : value(0), width(0)
     {
     }
@@ -32,7 +32,7 @@ public:
         bzero(value, width * sizeof value[0]);
     }
 
-    uint64_t parseDigits(const char* s, int len)
+    inline uint64_t parseDigits(const char* s, int len)
     {
         uint32_t num = 0;
         for (int i = 0; i < len; i++)
@@ -42,7 +42,7 @@ public:
         return num;
     }
 
-    bint (const char* s)
+    inline bint (const char* s)
     {
         if (!s || ! *s)
         {
@@ -74,19 +74,19 @@ public:
         }
     }
 
-    bint (const bint& k) // copy constructor 
+    inline bint (const bint& k) // copy constructor 
     {
         width = k.width;
         value = new uint64_t[k.width];
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    ~bint ()
+    inline ~bint ()
     {
         delete[] value;
     }
 
-    void operator= (const bint& k)
+    inline void operator= (const bint& k) 
     {
         if (width != k.width)
         {
@@ -116,7 +116,7 @@ public:
         }
     }
 
-    const bint low(int mid) const
+    inline const bint low(int mid) const
     {
         assert(width > 1);
         assert(mid < width);
@@ -127,7 +127,7 @@ public:
         return low; 
     }
 
-    const bint high(int mid) const
+    inline const bint high(int mid) const
     {
         assert(width > 1);
         assert(mid < width);
@@ -138,7 +138,7 @@ public:
         return high; 
     }
 
-    bint shift (int n)
+    inline bint shift (int n) const
     {
         // Make a result of the required size
         bint result(this->width + n);
@@ -146,7 +146,7 @@ public:
         return result; 
     }
 
-    bint operator+ (const bint& n)
+    inline bint operator+ (const bint& n) const
     {
         // Ensure "a" operand is longer than "b" operand
         const bint *a = this;
@@ -187,7 +187,7 @@ public:
         return sum; 
     }
 
-    bint operator- (const bint& b)
+    inline bint operator- (const bint& b) const
     {
         // Demand this operand is wider than the a operand
         if (this->width < b.width)
@@ -226,7 +226,7 @@ public:
         return difference;
     }
 
-    bint simpleMul (uint64_t k) const
+    inline bint simpleMul (uint64_t k) const
     {
         bint product(width);
         uint64_t carry = 0;
@@ -252,7 +252,7 @@ public:
         return product;
     }
 
-    bint operator* (const bint& b)
+    inline bint operator* (const bint& b) const
     {
         // The base case(s), only one element in value, just do the multiply
         if (width == 1)
@@ -284,7 +284,7 @@ public:
         return  z2.shift(m2 * 2) + s2.shift(m2) + z0;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const bint& b)
+    inline friend std::ostream& operator<<(std::ostream& os, const bint& b)
     {
         if (b.width == 0) 
         {
