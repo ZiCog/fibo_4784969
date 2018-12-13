@@ -24,6 +24,17 @@ bint fibo(int n) {
 
 int main(int argc, char *argv[]) {
     bint res = fibo(4784969);
+//    bint res = fibo(20000);
     std::cout << res << std::endl;
+
+    std::cout << "allocWithWidth: " << allocWithWidth << std::endl;
+    std::cout << "allocCopy: " << allocCopy << std::endl;
+    std::cout << "allocString: " << allocString << std::endl;
+    std::cout << "allocEquals: " << allocEquals << std::endl;
+    std::cout << "allocEqualString: " << allocEqualsString << std::endl;
+    std::cout << "allocHigh: " << allocHigh << std::endl;
+    std::cout << "allocLow: " << allocLow << std::endl;
+    std::cout << "allocShift: " << allocShift << std::endl;
+
     return 0;
 }

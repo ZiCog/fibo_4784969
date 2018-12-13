@@ -17,12 +17,22 @@ constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
 
+int allocWithWidth = 0;
+int allocCopy = 0;
+int allocString = 0;
+int allocEquals = 0;
+int allocEqualsString = 0;
+int allocHigh = 0;
+int allocLow = 0;   
+int allocShift = 0;
+
 class bint {
   public:
-    inline bint() : value(0), width(0) {}
+    inline bint() : value(0), width(0), parent(0) {}
 
-    bint(size_t width) : width(width) {
+    bint(size_t width) : width(width), parent(0) {
         value = new uint64_t[width + 1];
+        allocWithWidth++;
         bzero(value, width * sizeof value[0]);
     }
 
@@ -49,6 +59,7 @@ class bint {
             width++;
 
         value = new uint64_t[width];
+        allocString++;
         bzero(value, width * sizeof(uint64_t));
 
         int w = width - 1;
@@ -67,16 +78,24 @@ class bint {
     inline bint(const bint &k) {
         width = k.width;
         value = new uint64_t[k.width];
+        parent = 0;
+        allocCopy++;
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    inline ~bint() { delete[] value; }
+    inline ~bint() {
+        if (parent == 0)
+        {
+            delete[] value;
+        }
+    }
 
     inline void operator=(const bint &k) {
         if (width != k.width) {
             width = k.width;
             delete[] value;
             value = new uint64_t[k.width];
+            allocEquals++;
         }
         memcpy(value, k.value, width * sizeof value[0]);
     }
@@ -86,6 +105,7 @@ class bint {
         delete[] value;
 
         value = new uint64_t[width];
+        allocEqualsString++;
         bzero(value, width * sizeof value[0]);
 
         int i = 0;
@@ -102,9 +122,10 @@ class bint {
         assert(width > 1);
         assert(mid < width);
 
-        // Make a result half the size of this, containing low half of this
-        bint low(mid);
-        std::memcpy(low.value, value, mid * sizeof low.value[0]);
+        bint low;
+        low.value = value;
+        low.width = mid;
+        low.parent = this;
         return low;
     }
 
@@ -112,16 +133,17 @@ class bint {
         assert(width > 1);
         assert(mid < width);
 
-        // Make a result half the size of this, containing high half of this
-        bint high(width - mid);
-        std::memcpy(high.value, &value[mid],
-                    (width - mid) * sizeof high.value[0]);
+        bint high;
+        high.value = &value[mid];
+        high.width = width - mid;
+        high.parent = this;
         return high;
     }
 
     inline bint shift(int n) const {
         // Make a result of the required size
         bint result(this->width + n);
+        allocShift++;
         memmove(&result.value[n], &value[0], width * sizeof value[0]);
         return result;
     }
@@ -262,6 +284,7 @@ class bint {
   private:
     uint64_t *value;
     int32_t width;
+    const bint* parent;
 };
 
 #endif // BINT_H
