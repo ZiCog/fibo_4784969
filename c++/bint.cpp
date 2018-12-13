@@ -170,40 +170,30 @@ bint bint::sum (const bint& n)
     // Make a result of the same size as operand "a"
     bint sum(a->width);
 
-    int i;
+    int i = 0;
     uint64_t s = 0;
     uint64_t carry = 0;
-    for (i = 0; i < a->width; i ++)
+    uint64_t *aPtr = a->value;
+    uint64_t *bPtr = b->value;
+    uint64_t *sPtr = sum.value;
+    while (i < b->width)
     {
-        if (i < b->width)
-        {
-            s = a->value[i] + b->value[i];
-        }
-        else
-        {
-            s = a->value[i];
-        }
-        s += carry;
-
-
-        if (s >= BASE)
-        {
-            s -= BASE;
-            carry = 1;
-        }
-        else
-        {
-            carry = 0;
-        }
-        sum.value[i] = s;
+        s = *aPtr++ + *bPtr++ + carry;
+        carry = (s >= BASE);
+        s -= BASE * carry;
+        *sPtr++ = s;
+        i++;
     }
-
-    // If carry is set here we need more digits!
-    if (carry)
+    while (i < a->width)
     {
-        sum.grow();
-        sum.value[i] = 1;
+        s = *aPtr++ + carry;
+        carry = (s >= BASE);
+        s -= BASE * carry;
+        *sPtr++ = s;
+        i++;
     }
+    sum.width += carry;
+    *sPtr = carry;
     return sum; 
 }
 
@@ -220,27 +210,28 @@ bint bint::sub (const bint& b)
     bint difference(this->width);
 
     uint64_t borrow = 0;
-    for (int i = 0; i < this->width; i ++)
+    int i = 0;
+    uint64_t *aPtr = this->value;
+    uint64_t *bPtr = b.value;
+    uint64_t *dPtr = difference.value;
+    while (i < b.width)
     {
-        uint64_t x = this->value[i];
-        uint64_t y = (i < b.width) ? b.value[i] : 0;
-
-        if (borrow) {
-            x--;
-        }
-
-        uint64_t d;
-        if (x < y)
-        {
-            d = x + BASE - y;
-            borrow = 1;
-        }
-        else
-        {
-            d = x - y;
-            borrow = 0;
-        }
-        difference.value[i] = d;
+        *aPtr -= borrow;
+        borrow = (*aPtr < *bPtr);
+        *dPtr = *aPtr + (BASE * borrow) - *bPtr;
+        dPtr++;
+        aPtr++;
+        bPtr++;
+        i++;
+    }
+    while (i < this->width)
+    {
+        *aPtr -= borrow;
+        borrow = (*aPtr < 0);                           // FIXME: WTF? unsigned less than zero ?!
+        *dPtr = *aPtr + (BASE * borrow);
+        dPtr++;
+        aPtr++;
+        i++;
     }
     return difference;
 }
