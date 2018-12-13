@@ -1,5 +1,5 @@
-#include <bint.h>
 #include <time.h> 
+#include "bint.h"
 
 // Construct, NULL value
 void test_01 (void)
@@ -83,7 +83,7 @@ void test_07 (void)
     bint y = "4444444444444444";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.sum(y);
+    bint res = x + y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -96,7 +96,7 @@ void test_08 (void)
     bint y = "4444444444444444";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.sum(y);
+    bint res = x + y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -109,7 +109,7 @@ void test_09 (void)
     bint y = "44444444";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.sum(y);
+    bint res = x + y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -135,7 +135,7 @@ void test_11 (void)
     bint y = "11111111";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.sum(y);
+    bint res = x + y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -153,10 +153,7 @@ void test_12 (void)
     bint six = "6000";
     std::cout << "x: " << x << std::endl;
 
-    bint z = x.sum(one).sum(two).sum(three).sum(four).sum(five).sum(six);
-    std::cout << "z: " << z << std::endl;
-
-    z = one + two + three + four + five + six;
+    bint z = x + one + two + three + four + five + six;
     std::cout << "z: " << z << std::endl;
 }
 
@@ -170,7 +167,7 @@ void test_13 (void)
 
     for (int i = 0; i < 1000000; i++)
     {
-        x = x.sum(one);
+        x = x + one;
     }
     std::cout << "x: " << x << std::endl;
 }
@@ -189,7 +186,7 @@ bint fibo_recursive(int n)
             return bint("1");
             break;
         default:
-            return fibo_recursive(n - 2).sum(fibo_recursive(n - 1));
+            return fibo_recursive(n - 2) + fibo_recursive(n - 1);
     }
 }
 
@@ -272,7 +269,7 @@ void test_17 (void)
     bint y = "1111116111111115";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.sub(y);
+    bint res = x - y;
     std::cout << "res: " << res << std::endl;
 
     // expect "3333328333333329"
@@ -302,7 +299,7 @@ void test_19 (void)
     bint y = "1111116111111115";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.sub(y);
+    bint res = x - y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -336,7 +333,7 @@ void test_20 (void)
     bint y = "3";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.mul(y);
+    bint res = x * y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -349,7 +346,7 @@ void test_21 (void)
     bint y = "9";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.mul(y);
+    bint res = x * y;
     std::cout << "res: " << res << std::endl;
 }
 
@@ -362,7 +359,7 @@ void test_22 (void)
     bint y = "5678";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.mul(y);
+    bint res = x * y;
     std::cout << "res: " << res << std::endl;
 
     // Expect: "7006652"
@@ -377,7 +374,7 @@ void test_23 (void)
     bint y = "99999999";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.mul(y);
+    bint res = x * y;
     std::cout << "res: " << res << std::endl;
 
     // Excpect "9999999800000001"
@@ -392,7 +389,7 @@ void test_24 (void)
     bint y = "87654321";
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
-    bint res = x.mul(y);
+    bint res = x * y;
     std::cout << "res: " << res << std::endl;
 
     // Expect "1082152022374638"
@@ -413,7 +410,7 @@ void test_25 (void)
     double startTime = (float)clock()/CLOCKS_PER_SEC;
 
     bint res;
-    res = x.mul(y);
+    res = x * y;
     double endTime = (float)clock()/CLOCKS_PER_SEC;
     double timeElapsed = endTime - startTime;
     std::cout << "Elapsted time: " << timeElapsed << std::endl;
@@ -435,7 +432,7 @@ void test_26 (void)
 
     for (int i = 0; i < 1000; i++)
     {   
-        res = res.mul(two);
+        res = res * two;
     }
     std::cout << "res: " << res << std::endl;
 }
@@ -452,7 +449,7 @@ void test_27 (void)
 
     for (int i = 0; i < 1000; i++)
     {
-        res1 = res1.mul(two);
+        res1 = res1 * two;
     }
     std::cout << "res1: " << res1 << std::endl;
 
@@ -488,14 +485,14 @@ bint fibok (int n)
             bint fk1 = fibok(k + 1);
             if (isEven(n))
             {
-                bint x = fk1.mul(two).sub(fk);
-                bint res = fk.mul(x);
+                bint x = fk1 * two - fk;
+                bint res = fk * x;
                 return res;
             }
-            bint t1 = fk.mul(fk);
-            bint t2 = fk1.mul(fk1);
+            bint t1 = fk * fk;
+            bint t2 = fk1 * fk1;
             bint res;
-            res = t1.sum(t2);
+            res = t1 + t2;
             return res;
     }
 }
@@ -508,7 +505,7 @@ void test_28 (void)
     //bint res = fibok(4784969);
     bint res = fibok(20000);
     std::cout << std::endl;
-    res.print();
+    std::cout << res;
     std::cout << std::endl;
 }
 
