@@ -1,28 +1,39 @@
-#include "bint.h"
 #include <time.h>
+#include <unordered_map>
+
+#include "bint.h"
 
 bint zero = "0";
 bint one = "1";
 bint two = "2";
 
-bint memo[] = {zero, one, one};
-
 int isEven(int n) { return (n & 1) == 0; }
 
+std::unordered_map<uint64_t, bint> memo;
+
 bint fibo(int n) {
-    if (n <= 2) {
-        return memo[n];
+    if (memo.find(n) != memo.end()) {
+        return memo[n];    
     }
     int k = (n / 2);
     bint fk = fibo(k);
     bint fk1 = fibo(k + 1);
     if (isEven(n)) {
-        return fk * (fk1 * two - fk);
+        bint result = fk * (fk1 * two - fk); 
+        memo[n] = result;
+        return result;
     }
-    return (fk * fk) + (fk1 * fk1);
+    bint result = (fk * fk) + (fk1 * fk1);
+    memo[n] = result;
+    return result; 
 }
 
 int main(int argc, char *argv[]) {
+
+    memo[0] = zero;
+    memo[1] = one;
+    memo[2] = one;
+
     bint res = fibo(4784969);
     //bint res = fibo(20000);
     std::cout << res << std::endl;

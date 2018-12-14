@@ -10,7 +10,7 @@
 #include <math.h>
 
 // Uncomment to disable assert()
-// #define NDEBUG
+#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
