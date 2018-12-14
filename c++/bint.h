@@ -17,14 +17,17 @@ constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
 
-int allocWithWidth = 0;
-int allocCopy = 0;
-int allocString = 0;
-int allocEquals = 0;
-int allocEqualsString = 0;
-int allocHigh = 0;
-int allocLow = 0;   
-int allocShift = 0;
+#if DEBUG
+uint64_t allocWithWidth = 0;
+uint64_t allocCopy = 0;
+uint64_t allocString = 0;
+uint64_t allocEquals = 0;
+uint64_t allocEqualsString = 0;
+uint64_t allocHigh = 0;
+uint64_t allocLow = 0;   
+uint64_t allocShift = 0;
+uint64_t allocBytes = 0;
+#endif
 
 class bint {
   public:
@@ -32,8 +35,11 @@ class bint {
 
     bint(size_t width) : width(width), parent(0) {
         value = new uint64_t[width + 1];
-        allocWithWidth++;
         bzero(value, width * sizeof value[0]);
+#if DEBUG
+        allocBytes += width + 1;
+        allocWithWidth++;
+#endif
     }
 
     inline uint64_t parseDigits(const char *s, int len) {
@@ -59,7 +65,10 @@ class bint {
             width++;
 
         value = new uint64_t[width];
+#if DEBUG
         allocString++;
+        allocBytes += width;
+#endif
         bzero(value, width * sizeof(uint64_t));
 
         int w = width - 1;
@@ -79,8 +88,11 @@ class bint {
         width = k.width;
         value = new uint64_t[k.width];
         parent = 0;
-        allocCopy++;
         memcpy(value, k.value, width * sizeof value[0]);
+#if DEBUG
+        allocBytes += k.width;
+        allocCopy++;
+#endif
     }
 
     inline ~bint() {
@@ -95,7 +107,10 @@ class bint {
             width = k.width;
             delete[] value;
             value = new uint64_t[k.width];
+#if DEBUG
+            allocBytes += k.width;
             allocEquals++;
+#endif
         }
         memcpy(value, k.value, width * sizeof value[0]);
     }
@@ -105,7 +120,10 @@ class bint {
         delete[] value;
 
         value = new uint64_t[width];
+#if DEBUG
         allocEqualsString++;
+        allocBytes += width;
+#endif
         bzero(value, width * sizeof value[0]);
 
         int i = 0;
@@ -143,8 +161,10 @@ class bint {
     inline bint shift(int n) const {
         // Make a result of the required size
         bint result(this->width + n);
-        allocShift++;
         memmove(&result.value[n], &value[0], width * sizeof value[0]);
+#if DEBUG
+        allocShift++;
+#endif
         return result;
     }
 

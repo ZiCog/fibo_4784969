@@ -18,9 +18,9 @@ void test_02 (void)
 {
     std::cout << std::endl << "Test 02: " << std::endl;
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 8; i++)
     {
-        bint x = bint(8);
+        bint x = bint(i + 1);
         std::cout << "x: " << x << std::endl;
     }
 }

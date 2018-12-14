@@ -24,9 +24,9 @@ bint fibo(int n) {
 
 int main(int argc, char *argv[]) {
     bint res = fibo(4784969);
-//    bint res = fibo(20000);
+    //bint res = fibo(20000);
     std::cout << res << std::endl;
-
+#if DEBUG
     std::cout << "allocWithWidth: " << allocWithWidth << std::endl;
     std::cout << "allocCopy: " << allocCopy << std::endl;
     std::cout << "allocString: " << allocString << std::endl;
@@ -35,6 +35,8 @@ int main(int argc, char *argv[]) {
     std::cout << "allocHigh: " << allocHigh << std::endl;
     std::cout << "allocLow: " << allocLow << std::endl;
     std::cout << "allocShift: " << allocShift << std::endl;
+    std::cout << "allocBytes: " << allocBytes << std::endl;
+#endif
 
     return 0;
 }
