@@ -46,6 +46,7 @@ int main(int argc, char *argv[]) {
     std::cout << "allocHigh: " << allocHigh << std::endl;
     std::cout << "allocLow: " << allocLow << std::endl;
     std::cout << "allocShift: " << allocShift << std::endl;
+    std::cout << "allocGrow: " << allocGrow << std::endl;
     std::cout << "allocBytes: " << allocBytes << std::endl;
 #endif
 

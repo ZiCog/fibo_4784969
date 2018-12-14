@@ -24,8 +24,9 @@ uint64_t allocString = 0;
 uint64_t allocEquals = 0;
 uint64_t allocEqualsString = 0;
 uint64_t allocHigh = 0;
-uint64_t allocLow = 0;   
+uint64_t allocLow = 0;
 uint64_t allocShift = 0;
+uint64_t allocGrow = 0;
 uint64_t allocBytes = 0;
 #endif
 
@@ -34,7 +35,7 @@ class bint {
     inline bint() : value(0), width(0), parent(0) {}
 
     bint(size_t width) : width(width), parent(0) {
-        value = new uint64_t[width + 1];
+        value = new uint64_t[width];
         bzero(value, width * sizeof value[0]);
 #if DEBUG
         allocBytes += width + 1;
@@ -65,6 +66,7 @@ class bint {
             width++;
 
         value = new uint64_t[width];
+        parent = 0;
 #if DEBUG
         allocString++;
         allocBytes += width;
@@ -96,8 +98,7 @@ class bint {
     }
 
     inline ~bint() {
-        if (parent == 0)
-        {
+        if (parent == 0) {
             delete[] value;
         }
     }
@@ -168,6 +169,20 @@ class bint {
         return result;
     }
 
+    void growByOne() {
+        int32_t newWidth = width + 1;
+        uint64_t *newValue = new uint64_t[newWidth];
+        bzero(newValue, newWidth * sizeof newValue[0]);
+        std::memcpy(newValue, value, width * sizeof newValue[0]);
+        delete[] value;
+#if DEBUG
+        allocGrow++;
+        allocBytes += newWidth;
+#endif
+        value = newValue;
+        width = newWidth;
+    }
+
     inline bint operator+(const bint &n) const {
         // Ensure "a" operand is longer than "b" operand
         const bint *a = this;
@@ -200,8 +215,11 @@ class bint {
             *sPtr++ = s;
             i++;
         }
-        sum.width += carry;
-        *sPtr = carry;
+        // If carry is set here we need more digits!
+        if (carry) {
+            sum.growByOne();
+            sum.value[i] = 1;
+        }
         return sum;
     }
 
@@ -254,8 +272,9 @@ class bint {
                 product.value[i] = p % BASE;
             }
         }
+        // If carry we need more digits
         if (carry) {
-            product.width++;
+            product.growByOne();
             product.value[i] = carry;
         }
         return product;
@@ -305,7 +324,7 @@ class bint {
   private:
     uint64_t *value;
     int32_t width;
-    const bint* parent;
+    const bint *parent;
 };
 
 #endif // BINT_H
