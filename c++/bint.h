@@ -10,7 +10,7 @@
 #include <math.h>
 
 // Uncomment to disable assert()
-#define NDEBUG
+//#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
@@ -44,7 +44,7 @@ class bint {
     }
 
     inline uint64_t parseDigits(const char *s, int len) {
-        uint32_t num = 0;
+        uint64_t num = 0;
         for (int i = 0; i < len; i++) {
             num = num * 10 + *s++ - '0';
         }
@@ -137,7 +137,7 @@ class bint {
         }
     }
 
-    inline const bint low(int mid) const {
+    inline const bint low(uint64_t mid) const {
         assert(width > 1);
         assert(mid < width);
 
@@ -148,7 +148,7 @@ class bint {
         return low;
     }
 
-    inline const bint high(int mid) const {
+    inline const bint high(uint64_t mid) const {
         assert(width > 1);
         assert(mid < width);
 
@@ -170,7 +170,7 @@ class bint {
     }
 
     void growByOne() {
-        int32_t newWidth = width + 1;
+        uint64_t newWidth = width + 1;
         uint64_t *newValue = new uint64_t[newWidth];
         bzero(newValue, newWidth * sizeof newValue[0]);
         std::memcpy(newValue, value, width * sizeof newValue[0]);
@@ -195,7 +195,7 @@ class bint {
         // Make a result of the same size as operand "a"
         bint sum(a->width);
 
-        int i = 0;
+        uint64_t i = 0;
         uint64_t s = 0;
         uint64_t carry = 0;
         uint64_t *aPtr = a->value;
@@ -226,6 +226,7 @@ class bint {
     inline bint operator-(const bint &b) const {
         // Demand this operand is wider than the a operand
         if (this->width < b.width) {
+            std::cout << "!!!!! this width: " << this->width << " is less than b width: " << b.width << std::endl;
             std::cout << "!!!!! this: " << *this << " b: " << b << std::endl;
         }
         assert(this->width >= b.width);
@@ -234,7 +235,7 @@ class bint {
         bint difference(this->width);
 
         uint64_t borrow = 0;
-        int i = 0;
+        uint64_t i = 0;
         uint64_t *aPtr = this->value;
         uint64_t *bPtr = b.value;
         uint64_t *dPtr = difference.value;
@@ -255,13 +256,16 @@ class bint {
             aPtr++;
             i++;
         }
+        // If there is a borrow here we have a problem, we can't handle negative numbers
+        assert(borrow == 0);
+
         return difference;
     }
 
     inline bint simpleMul(uint64_t k) const {
         bint product(width);
         uint64_t carry = 0;
-        int i = 0;
+        uint64_t i = 0;
         for (i = 0; i < width; i++) {
             uint64_t p = value[i] * k + carry;
             if (p < BASE) {
@@ -303,8 +307,7 @@ class bint {
         bint z1 = (low1 + high1) * (low2 + high2);
         bint z2 = high1 * high2;
 
-        bint s1 = z1 - z2;
-        bint s2 = s1 - z0;
+        bint s2 = z1 - z2 - z0;
 
         return z2.shift(m2 * 2) + s2.shift(m2) + z0;
     }
@@ -323,8 +326,10 @@ class bint {
 
   private:
     uint64_t *value;
-    int32_t width;
+    uint64_t width;
     const bint *parent;
 };
+
+
 
 #endif // BINT_H
