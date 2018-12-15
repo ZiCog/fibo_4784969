@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <math.h>
+#include <time.h>
 
 #define N 4784969
 
@@ -285,6 +286,21 @@ fibo( const int n, bignum * const a, bignum * const b ) {
     ffree(taa);
 }
 
+void timeIt(int n) {
+    double startTime;
+    double endTime;
+    double elapsedTime;
+    bignum a, b;
+
+    startTime = (float)clock()/CLOCKS_PER_SEC;
+
+    fibo( n - 1, &a, &b );
+
+    endTime = (float)clock()/CLOCKS_PER_SEC;
+    elapsedTime = endTime - startTime;
+    printf("%d, %f\n", n, elapsedTime);
+}
+
 int
 main( void ) {
     if( (bp = malloc( (size_t)bn_size * ALLOC_DEPTH * sizeof(qword) )) == NULL ) {
@@ -295,8 +311,10 @@ main( void ) {
         printf( "%d\n", N );
         return EXIT_SUCCESS;
     }
-    bignum a, b;
-    fibo( N - 1, &a, &b );
-    print_bn(b);
+    timeIt(4784969);
+
+    for (int n = 2; n <= 1024 * 1024 * 32; n *= 2) {
+        timeIt(n);
+    }
     return EXIT_SUCCESS;
 }
