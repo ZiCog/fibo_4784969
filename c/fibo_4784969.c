@@ -6,6 +6,7 @@
 void timeIt(int n) {
     mpz_t res;
     mpz_init( res );
+
     double startTime;
     double endTime;
     double elapsedTime;
@@ -19,14 +20,14 @@ void timeIt(int n) {
 
 //    gmp_printf( "%Zd\n", res );
 
-    printf("%f\n", elapsedTime);
+    printf("%d, %f\n", n, elapsedTime);
 }
 
 int main( void )
 {
 //    timeIt(4784969);
 
-    for (int n = 10; n <= 10000000; n *= 10) {
+    for (int n = 2; n <= 1024 * 1024 * 256; n *= 2) {
         timeIt(n);
     }
 
