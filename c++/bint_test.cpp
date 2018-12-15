@@ -509,6 +509,31 @@ void test_28 (void)
     std::cout << std::endl;
 }
 
+void timeIt(int n) {
+
+    double startTime;
+    double endTime;
+    double elapsedTime;
+
+    startTime = (float)clock()/CLOCKS_PER_SEC;
+
+    bint res = fibok(n);
+
+    endTime = (float)clock()/CLOCKS_PER_SEC;
+    elapsedTime = endTime - startTime;
+
+    std::cout << n << " , " << elapsedTime << std::endl;
+}
+
+void test_29 (void)
+{
+    std::cout << std::endl << "Test 29: " << std::endl;
+
+    for (int n = 2; n <= 1024 * 1024 * 32; n *= 2) {
+        timeIt(n);
+    }
+}
+
 int main (int argc, char* argv[])
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
@@ -544,6 +569,7 @@ int main (int argc, char* argv[])
     test_26();   // PASS !!
     test_27();   // PASS !!
     test_28();   // PASS !!
+    test_29();
     return 0;
 }
 
