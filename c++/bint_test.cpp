@@ -534,7 +534,7 @@ void test_29 (void)
     }
 }
 
-// This is the way ejolson did it. It's a bit slower than fibox above
+// This is the way ejolson did it. It's a bit slower than fibok above
 static void fibo_ejolson(int n, bint& a, bint& b) {
     if( n == 0 ) {
         a = bint("0");
@@ -542,22 +542,16 @@ static void fibo_ejolson(int n, bint& a, bint& b) {
         return;
     }
     fibo_ejolson(n / 2, a, b);
-    bint ta = a, tb = b;
-    bint taa = ta * ta;
-    bint tbb = tb * tb;
+    bint taa = a * a;
+    bint tbb = b * b;
     bint taapbb = taa + tbb;
     if(n & 1) {
-            // [a,b] = [a*a+b*b,b*(2*a+b)]
-        bint t2a = ta + ta;
-        bint t2apb = t2a + tb;
-        bint tbL2apbR = tb * t2apb;
+        // [a, b] = [a*a + b*b, b*(2*a + b)]
+        b = b * (a + a + b);
         a = taapbb;
-        b = tbL2apbR;
     } else {
-            // [a,b] = [a*(b*2-a),a*a+b*b]
-        bint t2bma = tb + tb - ta;
-        bint taL2bmaR = ta * t2bma;
-        a = taL2bmaR;
+        // [a, b] = [a*(b*2 - a), a*a + b*b]
+        a = a * (b + b -  a);
         b = taapbb;
     }
 }
@@ -569,7 +563,7 @@ void test_30 (void)
     bint a;
     bint b;
 
-    fibo_ejolson(20000, a, b);
+    fibo_ejolson(4784969, a, b);
 
     std::cout << a << std::endl;
 }
