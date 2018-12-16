@@ -534,12 +534,52 @@ void test_29 (void)
     }
 }
 
+// This is the way ejolson did it. It's a bit slower than fibox above
+static void fibo_ejolson(int n, bint& a, bint& b) {
+    if( n == 0 ) {
+        a = bint("0");
+        b = bint("1");
+        return;
+    }
+    fibo_ejolson(n / 2, a, b);
+    bint ta = a, tb = b;
+    bint taa = ta * ta;
+    bint tbb = tb * tb;
+    bint taapbb = taa + tbb;
+    if(n & 1) {
+            // [a,b] = [a*a+b*b,b*(2*a+b)]
+        bint t2a = ta + ta;
+        bint t2apb = t2a + tb;
+        bint tbL2apbR = tb * t2apb;
+        a = taapbb;
+        b = tbL2apbR;
+    } else {
+            // [a,b] = [a*(b*2-a),a*a+b*b]
+        bint t2bma = tb + tb - ta;
+        bint taL2bmaR = ta * t2bma;
+        a = taL2bmaR;
+        b = taapbb;
+    }
+}
+
+void test_30 (void)
+{
+    std::cout << std::endl << "Test 30: " << std::endl;
+
+    bint a;
+    bint b;
+
+    fibo_ejolson(20000, a, b);
+
+    std::cout << a << std::endl;
+}
+
 int main (int argc, char* argv[])
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
     std::cout << "LIMIT = " << LIMIT << std::endl << std::endl;
-
+/*
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
@@ -570,6 +610,9 @@ int main (int argc, char* argv[])
     test_27();   // PASS !!
     test_28();   // PASS !!
     test_29();
+*/
+    test_30();
+
     return 0;
 }
 
