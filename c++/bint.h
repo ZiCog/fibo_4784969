@@ -13,6 +13,8 @@
 //#define NDEBUG
 #include <cassert>
 
+// extern LinearAllocator linearAllocator; // NOT IN USE YET
+
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
@@ -35,10 +37,9 @@ class bint {
     inline bint() : value(0), width(0), parent(0) {}
 
     bint(size_t width) : width(width), parent(0) {
-        value = new uint64_t[width];
+        value = allocate(width);
         bzero(value, width * sizeof value[0]);
 #if DEBUG
-        allocBytes += width + 1;
         allocWithWidth++;
 #endif
     }
@@ -65,11 +66,10 @@ class bint {
         if (d2)
             width++;
 
-        value = new uint64_t[width];
+        value = allocate(width);
         parent = 0;
 #if DEBUG
         allocString++;
-        allocBytes += width;
 #endif
         bzero(value, width * sizeof(uint64_t));
 
@@ -88,42 +88,55 @@ class bint {
     // copy constructor
     inline bint(const bint &k) {
         width = k.width;
-        value = new uint64_t[k.width];
+        value = allocate(k.width);
         parent = 0;
         memcpy(value, k.value, width * sizeof value[0]);
 #if DEBUG
-        allocBytes += k.width;
         allocCopy++;
 #endif
     }
 
     inline ~bint() {
         if (parent == 0) {
-            delete[] value;
+            assert(value != 0);
+            deallocate(value, width);
         }
+    }
+
+    inline uint64_t* allocate(size_t n) {
+#if DEBUG
+        allocBytes += n * sizeof(uint64_t);
+#endif
+        return new uint64_t[n];
+//        return linearAllocator.allocate(n);  // NOT IN USE YET
+    }
+
+    inline void deallocate(uint64_t* d, size_t n) {
+//          linearAllocator.deallocate(d, n);  // NOT IN USE YET
+        delete[] d;
     }
 
     inline void operator=(const bint &k) {
         if (width != k.width) {
             width = k.width;
-            delete[] value;
-            value = new uint64_t[k.width];
-#if DEBUG
-            allocBytes += k.width;
-            allocEquals++;
-#endif
+            if (value != 0) {
+                deallocate(value, width);
+            }
+            value = allocate(k.width);
         }
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    void operator=(const char *s) {
-        width = strlen(s);
-        delete[] value;
-
-        value = new uint64_t[width];
+    void operator=(const char *s) {       // FIXME: This only works for short strings
+        uint64_t swidth = strlen(s);
+        if (width > 0) {
+            assert(value != 0);
+            deallocate(value, width);
+        }
+        value = allocate(swidth);
+        width = swidth;
 #if DEBUG
         allocEqualsString++;
-        allocBytes += width;
 #endif
         bzero(value, width * sizeof value[0]);
 
@@ -171,13 +184,13 @@ class bint {
 
     void growByOne() {
         uint64_t newWidth = width + 1;
-        uint64_t *newValue = new uint64_t[newWidth];
+        uint64_t *newValue = allocate(newWidth);
         bzero(newValue, newWidth * sizeof newValue[0]);
         std::memcpy(newValue, value, width * sizeof newValue[0]);
-        delete[] value;
+        assert(value != 0);
+        deallocate(value, width);
 #if DEBUG
         allocGrow++;
-        allocBytes += newWidth;
 #endif
         value = newValue;
         width = newWidth;
