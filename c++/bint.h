@@ -127,29 +127,6 @@ class bint {
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    void operator=(const char *s) {       // FIXME: This only works for short strings
-        uint64_t swidth = strlen(s);
-        if (width > 0) {
-            assert(value != 0);
-            deallocate(value, width);
-        }
-        value = allocate(swidth);
-        width = swidth;
-#if DEBUG
-        allocEqualsString++;
-#endif
-        bzero(value, width * sizeof value[0]);
-
-        int i = 0;
-        const char *r = s + strlen(s) - 1;
-
-        while (r >= s) {
-            value[i] = *r - '0';
-            i++;
-            r--;
-        }
-    }
-
     inline const bint low(uint64_t mid) const {
         assert(width > 1);
         assert(mid < width);
@@ -342,7 +319,4 @@ class bint {
     uint64_t width;
     const bint *parent;
 };
-
-
-
 #endif // BINT_H
