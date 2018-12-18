@@ -13,7 +13,9 @@
 //#define NDEBUG
 #include <cassert>
 
-// extern LinearAllocator linearAllocator; // NOT IN USE YET
+#include "LinearAllocator.h"
+
+extern LinearAllocator linearAllocator; // NOT IN USE YET
 
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
@@ -158,6 +160,20 @@ class bint {
         allocShift++;
 #endif
         return result;
+    }
+
+    bool operator== (bint const &rhs) {
+        if (rhs.width != width) {
+            return false;
+        }
+        if (memcmp(this->value, rhs.value, width * sizeof(uint64_t)) != 0) {
+            return false;
+        }
+        return true;
+    }
+
+    bool operator!= (bint const &rhs) {
+        return !(*this == rhs);
     }
 
     inline bint operator+(const bint &n) const {
