@@ -98,7 +98,7 @@ class bint {
 
     inline ~bint() {
         if (parent == 0) {
-            assert(value != 0);
+            //assert(value != 0);
             deallocate(value, width);
         }
     }
@@ -117,6 +117,7 @@ class bint {
     }
 
     inline void operator=(const bint &k) {
+        assert (0 && "Mutant detected!");
         if (width != k.width) {
             width = k.width;
             if (value != 0) {
@@ -159,20 +160,6 @@ class bint {
         return result;
     }
 
-    void growByOne() {
-        uint64_t newWidth = width + 1;
-        uint64_t *newValue = allocate(newWidth);
-        bzero(newValue, newWidth * sizeof newValue[0]);
-        std::memcpy(newValue, value, width * sizeof newValue[0]);
-        assert(value != 0);
-        deallocate(value, width);
-#if DEBUG
-        allocGrow++;
-#endif
-        value = newValue;
-        width = newWidth;
-    }
-
     inline bint operator+(const bint &n) const {
         // Ensure "a" operand is longer than "b" operand
         const bint *a = this;
@@ -182,8 +169,8 @@ class bint {
             b = this;
         }
 
-        // Make a result of the same size as operand "a"
-        bint sum(a->width);
+        // Make a result of the same size as operand "a" with room for overflow
+        bint sum(a->width + 1);
 
         uint64_t i = 0;
         uint64_t s = 0;
@@ -207,8 +194,9 @@ class bint {
         }
         // If carry is set here we need more digits!
         if (carry) {
-            sum.growByOne();
             sum.value[i] = 1;
+        } else {
+            sum.width--;
         }
         return sum;
     }
@@ -253,7 +241,9 @@ class bint {
     }
 
     inline bint simpleMul(uint64_t k) const {
-        bint product(width);
+        // Make a product wide enough for the result with overflow
+        bint product(width + 1);
+
         uint64_t carry = 0;
         uint64_t i = 0;
         for (i = 0; i < width; i++) {
@@ -268,8 +258,9 @@ class bint {
         }
         // If carry we need more digits
         if (carry) {
-            product.growByOne();
             product.value[i] = carry;
+        } else {
+            product.width--;
         }
         return product;
     }
