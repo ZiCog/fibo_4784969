@@ -1,5 +1,8 @@
 #include <time.h> 
 #include "bint.h"
+#include "LinearAllocator.h"
+
+LinearAllocator linearAllocator; 
 
 // Construct, NULL value
 void test_01 (void)
@@ -456,10 +459,11 @@ void test_27 (void)
     std::cout << "res2: " << res2 << std::endl;
 }
 
+/*
 bint zero = "0";
 bint one = "1";
 bint two = "2";
-
+*/
 int isEven(int n)
 {
     return (n & 1) == 0;
@@ -481,7 +485,7 @@ bint fibok (int n)
             bint fk1 = fibok(k + 1);
             if (isEven(n))
             {
-                bint x = fk1 * two - fk;
+                bint x = fk1 * bint("2") - fk;
                 bint res = fk * x;
                 return res;
             }
@@ -563,11 +567,30 @@ void test_30 (void)
     std::cout << a << std::endl;
 }
 
+bint factorial(bint n)
+{
+    if (n == bint("0"))
+        return bint("1");
+    else
+        return(n * factorial(n - bint("1")));
+}
+
+void test_31 (void)
+{
+    std::cout << std::endl << "Test 31: " << std::endl;
+
+    bint res = factorial(bint("100"));
+    std::cout << "Expect: " << "93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000" << std::endl;
+    std::cout << "        " << res << std::endl;
+}
+
 int main (int argc, char* argv[])
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
     std::cout << "LIMIT = " << LIMIT << std::endl << std::endl;
+
+    linearAllocator.initialize(1024 * 1024 * 16);
 
     test_01();   // PASS !!
     test_02();   // PASS !!
@@ -597,10 +620,14 @@ int main (int argc, char* argv[])
     test_25();   // PASS !!
 //    test_26();   // Mutant detected
 //    test_27();   // Mutant detected
+
     test_28();   // PASS !!
 
 //    test_29(); // PASS !! Too long to run
 //    test_30();  // Mutant detected
+    test_31();
+
+    linearAllocator.release();
 
     return 0;
 }
