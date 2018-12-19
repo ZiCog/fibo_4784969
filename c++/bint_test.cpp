@@ -1,8 +1,5 @@
 #include <time.h> 
 #include "bint.h"
-#include "LinearAllocator.h"
-
-LinearAllocator linearAllocator; 
 
 // Construct, NULL value
 void test_01 (void)
@@ -590,8 +587,6 @@ int main (int argc, char* argv[])
     std::cout << "BASE = " << BASE << std::endl;
     std::cout << "LIMIT = " << LIMIT << std::endl << std::endl;
 
-    linearAllocator.initialize(1024 * 1024 * 16);
-
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
@@ -626,8 +621,6 @@ int main (int argc, char* argv[])
 //    test_29(); // PASS !! Too long to run
 //    test_30();  // Mutant detected
     test_31();
-
-    linearAllocator.release();
 
     return 0;
 }

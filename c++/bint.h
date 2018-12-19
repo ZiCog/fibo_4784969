@@ -13,10 +13,6 @@
 //#define NDEBUG
 #include <cassert>
 
-#include "LinearAllocator.h"
-
-extern LinearAllocator linearAllocator; // NOT IN USE YET
-
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
@@ -110,11 +106,9 @@ class bint {
         allocBytes += n * sizeof(uint64_t);
 #endif
         return new uint64_t[n];
-//        return linearAllocator.allocate(n);  // NOT IN USE YET
     }
 
     inline void deallocate(uint64_t* d, size_t n) {
-//          linearAllocator.deallocate(d, n);  // NOT IN USE YET
         delete[] d;
     }
 

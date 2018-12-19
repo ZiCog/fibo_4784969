@@ -100,9 +100,7 @@ bint timeIt(int n) {
 
 int main(int argc, char *argv[]) {
 #if 1
-
     bint res = timeIt(4784969);
-//    bint res = timeIt(20000);
     std::cout << res << std::endl;
 
 #if DEBUG
