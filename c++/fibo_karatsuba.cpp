@@ -58,26 +58,6 @@ bint fibo (int n)
 }
 #endif
 
-// This is the way ejolson did it. It's a bit slower than my fibo above
-static void fibo_ejolson(int n, bint& a, bint& b) {
-    if( n == 0 ) {
-        a = bint("0");
-        b = bint("1");
-        return;
-    }
-    fibo_ejolson(n / 2, a, b);
-    bint taa = a * a;
-    bint tbb = b * b;
-    bint taapbb = taa + tbb;
-    if(n & 1) {
-        b = b * (a + a + b);
-        a = taapbb;
-    } else {
-        a = a * (b + b - a);
-        b = taapbb;
-    }
-}
-
 bint timeIt(int n) {
     double endTime;
     double elapsedTime;
@@ -93,15 +73,22 @@ bint timeIt(int n) {
 
     endTime = (float)clock()/CLOCKS_PER_SEC;
     elapsedTime = endTime - startTime;
+#if DEBUG
     std::cout << "Compute time: " << elapsedTime << std::endl;
+#endif
 
     return res;
 }
 
+
+
 int main(int argc, char *argv[]) {
-#if 1
     bint res = timeIt(4784969);
+
+//    bint res = timeIt(200000);
+
     std::cout << res << std::endl;
+
 
 #if DEBUG
     std::cout << "allocWithWidth: " << allocWithWidth << std::endl;
@@ -114,13 +101,12 @@ int main(int argc, char *argv[]) {
     std::cout << "allocShift: " << allocShift << std::endl;
     std::cout << "allocGrow: " << allocGrow << std::endl;
     std::cout << "allocBytes: " << allocBytes << std::endl;
-#endif
 
-#else
-    bint a;
-    bint b;
-    fibo_ejolson(4784969, a, b);
-    std::cout << a << std::endl;
+    for (int i = 0; i < 17; i++) {
+        std::cout << allocs[i] << std::endl;
+    }
+
+
 #endif
     return 0;
 }
