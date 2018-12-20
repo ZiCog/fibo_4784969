@@ -101,6 +101,7 @@ int main(int argc, char *argv[]) {
     std::cout << "allocShift: " << allocShift << std::endl;
     std::cout << "allocGrow: " << allocGrow << std::endl;
     std::cout << "allocBytes: " << allocBytes << std::endl;
+    std::cout << "allocations: " << allocations << std::endl;
 
     for (int i = 0; i < 17; i++) {
         std::cout << allocs[i] << std::endl;

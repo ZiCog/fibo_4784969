@@ -29,6 +29,7 @@ uint64_t allocLow = 0;
 uint64_t allocShift = 0;
 uint64_t allocGrow = 0;
 uint64_t allocBytes = 0;
+uint64_t allocations = 0;
 #endif
 
 class bint {
@@ -145,6 +146,7 @@ class bint {
             } else {
                 allocs[16]++;
             }
+            allocations++;
 #endif
             return new uint64_t[n];
         }
@@ -255,6 +257,85 @@ class bint {
         return sum;
     }
 
+    // Calculate:  a.shift(n) + b.shift(n/2) + c;
+    inline bint shiftAndAdd(const bint &a, const bint &b, const bint &c, int aShift, int bShift) const {
+        assert(aShift >= bShift);
+
+        // Make a result big enough with room for overflow
+        uint64_t newWidth;
+        if ((a.width + aShift) > (b.width + bShift)) {
+            newWidth = a.width + aShift + 1;
+        } else {
+            newWidth = b.width + bShift + 1;
+        }
+        bint result(newWidth);
+
+        assert(result.width >= a.width + aShift);
+        assert(result.width >= b.width + bShift);
+
+        // Move c into the result
+        memcpy(result.value, c.value, c.width * sizeof (uint64_t));
+        bzero(result.value + c.width, (result.width - c.width) * sizeof (uint64_t));
+
+        // Add b into the result with offset bShift
+        uint64_t s = 0;
+        uint64_t carry = 0;
+        uint64_t i = 0;
+        uint64_t *bPtr = b.value;
+        uint64_t *rPtr = result.value + bShift;
+        while (i < b.width) {
+            s = *rPtr + *bPtr + carry;
+            carry = (s >= BASE);
+            s -= BASE * carry;
+            *rPtr = s;
+            bPtr++;
+            rPtr++;
+            i++;
+        }
+        while (i < result.width - bShift - 1) {
+            s = (*rPtr) + carry;
+            carry = (s >= BASE);
+            s -= BASE * carry;
+            *rPtr = s;
+            rPtr++;
+            i++;
+        }
+        // Propagate carry       // FIXME: There are two carries going on here. This is not right yet.
+        *rPtr++ += carry;
+
+        // Add a into the result with offset aShift
+        s = 0;
+        carry = 0;
+        i = 0;
+        uint64_t *aPtr = a.value;
+        rPtr = result.value + aShift;
+        while (i < a.width) {
+            s = *rPtr + *aPtr + carry;
+            carry = (s >= BASE);
+            s -= BASE * carry;
+            *rPtr = s;
+            aPtr++;
+            rPtr++;
+            i++;
+        }
+        while (i < result.width - aShift - 1) {
+            s = *rPtr + carry;
+            carry = (s >= BASE);
+            s -= BASE * carry;
+            *rPtr = s;
+            rPtr++;
+            i++;
+        }
+        // If carry is set here we need more digits!        // FIXME: There are two carries going on here. This is not right yet.
+        if (carry) {
+            *rPtr = 1;
+        } else {
+            result.width--;
+        }
+
+        return result;
+    }
+
     inline bint operator-(const bint &b) const {
         // Demand this operand is wider than the a operand
         if (this->width < b.width) {
@@ -293,6 +374,7 @@ class bint {
 
         return difference;
     }
+
 
     inline bint simpleMul(uint64_t k) const {
         // Make a product wide enough for the result with overflow
@@ -349,7 +431,7 @@ class bint {
 
         bint s2 = z1 - z2 - z0;
 
-        return z2.shift(m2 * 2) + s2.shift(m2) + z0;
+        return shiftAndAdd(z2, s2, z0, m2 * 2, m2);
     }
 
     inline friend std::ostream &operator<<(std::ostream &os, const bint &b) {
