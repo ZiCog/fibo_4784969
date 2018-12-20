@@ -251,7 +251,11 @@ void test_16 (void)
 {
     std::cout << std::endl << "Test 16: " << std::endl;
 
-    bint x = "99999998888888333333322222221111111";
+    bint x = "999999999999999999"
+             "888888888888888888"
+             "777777777777777777"
+             "666666666666666666"
+             "555555555555555555";
     std::cout << "x: " << x << std::endl;
     bint low = x.low(2);
     std::cout << "low: " << low << std::endl;
@@ -581,11 +585,10 @@ void test_31 (void)
     std::cout << "        " << res << std::endl;
 }
 
-int main (int argc, char* argv[])
+int main (void)
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
-    std::cout << "LIMIT = " << LIMIT << std::endl << std::endl;
 
     test_01();   // PASS !!
     test_02();   // PASS !!
