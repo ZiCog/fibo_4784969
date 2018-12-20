@@ -13,11 +13,13 @@
 //#define NDEBUG
 #include <cassert>
 
-constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
+constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr uint64_t LIMIT = BASE - 1;
+constexpr int STACK_VALUE_SIZE = 128;
 
 #if DEBUG
+uint64_t allocs[17];
 uint64_t allocWithWidth = 0;
 uint64_t allocCopy = 0;
 uint64_t allocString = 0;
@@ -97,19 +99,62 @@ class bint {
     inline ~bint() {
         if (parent == 0) {
             //assert(value != 0);
-            deallocate(value, width);
+            deallocate(value);
         }
     }
 
     inline uint64_t* allocate(size_t n) {
+        if (n <= STACK_VALUE_SIZE) {
+            value = valueOnstack;
+            return valueOnstack;
+        } else {
+            value = nullptr;
 #if DEBUG
-        allocBytes += n * sizeof(uint64_t);
+            allocBytes += n * sizeof(uint64_t);
+            if (n < 2) {
+                allocs[0]++;
+            } else if (n < 4) {
+                allocs[1]++;
+            } else if (n < 8) {
+                allocs[2]++;
+            } else if (n < 16) {
+                allocs[3]++;
+            } else if (n < 32) {
+                allocs[4]++;
+            } else if (n < 64) {
+                allocs[5]++;
+            } else if (n < 128) {
+                allocs[6]++;
+            } else if (n < 256) {
+                allocs[7]++;
+            } else if (n < 512) {
+                allocs[8]++;
+            } else if (n < 1024) {
+                allocs[9]++;
+            } else if (n < 1024 * 2) {
+                allocs[10]++;
+            } else if (n < 1024 * 4) {
+                allocs[11]++;
+            } else if (n < 1024 * 8) {
+                allocs[12]++;
+            } else if (n < 1024 * 16) {
+                allocs[13]++;
+            } else if (n < 1024 * 32) {
+                allocs[14]++;
+            } else if (n < 1024 * 64){
+                allocs[15]++;
+            } else {
+                allocs[16]++;
+            }
 #endif
-        return new uint64_t[n];
+            return new uint64_t[n];
+        }
     }
 
-    inline void deallocate(uint64_t* d, size_t n) {
-        delete[] d;
+    inline void deallocate(uint64_t* d) {
+        if (value != valueOnstack) {
+            delete[] d;
+        }
     }
 
     inline void operator=(const bint &k) {
@@ -117,7 +162,7 @@ class bint {
         if (width != k.width) {
             width = k.width;
             if (value != 0) {
-                deallocate(value, width);
+                deallocate(value);
             }
             value = allocate(k.width);
         }
@@ -156,7 +201,7 @@ class bint {
         return result;
     }
 
-    bool operator== (bint const &rhs) {
+    bool operator== (const bint &rhs) const {
         if (rhs.width != width) {
             return false;
         }
@@ -166,7 +211,7 @@ class bint {
         return true;
     }
 
-    bool operator!= (bint const &rhs) {
+    bool operator!= (const bint &rhs) const {
         return !(*this == rhs);
     }
 
@@ -256,19 +301,24 @@ class bint {
 
         uint64_t carry = 0;
         uint64_t i = 0;
+        uint64_t* vPtr = value;
+        uint64_t* pPtr = product.value;
         for (i = 0; i < width; i++) {
-            uint64_t p = value[i] * k + carry;
+            __uint128_t  p = __uint128_t(*vPtr) * k + carry;
+//            uint64_t p = *vPtr * k + carry;
             if (p < BASE) {
-                product.value[i] = p;
+                *pPtr = p;
                 carry = 0;
             } else {
                 carry = p / BASE;
-                product.value[i] = p % BASE;
+                *pPtr = p % BASE;
             }
+            vPtr++;
+            pPtr++;
         }
         // If carry we need more digits
         if (carry) {
-            product.value[i] = carry;
+            *pPtr = carry;
         } else {
             product.width--;
         }
@@ -314,10 +364,11 @@ class bint {
         }
         return os;
     }
-
   private:
     uint64_t *value;
+    uint64_t valueOnstack[STACK_VALUE_SIZE];
     uint64_t width;
     const bint *parent;
 };
+
 #endif // BINT_H
