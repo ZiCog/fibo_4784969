@@ -15,7 +15,6 @@
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
-constexpr uint64_t LIMIT = BASE - 1;
 constexpr int STACK_VALUE_SIZE = 128;
 
 #if DEBUG
