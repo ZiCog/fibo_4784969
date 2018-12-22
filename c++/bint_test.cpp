@@ -332,13 +332,38 @@ void test_20_1 (void)
 void test_20 (void)
 {
     std::cout << std::endl << "Test 20: " << std::endl;
-
-    bint x = "2";
-    bint y = "3";
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
-    bint res = x * y;
-    std::cout << "res: " << res << std::endl;
+    {
+        bint x = "2";
+        bint y = "3";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x * y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        bint x = "999999999999999999";
+        bint y = "2";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x * y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        bint x = "2";
+        bint y = "999999999999999999";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x * y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        bint x = "999999999999999999";
+        bint y = "999999999999999999";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x * y;
+        std::cout << "res: " << res << std::endl;
+    }
 }
 
 // mul, the base case, one element in value, with overflow
@@ -503,7 +528,7 @@ void test_28 (void)
     std::cout << std::endl << "Test 28: " << std::endl;
 
     bint res = fibok(4784969);
-//    bint res = fibok  (2000000);
+//    bint res = fibok  (20000);
     std::cout << std::endl;
     std::cout << res;
     std::cout << std::endl;
@@ -671,6 +696,7 @@ int main (void)
     test_18();   // PASS !!
 //    test_19();   // FAILS: As it should!
     test_20_1(); // PASS !!
+    
     test_20();   // PASS !!
     test_21();   // PASS !!
     test_22();   // PASS !!
@@ -687,7 +713,6 @@ int main (void)
     test_31();
 
     test_32();
-
     return 0;
 }
 
