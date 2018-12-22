@@ -4,9 +4,9 @@
 
 #include "bint.h"
 
-bint zero = "0";
-bint one = "1";
-bint two = "2";
+const bint zero = "0";
+const bint one = "1";
+const bint two = "2";
 
 int isEven(int n) { return (n & 1) == 0; }
 
@@ -30,30 +30,25 @@ bint fibo(int n) {
     return result; 
 }
 #else
-bint fibo (int n)
+const bint fibo (int n)
 {
     switch (n)
     {
         case 0:
-            return bint("0");
+            return zero;
         case 1:
-            return bint("1");
+            return one;
         case 2:
-            return bint("1");
+            return one;
         default:
             int k = (n / 2);
-            bint fk = fibo(k);
-            bint fk1 = fibo(k + 1);
+            const bint fk = fibo(k);
+            const bint fk1 = fibo(k + 1);
             if (isEven(n))
             {
-                bint x = fk1 * two - fk;
-                bint res = fk * x;
-                return res;
+                return fk * (fk1 * two - fk);
             }
-            bint t1 = fk * fk;
-            bint t2 = fk1 * fk1;
-            bint res = t1 + t2;
-            return res;
+            return (fk * fk) + (fk1 * fk1);
     }
 }
 #endif
@@ -84,11 +79,8 @@ bint timeIt(int n) {
 
 int main(int argc, char *argv[]) {
     bint res = timeIt(4784969);
-
 //    bint res = timeIt(200000);
-
     std::cout << res << std::endl;
-
 
 #if DEBUG
     std::cout << "allocWithWidth: " << allocWithWidth << std::endl;
@@ -106,8 +98,6 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < 17; i++) {
         std::cout << allocs[i] << std::endl;
     }
-
-
 #endif
     return 0;
 }
