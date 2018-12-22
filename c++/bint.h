@@ -11,7 +11,7 @@
 #include <type_traits>
 
 // Uncomment to disable assert()
-//#define NDEBUG
+#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
@@ -219,16 +219,6 @@ class bint {
         return high;
     }
 
-    inline bint shift(int n) const {
-        // Make a result of the required size
-        bint result(this->width + n);
-        memmove(&result.value[n], &value[0], width * sizeof value[0]);
-#if DEBUG
-        allocShift++;
-#endif
-        return result;
-    }
-
     bool operator== (const bint &rhs) const {
         if (rhs.width != width) {
             return false;
@@ -245,6 +235,7 @@ class bint {
 
     inline bint operator+(const bint &n) const {
         // Ensure "a" operand is longer than "b" operand
+        // FIXME: Perhaps we could simple add reveresed operands here?
         const bint *a = this;
         const bint *b = &n;
         if (n.width > width) {
@@ -402,16 +393,33 @@ class bint {
         return difference;
     }
 
+    // FIXME: How come it's faster to use this routine than insert the code inline below?
+    inline bint verySimpleMul(uint64_t k) const {
+        assert(width == 1 && "Width must be 1 for verySimpleMul");
+        // Make a product wide enough for the result with overflow
+        bint product(width + 1);
+
+        __uint128_t  p = __uint128_t(value[0]) * k;
+//            uint64_t p = *vPtr * k + carry;
+        if (p < BASE) {
+            product.value[0] = p;
+            product.width--;
+        } else {
+            product.value[0] = p % BASE;
+            product.value[1] =  p / BASE;
+        }
+        return product;
+    }
+
     inline bint simpleMul(uint64_t k) const {
         // Make a product wide enough for the result with overflow
         bint product(width + 1);
 
         uint64_t carry = 0;
-        uint64_t i = 0;
         uint64_t* vPtr = value;
         uint64_t* pPtr = product.value;
 
-        for (i = 0; i < width; i++) {
+        for (int i = 0; i < width; i++) {
             __uint128_t  p = __uint128_t(*vPtr) * k + carry;
 //            uint64_t p = *vPtr * k + carry;
             if (p < BASE) {
@@ -433,21 +441,14 @@ class bint {
         return product;
     }
 
-    // FIXME: How come it's faster to use this routine than insert the code inline below?
-    inline bint verySimpleMul(uint64_t k) const {
-        assert(width == 1 && "Width must be 1 for verySimpleMul");
-        // Make a product wide enough for the result with overflow
-        bint product(width + 1);
+    inline bint notSoSimpleMul(const bint &b) const {
+        // Make a product wide enough for a result 
+        bint product(width + b.width);
 
-        __uint128_t  p = __uint128_t(value[0]) * k;
-//            uint64_t p = *vPtr * k + carry;
-        if (p < BASE) {
-            product.value[0] = p;
-            product.width--;
-        } else {
-            product.value[0] = p % BASE;
-            product.value[1] =  p / BASE;
-        }
+
+
+
+
         return product;
     }
 
