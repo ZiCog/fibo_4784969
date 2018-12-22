@@ -11,7 +11,7 @@
 #include <type_traits>
 
 // Uncomment to disable assert()
-#define NDEBUG
+//#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
@@ -31,6 +31,7 @@ uint64_t allocShift = 0;
 uint64_t allocGrow = 0;
 uint64_t allocBytes = 0;
 uint64_t allocations = 0;
+uint64_t mulCount = 0;
 #endif
 
 class bint {
@@ -401,7 +402,6 @@ class bint {
         return difference;
     }
 
-
     inline bint simpleMul(uint64_t k) const {
         // Make a product wide enough for the result with overflow
         bint product(width + 1);
@@ -433,12 +433,37 @@ class bint {
         return product;
     }
 
-    inline bint operator*(const bint &b) const {
-        // The base case(s), only one element in value, just do the multiply
-        if (width == 1) {
-            return b.simpleMul(value[0]);
+    // FIXME: How come it's faster to use this routine than insert the code inline below?
+    inline bint verySimpleMul(uint64_t k) const {
+        assert(width == 1 && "Width must be 1 for verySimpleMul");
+        // Make a product wide enough for the result with overflow
+        bint product(width + 1);
+
+        __uint128_t  p = __uint128_t(value[0]) * k;
+//            uint64_t p = *vPtr * k + carry;
+        if (p < BASE) {
+            product.value[0] = p;
+            product.width--;
+        } else {
+            product.value[0] = p % BASE;
+            product.value[1] =  p / BASE;
         }
-        if (b.width == 1) {
+        return product;
+    }
+
+    inline bint operator*(const bint &b) const {
+#ifdef DEBUG
+        if ((width > STACK_VALUE_SIZE) || (b.width > STACK_VALUE_SIZE)) {
+            std::cout << this->width << ", " << b.width << '\n';
+        }
+        mulCount++;
+#endif
+        // The base case(s), only one element in value, just do the multiply
+        if ((width == 1) && (b.width == 1)) {
+            return simpleMul(b.value[0]);
+        } else if (width == 1) {
+            return b.simpleMul(value[0]);
+        } else if (b.width == 1) {
             return simpleMul(b.value[0]);
         }
         // Calculates the size of the numbers

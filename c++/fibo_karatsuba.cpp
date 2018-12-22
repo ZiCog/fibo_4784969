@@ -56,7 +56,7 @@ const bint fibo (int n)
 bint timeIt(int n) {
     double endTime;
     double elapsedTime;
-    double startTime = (float)clock()/CLOCKS_PER_SEC;
+    double startTime = clock() / CLOCKS_PER_SEC;
 
 #if MUTABLE
     memo.clear();
@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
     std::cout << "allocGrow: " << allocGrow << std::endl;
     std::cout << "allocBytes: " << allocBytes << std::endl;
     std::cout << "allocations: " << allocations << std::endl;
+    std::cout << "mulCount: " << mulCount << std::endl;
 
     for (int i = 0; i < 17; i++) {
         std::cout << allocs[i] << std::endl;
