@@ -8,14 +8,15 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
+#include <type_traits>
 
 // Uncomment to disable assert()
-//#define NDEBUG
+#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
-constexpr int STACK_VALUE_SIZE = 128;
+constexpr int STACK_VALUE_SIZE = 64;
 
 #if DEBUG
 uint64_t allocs[17];
@@ -96,6 +97,29 @@ class bint {
 #endif
     }
 
+    // Move constructor.
+    bint(bint&& other) {
+        static_assert(std::is_move_constructible<bint>::value, "Not move constructible.");
+        width = other.width;
+        parent = other.parent;
+        if (other.value == other.valueOnstack) {
+            memcpy (valueOnstack, other.valueOnstack, sizeof(valueOnstack));
+            value = valueOnstack;
+        } else {
+            value = other.value;
+        }
+        other.value = nullptr;
+        other.width = 0;
+        other.parent = 0;
+    }
+
+    // Move assignment operator.
+    bint& operator=(bint&& other)
+    {
+        assert(false && "Move assignment operator not implemented.");
+        return *this;
+    }
+
     inline ~bint() {
         if (parent == 0) {
             //assert(value != 0);
@@ -159,7 +183,9 @@ class bint {
     }
 
     inline void operator=(const bint &k) {
+#ifndef MUTABLE
         assert (0 && "Mutant detected!");
+#endif
         if (width != k.width) {
             width = k.width;
             if (value != 0) {
@@ -384,6 +410,7 @@ class bint {
         uint64_t i = 0;
         uint64_t* vPtr = value;
         uint64_t* pPtr = product.value;
+
         for (i = 0; i < width; i++) {
             __uint128_t  p = __uint128_t(*vPtr) * k + carry;
 //            uint64_t p = *vPtr * k + carry;
@@ -419,17 +446,17 @@ class bint {
         int m2 = m / 2;
 
         // Split the numbers in the middle
-        bint high1 = this->high(m2);
-        bint low1 = this->low(m2);
-        bint high2 = b.high(m2);
-        bint low2 = b.low(m2);
+        const bint high1 = this->high(m2);
+        const bint low1 = this->low(m2);
+        const bint high2 = b.high(m2);
+        const bint low2 = b.low(m2);
 
         // Do da karatsaba shuffle, yabba dabba do.
-        bint z0 = low1 * low2;
-        bint z1 = (low1 + high1) * (low2 + high2);
-        bint z2 = high1 * high2;
+        const bint z0 = low1 * low2;
+        const bint z1 = (low1 + high1) * (low2 + high2);
+        const bint z2 = high1 * high2;
 
-        bint s2 = z1 - z2 - z0;
+        const bint s2 = z1 - z2 - z0;
 
         return shiftAndAdd(z2, s2, z0, m2 * 2, m2);
     }
