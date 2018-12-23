@@ -5,7 +5,7 @@
 By Raspberry Pi forum member Paeryn:
 https://www.raspberrypi.org/forums/viewtopic.php?f=62&t=227343&start=825#p1407243
 
-This is blindingly fast. There are three progressively faster methods included in the source, the fastest one run out of the box.
+This is blindingly fast. There are three progressively faster methods included in the source, the fastest one runs out of the box.
 
 Get yourself a Haskell compiler, for example on Debian:
 
@@ -22,4 +22,6 @@ Build and run it (timed on my x86 PC):
     user    0m0.063s
     sys     0m0.063s
     4856539211500699706378405156269
-
+    real    0m0.273s
+    user    0m0.234s
+    sys     0m0.063s
