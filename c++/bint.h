@@ -9,9 +9,10 @@
 #include <iostream>
 #include <math.h>
 #include <type_traits>
+#include <strings.h>
 
 // Uncomment to disable assert()
-#define NDEBUG
+//#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
@@ -109,6 +110,7 @@ class bint {
         } else {
             value = other.value;
         }
+
         other.value = nullptr;
         other.width = 0;
         other.parent = 0;
@@ -117,7 +119,24 @@ class bint {
     // Move assignment operator.
     bint& operator=(bint&& other)
     {
-        assert(false && "Move assignment operator not implemented.");
+        static_assert(std::is_move_assignable<bint>::value, "Not move assignable.");
+
+        if (this != &other)
+        {
+            width = other.width;
+            parent = other.parent;
+            if (other.value == other.valueOnstack) {
+                memcpy (valueOnstack, other.valueOnstack, sizeof(valueOnstack));
+                value = valueOnstack;
+            } else {
+                delete[] value;
+                value = other.value;
+            }
+
+            other.value = nullptr;
+            other.width = 0;
+            other.parent = 0;
+        }
         return *this;
     }
 
@@ -400,7 +419,7 @@ class bint {
         bint product(width + 1);
 
         __uint128_t  p = __uint128_t(value[0]) * k;
-//            uint64_t p = *vPtr * k + carry;
+//        uint64_t p = value[0] * k;
         if (p < BASE) {
             product.value[0] = p;
             product.width--;
@@ -442,14 +461,24 @@ class bint {
     }
 
     inline bint notSoSimpleMul(const bint &b) const {
+        assert ((width < STACK_VALUE_SIZE) && "notSoSimpleMul requires operands less than STACK_VALUE_SIZE in width");
+
+        // Ensure this is the wider operand.
+        if (b.width > width) {
+            return b.notSoSimpleMul(*this);
+        }
+
         // Make a product wide enough for a result 
-        bint product(width + b.width);
+        bint s = "0";
+        bint c = "0";
 
-
-
-
-
-        return product;
+        for (int i = 0; i < b.width; i++) {
+            bint p = this->simpleMul(b.value[i]);    
+            std::cout << "p[" << i << "] = " << p << std::endl;
+            s = shiftAndAdd(p, s, c, i, 0);
+            //s = s + p;
+        }
+        return s;
     }
 
     inline bint operator*(const bint &b) const {

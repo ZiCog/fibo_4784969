@@ -46,20 +46,8 @@ void test_03 (void)
     std::cout << "t: " << t << std::endl;
 }
 
-// shift
 void test_04 (void)
 {
-
-//  [1, 2, 3, 4]
-//  shift 3 becomes
-//  [ 0, 0, 0, 1, 2, 3, 4 ]
-
-    std::cout << std::endl << "Test 03: " << std::endl;
-
-    bint x = "1111111222222233333334444444";
-    std::cout << "x: " << x << std::endl;
-    bint res = x.shift(3);  
-    std::cout << "res: " << res << std::endl;
 }
 
 // 
@@ -669,7 +657,68 @@ void test_32 (void)
 */
 }
 
+// 
+void test_34 (void)
+{
+    std::cout << std::endl << "Test 33: " << std::endl;
+    {
+        bint x = "2";
+        bint y = "3";
 
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << res << std::endl;
+    }
+    {
+        bint x = "222222222222222222";
+        bint y = "3";
+
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << res << std::endl;
+    }
+    {
+        bint x = "2";
+        bint y = "333333333333333333";
+
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << res << std::endl;
+    }
+    {
+        bint x = "222222222222222222222222222222222222";
+        bint y = "3";
+
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << res << std::endl;
+    }
+    {
+        bint x = "2";
+        bint y = "333333333333333333333333333333333333";
+
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << res << std::endl;
+    }
+    {
+        bint x = "111111111111111111222222222222222222";
+        bint y = "333333333333333333444444444444444444";
+
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << res << std::endl;
+    }
+    {
+        bint x = "37037037037037037086419753086419752975308641975308641901234567901234568";
+        bint y = "37037037037037037086419753086419752975308641975308641901234567901234568";
+
+        bint res = x.notSoSimpleMul(y);
+
+        std::cout << "Expect:" << "1371742112482853227251943301326017369608291418991007451912818167962200896357262612406645354671543971955494572778539856729157126047858558146624" << std::endl;
+        std::cout << "       " << res << std::endl;
+    }
+}
 
 int main (void)
 {
@@ -696,7 +745,7 @@ int main (void)
     test_18();   // PASS !!
 //    test_19();   // FAILS: As it should!
     test_20_1(); // PASS !!
-    
+
     test_20();   // PASS !!
     test_21();   // PASS !!
     test_22();   // PASS !!
@@ -711,8 +760,10 @@ int main (void)
 //    test_29(); // PASS !! Too long to run
 //    test_30();  // Mutant detected
     test_31();
-
     test_32();
+
+    test_34();
+
     return 0;
 }
 
