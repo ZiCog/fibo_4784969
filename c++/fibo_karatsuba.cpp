@@ -10,9 +10,9 @@ const bint two = "2";
 
 int isEven(int n) { return (n & 1) == 0; }
 
-#if MUTABLE
 std::unordered_map<uint64_t, bint> memo;
 
+#if MUTABLE
 bint fibo(int n) {
     if (memo.find(n) != memo.end()) {
         return memo[n];    
@@ -30,7 +30,7 @@ bint fibo(int n) {
     return result; 
 }
 #else
-const bint fibo (int n)
+const bint fiboEjolson (int n)
 {
     switch (n)
     {
@@ -53,6 +53,24 @@ const bint fibo (int n)
 }
 #endif
 
+// This version derived from Paeryn's Haskell example.
+const bint fiboFast (int n) {
+    if (memo.find(n) != memo.end()) {
+        return memo[n];    
+    }
+
+    int k = (n / 2);
+    const bint a = fiboFast(k);
+    const bint b = fiboFast(k - 1);
+    if (isEven(n)) {
+        return memo[n] = a * (two * b + a);
+    }
+    if ((n % 4) == 1) {
+        return memo[n] = (two * a + b) * (two * a - b) + two;
+    }
+    return memo[n] = (two * a + b) * (two * a - b) - two;
+}
+
 bint timeIt(int n) {
     double endTime;
     double elapsedTime;
@@ -64,7 +82,7 @@ bint timeIt(int n) {
     memo[1] = one;
     memo[2] = one;
 #endif
-    bint res = fibo(n);
+    bint res = fiboFast(n);
 
     endTime = (float)clock()/CLOCKS_PER_SEC;
     elapsedTime = endTime - startTime;
@@ -74,8 +92,6 @@ bint timeIt(int n) {
 
     return res;
 }
-
-
 
 int main(int argc, char *argv[]) {
     bint res = timeIt(4784969);
