@@ -129,7 +129,7 @@ class bint {
                 memcpy (valueOnstack, other.valueOnstack, sizeof(valueOnstack));
                 value = valueOnstack;
             } else {
-                delete[] value;
+                deallocate(value);
                 value = other.value;
             }
 
