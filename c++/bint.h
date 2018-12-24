@@ -12,7 +12,7 @@
 #include <strings.h>
 
 // Uncomment to disable assert()
-#define NDEBUG
+//#define NDEBUG
 #include <cassert>
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
@@ -460,25 +460,64 @@ class bint {
         return product;
     }
 
-    inline bint notSoSimpleMul(const bint &b) const {
-        assert ((width < STACK_VALUE_SIZE) && "notSoSimpleMul requires operands less than STACK_VALUE_SIZE in width");
+    inline bint naiveMul(const bint &b) const {
+        assert ((width <= STACK_VALUE_SIZE)   && "naiveMul requires operands less than STACK_VALUE_SIZE in width");
+        assert ((b.width <= STACK_VALUE_SIZE) && "naiveMul requires operands less than STACK_VALUE_SIZE in width");
 
         // Ensure this is the wider operand.
         if (b.width > width) {
-            return b.notSoSimpleMul(*this);
+            return b.naiveMul(*this);
         }
 
-        // Make a product wide enough for a result 
-        bint s = "0";
-        bint c = "0";
+        // Make a bint wide enough for the products 
+        bint product = bint(this->width + 1);
 
-        for (int i = 0; i < b.width; i++) {
-            bint p = this->simpleMul(b.value[i]);    
-            std::cout << "p[" << i << "] = " << p << std::endl;
-            s = shiftAndAdd(p, s, c, i, 0);
-            //s = s + p;
+        // Make a result wide enough for the final product 
+        bint result = bint(this->width + b.width);
+        
+        // Summation loop
+        for (int j = 0; j < b.width; j++) {
+            // Multiplication loop
+            int i = 0;
+            uint64_t carry = 0;
+            for (i = 0; i < this->width; i++) {
+                __uint128_t  p = __uint128_t(this->value[i]) * b.value[j] + carry;
+    //            uint64_t p = this->value[i]) * b.value[j] + carry;
+                if (p < BASE) {
+                    product.value[i] = p;
+                    carry = 0;
+                } else {
+                    carry = p / BASE;
+                    product.value[i] = p % BASE;
+                }
+            }
+            // If carry we need more digits
+            if (carry) {
+                product.value[i] = carry;
+            } else {
+                product.width--;
+            }
+            
+            // Shift and add product into the result (No carry required)
+            carry = 0;
+            i = 0;
+            uint64_t s = 0;
+            while (i < product.width) {
+                s = result.value[i + j] + product.value[i] + carry;
+                carry = (s >= BASE);
+                s -= BASE * carry;
+                result.value[i + j] = s;
+                i++;
+            }
+            while (i < result.width) {
+                s = result.value[i + j] + carry;
+                carry = (s >= BASE);
+                s -= BASE * carry;
+                result.value[i + j] = s;
+                i++;
+            }
         }
-        return s;
+        return result;
     }
 
     inline bint operator*(const bint &b) const {
