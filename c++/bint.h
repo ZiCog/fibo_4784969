@@ -264,6 +264,7 @@ class bint {
 
         // Make a result of the same size as operand "a" with room for overflow
         bint sum(a->width + 1);
+        sum.width--;
 
         uint64_t i = 0;
         uint64_t s = 0;
@@ -288,8 +289,7 @@ class bint {
         // If carry is set here we need more digits!
         if (carry) {
             sum.value[i] = 1;
-        } else {
-            sum.width--;
+            sum.width++;
         }
         return sum;
     }
@@ -391,7 +391,7 @@ class bint {
         uint64_t *dPtr = difference.value;
         while (i < b.width) {
             *aPtr -= borrow;
-            borrow = (*aPtr < *bPtr);
+            borrow = (int64_t(*aPtr) < int64_t(*bPtr));
             *dPtr = *aPtr + (BASE * borrow) - *bPtr;
             dPtr++;
             aPtr++;
@@ -400,7 +400,7 @@ class bint {
         }
         while (i < this->width) {
             *aPtr -= borrow;
-            borrow = (*aPtr < 0); // FIXME: WTF? unsigned less than zero ?!
+            borrow = (int64_t(*aPtr) < 0);
             *dPtr = *aPtr + (BASE * borrow);
             dPtr++;
             aPtr++;
@@ -433,12 +433,13 @@ class bint {
     inline bint simpleMul(uint64_t k) const {
         // Make a product wide enough for the result with overflow
         bint product(width + 1);
+        product.width--;
 
         uint64_t carry = 0;
         uint64_t* vPtr = value;
         uint64_t* pPtr = product.value;
 
-        for (int i = 0; i < width; i++) {
+        for (uint64_t i = 0; i < width; i++) {
             __uint128_t  p = __uint128_t(*vPtr) * k + carry;
 //            uint64_t p = *vPtr * k + carry;
             if (p < BASE) {
@@ -454,9 +455,9 @@ class bint {
         // If carry we need more digits
         if (carry) {
             *pPtr = carry;
-        } else {
-            product.width--;
+            product.width++;
         }
+        assert (((product.value[product.width - 1] > 0) || (width == 1)) && "Redundant leading zero.");
         return product;
     }
 
@@ -476,9 +477,9 @@ class bint {
         bint result = bint(this->width + b.width);
         
         // Summation loop
-        for (int j = 0; j < b.width; j++) {
+        for (uint64_t j = 0; j < b.width; j++) {
             // Multiplication loop
-            int i = 0;
+            uint64_t i = 0;
             uint64_t carry = 0;
             for (i = 0; i < this->width; i++) {
                 __uint128_t  p = __uint128_t(this->value[i]) * b.value[j] + carry;
@@ -529,12 +530,13 @@ class bint {
 #endif
         // The base case(s), only one element in value, just do the multiply
         if ((width == 1) && (b.width == 1)) {
-            return simpleMul(b.value[0]);
+            return simpleMul(b.value[0]); 
         } else if (width == 1) {
             return b.simpleMul(value[0]);
         } else if (b.width == 1) {
             return simpleMul(b.value[0]);
         }
+
         // Calculates the size of the numbers
         int m = (this->width);
         int m2 = m / 2;
@@ -551,7 +553,14 @@ class bint {
         const bint z2 = high1 * high2;
 
         const bint s2 = z1 - z2 - z0;
-
+/*
+        bint result = shiftAndAdd(z2, s2, z0, m2 * 2, m2);
+        while (result.value[result.width - 1] == 0) {
+            result.width--;
+        } 
+        assert (result.value[result.width - 1] != 0);
+        return result;
+*/
         return shiftAndAdd(z2, s2, z0, m2 * 2, m2);
     }
 

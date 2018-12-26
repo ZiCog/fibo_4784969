@@ -1,3 +1,4 @@
+#include <gmpxx.h>
 #include <time.h> 
 #include "bint.h"
 
@@ -46,8 +47,59 @@ void test_03 (void)
     std::cout << "t: " << t << std::endl;
 }
 
+// Sum, zero + zero
 void test_04 (void)
 {
+    {
+        std::cout << std::endl << "Test 04_a: " << std::endl;
+
+        bint x = "0";
+        bint y = "0";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x + y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 04_b: " << std::endl;
+
+        bint x = "999999999999999999";
+        bint y = "0";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x + y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 04_c: " << std::endl;
+
+        bint x = "0";
+        bint y = "999999999999999999";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x + y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 04_d: " << std::endl;
+
+        bint x;
+        bint y = "999999999999999999";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x + y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 04_e: " << std::endl;
+
+        bint x = "999999999999999999";
+        bint y;
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x + y;
+        std::cout << "res: " << res << std::endl;
+    }
 }
 
 // 
@@ -255,15 +307,56 @@ void test_16 (void)
 // Sub, same size
 void test_17 (void)
 {
-    std::cout << std::endl << "Test 17: " << std::endl;
+    {
+        std::cout << std::endl << "Test 17_a: " << std::endl;
 
-    bint x = "4444444444444444";
-    bint y = "1111116111111115";
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
-    bint res = x - y;
-    std::cout << "res: " << res << std::endl;
+        bint x = "0";
+        bint y = "0";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x - y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 17_b: " << std::endl;
 
+        bint x = "999999999999999999";
+        bint y = "0";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x - y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 17_c: " << std::endl;
+
+        bint x = "999999999999999999""999999999999999999""000000000000000000""000000000000000000";
+        bint y = "999999999999999999""999999999999999999";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x - y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 17_d: " << std::endl;
+
+        bint x = "999999999999999999""000000000000000000""000000000000000000""000000000000000000";
+        bint y = "999999999999999999""999999999999999999";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x - y;
+        std::cout << "res: " << res << std::endl;
+    }
+    {
+        std::cout << std::endl << "Test 17_e: " << std::endl;
+
+        bint x = "4444444444444444";
+        bint y = "1111116111111115";
+        std::cout << "x: " << x << std::endl;
+        std::cout << "y: " << y << std::endl;
+        bint res = x - y;
+        std::cout << "res: " << res << std::endl;
+    }
     // expect "3333328333333329"
 }
 
@@ -515,9 +608,16 @@ void test_28 (void)
 {
     std::cout << std::endl << "Test 28: " << std::endl;
 
-    bint res = fibok(4784969);
-//    bint res = fibok  (20000);
-    std::cout << std::endl;
+//    bint res = fibok(4784969);
+    for (int i = 0; i <= 20000; i++) {
+        bint res = fibok  (i);
+        std::cout << i << ", ";
+        std::cout << res;
+        std::cout << std::endl;
+    }
+    int i = 4784969;
+    bint res = fibok(i);
+    std::cout << i << ", ";
     std::cout << res;
     std::cout << std::endl;
 }
@@ -657,17 +757,29 @@ void test_32 (void)
 */
 }
 
-// 
+mpz_class pow(mpz_class x, int n)  {
+    if (n == 0) {
+        return mpz_class(0);
+    }
+    mpz_class result = x;
+    for (int i = 0; i < n; i++) {
+        result = result * mpz_class(10);
+    }
+    return result;
+}
+
+
+// naiveMull()
 void test_34 (void)
 {
-    std::cout << std::endl << "Test 33: " << std::endl;
+    std::cout << std::endl << "Test 34: " << std::endl;
     {
         bint x = "2";
         bint y = "3";
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 0: " << res << std::endl;
     }
     {
         bint x = "222222222222222222";
@@ -675,7 +787,7 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 1: " << res << std::endl;
     }
     {
         bint x = "2";
@@ -683,7 +795,7 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 2: " << res << std::endl;
     }
     {
         bint x = "222222222222222222222222222222222222";
@@ -691,7 +803,7 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 3: " << res << std::endl;
     }
     {
         bint x = "2";
@@ -699,7 +811,7 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 4: " << res << std::endl;
     }
     {
         bint x = "999999999999999999999999999999999999";
@@ -707,7 +819,7 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 5: " << res << std::endl;
     }
     {
         bint x = "9";
@@ -715,7 +827,7 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 6: " << res << std::endl;
     }
     {
         bint x = "111111111111111111222222222222222222";
@@ -723,45 +835,78 @@ void test_34 (void)
 
         bint res = x.naiveMul(y);
 
-        std::cout << res << std::endl;
+        std::cout << "test_34, 7: " << std::endl;
+        std::cout << "Expect:" << "37037037037037037086419753086419752975308641975308641901234567901234568" << std::endl;
+        std::cout << "       " << res << std::endl;
+
     }
     {
+        std::cout << "test_34, 8: " << std::endl;
+        std::cout << "Expect:" << "1371742112482853227251943301326017369608291418991007451912818167962200896357262612406645354671543971955494572778539856729157126047858558146624" << std::endl;
         bint x = "37037037037037037086419753086419752975308641975308641901234567901234568";
 
         bint res = x.naiveMul(x);
 
-        std::cout << "Expect:" << "1371742112482853227251943301326017369608291418991007451912818167962200896357262612406645354671543971955494572778539856729157126047858558146624" << std::endl;
         std::cout << "       " << res << std::endl;
     }
-    {
-        bint x = "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999""999999999999999999"
-                 "999999999999999999""999999999999999999""999999999999999999""999999999999999999";
-        bint res = x.naiveMul(x);
+}
 
-        std::cout << "Expect:" << "1371742112482853227251943301326017369608291418991007451912818167962200896357262612406645354671543971955494572778539856729157126047858558146624" << std::endl;
-        std::cout << "       " << res << std::endl;
+// operator*() random fuzzing
+void test_35 (void)
+{
+    std::cout << std::endl << "Test 35: " << std::endl;
+
+    gmp_randclass  r(gmp_randinit_default);
+
+    mpz_class randomRange = 1;
+    for (int i = 1; i <= 1000; i++) {
+        randomRange *= 10;
+        std::cout << "Random range: " << randomRange << std::endl;
+
+        for (int j = 0; j < 10; j++) {
+            mpz_class rand1 = r.get_z_range(randomRange); 
+            mpz_class rand2 = r.get_z_range(randomRange); 
+
+            std::string s1 =  rand1.get_str ();
+            std::string s2 =  rand2.get_str ();
+
+            bint b1 = s1.c_str();
+            bint b2 = s2.c_str();
+
+            std::cout << "b1:           " << b1 << std::endl; 
+            std::cout << "b2:           " << b2 << std::endl; 
+            std::cout << "Expect:       " << rand1 * rand2 << std::endl; 
+            std::cout << "Got:          " << b1 * b2 << std::endl; 
+        }
     }
+}
 
+// operator*() extrem limit
+void test_36 (void)
+{
+    std::cout << std::endl << "Test 36: " << std::endl;
+
+    for (int i = 0; i < 64; i++) {
+        mpz_class x = pow(mpz_class(10), i * 17) - 1;
+        bint b = x.get_str().c_str();
+
+        std::cout << "i: " << i << ", b: " << b << std::endl; 
+        std::cout << "Expect b * b : " << x * x << std::endl; 
+
+        std::cout << "Got:           " << b * b << std::endl;
+    }
 }
 
 int main (void)
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
-/*
+
     test_01();   // PASS !!
     test_02();   // PASS !!
     test_03();   // PASS !!
     test_04();   // PASS !!
+
     test_05();   // PASS !!
     test_06();   // PASS !!
     test_07();   // PASS !!
@@ -772,9 +917,11 @@ int main (void)
     test_12();   // PASS !!
 //    test_13();   // Mutant detected
     test_14();   // PASS !!
-//    test_15();   // Mutant detected
+    test_15();   // Mutant detected
     test_16();   // PASS !!
-    test_17();   // PASS !!
+
+//    test_17();   // PASS !!
+
     test_18();   // PASS !!
 //    test_19();   // FAILS: As it should!
     test_20_1(); // PASS !!
@@ -794,8 +941,10 @@ int main (void)
 //    test_30();  // Mutant detected
     test_31();
     test_32();
-*/
-    test_34();
+
+//    test_34();   // naiveMul()
+//    test_35();
+//    test_36();
 
     return 0;
 }
