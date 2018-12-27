@@ -15,16 +15,10 @@
 //#define NDEBUG
 #include <cassert>
 
-#ifdef __SIZEOF_INT128__
-constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
-#else
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
-#endif
-
 constexpr uint64_t BASE = pow(10, DIGITS);
 constexpr int STACK_VALUE_SIZE = 32;
 constexpr int ON2_CUTOFF = 5;
-
 
 #if DEBUG
 uint64_t allocs[17];
@@ -425,11 +419,7 @@ class bint {
         // Make a product wide enough for the result with overflow
         bint product(width + 1);
 
-#ifdef __SIZEOF_INT128__
-        __uint128_t  p = __uint128_t(value[0]) * k;
-#else
         uint64_t p = value[0] * k;
-#endif
         if (p < BASE) {
             product.value[0] = p;
             product.width--;
@@ -450,11 +440,7 @@ class bint {
         uint64_t* pPtr = product.value;
 
         for (uint64_t i = 0; i < width; i++) {
-#ifdef __SIZEOF_INT128__
-            __uint128_t  p = __uint128_t(*vPtr) * k + carry;
-#else
             uint64_t p = *vPtr * k + carry;
-#endif
             if (p < BASE) {
                 *pPtr = p;
                 carry = 0;
@@ -498,11 +484,7 @@ class bint {
             uint64_t carry = 0;
             product.width = 0;
             for (i = 0; i < this->width; i++) {
-#ifdef __SIZEOF_INT128__
-                __uint128_t  p = __uint128_t(this->value[i]) * b.value[j] + carry;
-#else
-                uint64_t p = this->value[i]) * b.value[j] + carry;
-#endif
+                uint64_t p = this->value[i] * b.value[j] + carry;
                 if (p < BASE) {
                     product.value[i] = p;
                     carry = 0;
