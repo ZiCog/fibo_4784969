@@ -474,13 +474,16 @@ class bint {
         bint product = bint(this->width + 1);
 
         // Make a result wide enough for the final product 
-        bint result = bint(this->width + b.width);
+        bint result = bint(this->width + b.width + 1);
         
+        uint64_t maxResultWidth = this->width + b.width + 1;
+
         // Summation loop
         for (uint64_t j = 0; j < b.width; j++) {
             // Multiplication loop
             uint64_t i = 0;
             uint64_t carry = 0;
+            product.width = 0;
             for (i = 0; i < this->width; i++) {
                 __uint128_t  p = __uint128_t(this->value[i]) * b.value[j] + carry;
     //            uint64_t p = this->value[i]) * b.value[j] + carry;
@@ -491,31 +494,39 @@ class bint {
                     carry = p / BASE;
                     product.value[i] = p % BASE;
                 }
+                product.width++;
             }
             // If carry we need more digits
             if (carry) {
                 product.value[i] = carry;
-            } else {
-                product.width--;
+                product.width++;
             }
             
-            // Shift and add product into the result (No carry required)
+            // Shift and add product into the result
             carry = 0;
             i = 0;
             uint64_t s = 0;
+            result.width = j;
             while (i < product.width) {
                 s = result.value[i + j] + product.value[i] + carry;
                 carry = (s >= BASE);
                 s -= BASE * carry;
                 result.value[i + j] = s;
                 i++;
+                result.width++;
             }
-            while (i < result.width) {
+            while (i < maxResultWidth - j - 2) {
                 s = result.value[i + j] + carry;
                 carry = (s >= BASE);
                 s -= BASE * carry;
                 result.value[i + j] = s;
                 i++;
+                result.width++;
+            }
+            // If carry we need more digits
+            if (carry) {
+                result.value[i + j] = carry;
+                result.width++;
             }
         }
         return result;

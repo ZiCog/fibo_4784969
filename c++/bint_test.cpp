@@ -603,23 +603,31 @@ bint fibok (int n)
     }
 }
 
-// mul, with big integers
+// mul, via calculating all fibo up to 20000
 void test_28 (void)
 {
-    std::cout << std::endl << "Test 28: " << std::endl;
+    std::cout << "Test 28: ";
 
-//    bint res = fibok(4784969);
     for (int i = 0; i <= 20000; i++) {
         bint res = fibok  (i);
-        std::cout << i << ", ";
-        std::cout << res;
-        std::cout << std::endl;
+
+//        std::cout << i << ", ";
+//        std::cout << res;
+//        std::cout << std::endl;
+
+        mpz_t f;
+        mpz_init(f);
+        mpz_fib_ui(f, i);
+        mpz_class expected(f);
+        mpz_clear(f);
+        bint x = bint(expected.get_str().c_str());
+
+        if (x != res) {
+            std::cout << "FAIL." << std::endl;
+            return;
+        }
     }
-    int i = 4784969;
-    bint res = fibok(i);
-    std::cout << i << ", ";
-    std::cout << res;
-    std::cout << std::endl;
+    std::cout << "PASS." << std::endl;
 }
 
 void timeIt(int n) {
@@ -884,7 +892,7 @@ void test_35 (void)
 // operator*() extreme limit
 void test_36 (void)
 {
-    std::cout << std::endl << "Test 36: " << std::endl;
+    std::cout << "Test 36: ";
 
     for (int i = 0; i < 64; i++) {
         mpz_class p = pow(mpz_class(10), i * 17) - 1;
@@ -902,6 +910,47 @@ void test_36 (void)
         if (x != res) {
             std::cout << "FAIL." << std::endl;
             return;
+        }
+    }
+    std::cout << "PASS." << std::endl;
+}
+
+// naiveMul() random fuzzing
+void test_37 (void)
+{
+    std::cout << "Test 37: ";
+
+    gmp_randclass  r(gmp_randinit_default);
+
+    mpz_class randomRange = 1;
+    for (int i = 1; i <= 1000; i++) {
+        randomRange *= 10;
+//        std::cout << "Random range: " << randomRange << std::endl;
+
+        for (int j = 0; j < 10; j++) {
+            mpz_class rand1 = r.get_z_range(randomRange); 
+            mpz_class rand2 = r.get_z_range(randomRange); 
+
+            std::string s1 =  rand1.get_str ();
+            std::string s2 =  rand2.get_str ();
+
+            bint b1 = s1.c_str();
+            bint b2 = s2.c_str();
+
+            bint res = b1.naiveMul(b2);
+            mpz_class expected = rand1 * rand2;
+
+//            std::cout << "b1:           " << b1 << std::endl; 
+//            std::cout << "b2:           " << b2 << std::endl; 
+//            std::cout << "Expect:       " << expected  << std::endl; 
+//            std::cout << "Got:          " << res << std::endl; 
+
+            bint x = bint(expected.get_str().c_str());
+
+            if (x != res) {
+                std::cout << "FAIL." << std::endl;
+                return;
+            }
         }
     }
     std::cout << "PASS." << std::endl;
@@ -945,7 +994,7 @@ int main (void)
 //    test_26();   // Mutant detected
 //    test_27();   // Mutant detected
 
-//    test_28();   // PASS !!
+    test_28();   // PASS !!
 
 //    test_29(); // PASS !! Too long to run
 //    test_30();  // Mutant detected
@@ -955,6 +1004,7 @@ int main (void)
 //    test_34();   // naiveMul()
 //    test_35();
     test_36();
+    test_37();
 
     return 0;
 }
