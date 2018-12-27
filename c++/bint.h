@@ -17,7 +17,9 @@
 
 constexpr int DIGITS = 18; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
-constexpr int STACK_VALUE_SIZE = 64;
+constexpr int STACK_VALUE_SIZE = 32;
+constexpr int ON2_CUTOFF = 5;
+
 
 #if DEBUG
 uint64_t allocs[17];
@@ -540,12 +542,17 @@ class bint {
         mulCount++;
 #endif
         // The base case(s), only one element in value, just do the multiply
+
         if ((width == 1) && (b.width == 1)) {
-            return simpleMul(b.value[0]); 
+            return verySimpleMul(b.value[0]); 
         } else if (width == 1) {
             return b.simpleMul(value[0]);
         } else if (b.width == 1) {
             return simpleMul(b.value[0]);
+        }
+
+        if ((width <= ON2_CUTOFF) && (b.width <= ON2_CUTOFF)) {
+            return naiveMul(b); 
         }
 
         // Calculates the size of the numbers

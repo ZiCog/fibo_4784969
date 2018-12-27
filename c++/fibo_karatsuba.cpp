@@ -87,15 +87,13 @@ bint timeIt(int n) {
     endTime = (float)clock()/CLOCKS_PER_SEC;
     elapsedTime = endTime - startTime;
 #if DEBUG
-    std::cout << "Compute time: " << elapsedTime << std::endl;
+//    std::cout << "Compute time: " << elapsedTime << std::endl;
 #endif
-
     return res;
 }
 
 int main(int argc, char *argv[]) {
     bint res = timeIt(4784969);
-//    bint res = timeIt(200000);
     std::cout << res << std::endl;
 
 #if DEBUG
