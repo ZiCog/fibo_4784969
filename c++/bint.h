@@ -17,8 +17,8 @@
 
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr uint64_t BASE = pow(10, DIGITS);
-constexpr int STACK_VALUE_SIZE = 32;
-constexpr int ON2_CUTOFF = 5;
+constexpr int STACK_VALUE_SIZE = 128;
+constexpr int ON2_CUTOFF = 16;
 
 #if DEBUG
 uint64_t allocs[17];
