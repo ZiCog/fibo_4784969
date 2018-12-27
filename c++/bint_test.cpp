@@ -308,7 +308,7 @@ void test_16 (void)
 void test_17 (void)
 {
     {
-        std::cout << std::endl << "Test 17_a: " << std::endl;
+        std::cout << std::endl << "Test 17: " << std::endl;
 
         bint x = "0";
         bint y = "0";
@@ -679,14 +679,28 @@ static void fibo_ejolson(int n, bint& a, bint& b) {
 
 void test_30 (void)
 {
-    std::cout << std::endl << "Test 30: " << std::endl;
+    std::cout << std::endl << "Test 30: ";
 
-    bint a;
+    bint res;
     bint b;
+    int n = 4784969;
 
-    fibo_ejolson(4784969, a, b);
+    fibo_ejolson(n, res, b);
 
-    std::cout << a << std::endl;
+//    std::cout << res << std::endl;
+
+    mpz_t f;
+    mpz_init(f);
+    mpz_fib_ui(f, n);
+    mpz_class expected(f);
+    mpz_clear(f);
+    bint x = bint(expected.get_str().c_str());
+
+    if (x != res) {
+        std::cout << "FAIL." << std::endl;
+        return;
+    }
+    std::cout << "PASS." << std::endl;
 }
 
 bint factorial(bint n)
@@ -862,14 +876,14 @@ void test_34 (void)
 // operator*() random fuzzing
 void test_35 (void)
 {
-    std::cout << std::endl << "Test 35: " << std::endl;
+    std::cout << std::endl << "Test 35: ";
 
     gmp_randclass  r(gmp_randinit_default);
 
     mpz_class randomRange = 1;
     for (int i = 1; i <= 1000; i++) {
         randomRange *= 10;
-        std::cout << "Random range: " << randomRange << std::endl;
+//        std::cout << "Random range: " << randomRange << std::endl;
 
         for (int j = 0; j < 10; j++) {
             mpz_class rand1 = r.get_z_range(randomRange); 
@@ -881,12 +895,23 @@ void test_35 (void)
             bint b1 = s1.c_str();
             bint b2 = s2.c_str();
 
-            std::cout << "b1:           " << b1 << std::endl; 
-            std::cout << "b2:           " << b2 << std::endl; 
-            std::cout << "Expect:       " << rand1 * rand2 << std::endl; 
-            std::cout << "Got:          " << b1 * b2 << std::endl; 
+            mpz_class expected = rand1 * rand2;
+            bint res = b1 * b2;
+
+//            std::cout << "b1:           " << b1 << std::endl; 
+//            std::cout << "b2:           " << b2 << std::endl; 
+//            std::cout << "Expect:       " << expected << std::endl; 
+//            std::cout << "Got:          " << res << std::endl; 
+
+            bint x = bint(expected.get_str().c_str());
+
+            if (x != res) {
+                std::cout << "FAIL." << std::endl;
+                return;
+            }
         }
     }
+    std::cout << "PASS." << std::endl;
 }
 
 // operator*() extreme limit
@@ -961,48 +986,41 @@ int main (void)
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
 
-    test_01();   // PASS !!
-    test_02();   // PASS !!
-    test_03();   // PASS !!
-    test_04();   // PASS !!
-
-    test_05();   // PASS !!
-    test_06();   // PASS !!
-    test_07();   // PASS !!
-    test_08();   // PASS !!
-    test_09();   // PASS !!
-    test_10();   // PASS !!
-    test_11();   // PASS !!
-    test_12();   // PASS !!
-//    test_13();   // Mutant detected
-    test_14();   // PASS !!
-    test_15();   // Mutant detected
-    test_16();   // PASS !!
-
-//    test_17();   // PASS !!
-
-    test_18();   // PASS !!
+    test_01();   
+    test_02();   
+    test_03();   
+    test_04();   
+    test_05();   
+    test_06();   
+    test_07();   
+    test_08();   
+    test_09();   
+    test_10();   
+    test_11();   
+    test_12();   
+    test_13();
+    test_14();   
+    test_15();
+    test_16();   
+    test_17();   
+    test_18();   
 //    test_19();   // FAILS: As it should!
-    test_20_1(); // PASS !!
-
-    test_20();   // PASS !!
-    test_21();   // PASS !!
-    test_22();   // PASS !!
-    test_23();   // PASS !!
-    test_24();   // PASS !!
-    test_25();   // PASS !!
-//    test_26();   // Mutant detected
-//    test_27();   // Mutant detected
-
-    test_28();   // PASS !!
-
-//    test_29(); // PASS !! Too long to run
-//    test_30();  // Mutant detected
-//    test_31();
-//    test_32();
-
-//    test_34();   // naiveMul()
-//    test_35();
+    test_20_1(); 
+    test_20();   
+    test_21();   
+    test_22();
+    test_23();
+    test_24();
+    test_25();
+    test_26();
+    test_27();
+    test_28();
+//    test_29();  // Too long to run
+    test_30();
+    test_31();
+    test_32();
+    test_34();
+    test_35();
     test_36();
     test_37();
 
