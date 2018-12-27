@@ -553,15 +553,15 @@ class bint {
         const bint z2 = high1 * high2;
 
         const bint s2 = z1 - z2 - z0;
-/*
+
         bint result = shiftAndAdd(z2, s2, z0, m2 * 2, m2);
         while (result.value[result.width - 1] == 0) {
             result.width--;
         } 
         assert (result.value[result.width - 1] != 0);
         return result;
-*/
-        return shiftAndAdd(z2, s2, z0, m2 * 2, m2);
+// FIXME: "We should not need the above leading zero removal"
+//        return shiftAndAdd(z2, s2, z0, m2 * 2, m2);
     }
 
     inline friend std::ostream &operator<<(std::ostream &os, const bint &b) {

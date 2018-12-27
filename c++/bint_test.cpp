@@ -759,7 +759,7 @@ void test_32 (void)
 
 mpz_class pow(mpz_class x, int n)  {
     if (n == 0) {
-        return mpz_class(0);
+        return mpz_class("1");
     }
     mpz_class result = x;
     for (int i = 0; i < n; i++) {
@@ -881,20 +881,30 @@ void test_35 (void)
     }
 }
 
-// operator*() extrem limit
+// operator*() extreme limit
 void test_36 (void)
 {
     std::cout << std::endl << "Test 36: " << std::endl;
 
     for (int i = 0; i < 64; i++) {
-        mpz_class x = pow(mpz_class(10), i * 17) - 1;
-        bint b = x.get_str().c_str();
+        mpz_class p = pow(mpz_class(10), i * 17) - 1;
+        bint b = p.get_str().c_str();
 
-        std::cout << "i: " << i << ", b: " << b << std::endl; 
-        std::cout << "Expect b * b : " << x * x << std::endl; 
+        mpz_class expected = p * p;
+        bint res = b * b;
 
-        std::cout << "Got:           " << b * b << std::endl;
+//        std::cout << "i: " << i << ", b: " << b << std::endl; 
+//        std::cout << "Expect b * b : " << expected << std::endl; 
+//        std::cout << "Got:           " << res << std::endl;
+
+        bint x = bint(expected.get_str().c_str());
+
+        if (x != res) {
+            std::cout << "FAIL." << std::endl;
+            return;
+        }
     }
+    std::cout << "PASS." << std::endl;
 }
 
 int main (void)
@@ -935,16 +945,16 @@ int main (void)
 //    test_26();   // Mutant detected
 //    test_27();   // Mutant detected
 
-    test_28();   // PASS !!
+//    test_28();   // PASS !!
 
 //    test_29(); // PASS !! Too long to run
 //    test_30();  // Mutant detected
-    test_31();
-    test_32();
+//    test_31();
+//    test_32();
 
 //    test_34();   // naiveMul()
 //    test_35();
-//    test_36();
+    test_36();
 
     return 0;
 }
