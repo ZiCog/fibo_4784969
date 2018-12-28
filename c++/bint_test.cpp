@@ -962,12 +962,13 @@ void test_37 (void)
             bint b1 = s1.c_str();
             bint b2 = s2.c_str();
 
-            bint res = b1.naiveMul(b2);
-            mpz_class expected = rand1 * rand2;
-
 //            std::cout << "b1:           " << b1 << std::endl; 
 //            std::cout << "b2:           " << b2 << std::endl; 
+
+            mpz_class expected = rand1 * rand2;
 //            std::cout << "Expect:       " << expected  << std::endl; 
+
+            bint res = b1.naiveMul(b2);
 //            std::cout << "Got:          " << res << std::endl; 
 
             bint x = bint(expected.get_str().c_str());
