@@ -15,7 +15,8 @@
 //#define NDEBUG
 #include <cassert>
 
-typedef int64_t bintel_t;
+typedef uint64_t bintel_t;
+#define min(a,b) (a < b ? a : b)
 
 constexpr int DIGITS = 9;                  // Decimal digits in each big integer array element.
 constexpr bintel_t BASE = pow(10, DIGITS);
@@ -394,7 +395,7 @@ class bint {
         int32_t i = 0;
         while (i < b.width) {
             *aPtr -= borrow;
-            borrow = *aPtr < *bPtr;
+            borrow = int64_t(*aPtr) < int64_t(*bPtr);
             *dPtr = *aPtr + (BASE * borrow) - *bPtr;
             dPtr++;
             aPtr++;
@@ -403,7 +404,7 @@ class bint {
         }
         while (i < this->width) {
             *aPtr -= borrow;
-            borrow = *aPtr < 0;
+            borrow = int64_t(*aPtr) < 0;
             *dPtr = *aPtr + (BASE * borrow);
             dPtr++;
             aPtr++;
@@ -462,6 +463,32 @@ class bint {
         return product;
     }
 
+    inline bint mul_bn(const bint& b) const {
+        if (this->width == 0 || b.width == 0 ) {
+            return bint(1);
+        }
+        bint x = bint(this->width + b.width + 1);
+        x.width = this->width + b.width - 1;
+        for (int32_t i = 0; i < this->width; ++i) {
+            for (int32_t j = 0; j < b.width; ++j) {
+                x.value[i + j] += this->value[i] * b.value[j];
+            }
+            if ((this->width - i) % 50 == 1 ) {
+                for (int32_t k = 0; k <= x.width; ++k) {
+                    if( x.value[k] >= BASE ) {
+                        const bintel_t c = x.value[k] / BASE;
+                        x.value[k] %= BASE;
+                        x.value[k + 1] += c;
+                    }
+                }
+            }
+        }
+        if (x.value[x.width]) {
+            ++x.width;
+        }
+        return x;
+    }
+
     inline bint naiveMul(const bint &b) const {
         assert ((width <= STACK_VALUE_SIZE)   && "naiveMul requires operands less than STACK_VALUE_SIZE in width");
         assert ((b.width <= STACK_VALUE_SIZE) && "naiveMul requires operands less than STACK_VALUE_SIZE in width");
@@ -485,8 +512,9 @@ class bint {
             int32_t i = 0;
             bintel_t carry = 0;
             product.width = 0;
+            bintel_t p;
             for (i = 0; i < this->width; i++) {
-                bintel_t p = this->value[i] * b.value[j] + carry;
+                p = this->value[i] * b.value[j] + carry;
                 if (p < BASE) {
                     product.value[i] = p;
                     carry = 0;
@@ -513,7 +541,6 @@ class bint {
                 s -= BASE * carry;
                 result.value[i + j] = s;
                 i++;
-                result.width++;
             }
             while (i < maxResultWidth - j - 2) {
                 s = result.value[i + j] + carry;
@@ -521,13 +548,13 @@ class bint {
                 s -= BASE * carry;
                 result.value[i + j] = s;
                 i++;
-                result.width++;
             }
             // If carry we need more digits
             if (carry) {
                 result.value[i + j] = carry;
-                result.width++;
+                i++;
             }
+            result.width += i;
         }
         return result;
     }
@@ -549,9 +576,8 @@ class bint {
             return simpleMul(b.value[0]);
         }
 
-        if ((width <= ON2_CUTOFF) && (b.width <= ON2_CUTOFF)) {
-            return naiveMul(b); 
-        }
+        if( min(width, b.width ) <= 49)
+            return mul_bn(b);
 
         // Calculates the size of the numbers
         int m = (this->width);

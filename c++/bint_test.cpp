@@ -982,6 +982,53 @@ void test_37 (void)
     std::cout << "PASS." << std::endl;
 }
 
+// mul_bn() random fuzzing
+void test_38 (void)
+{
+    std::cout << "Test 38: ";
+
+    gmp_randclass  r(gmp_randinit_default);
+
+    mpz_class randomRange = 1;
+
+    for (int i = 0; i < 43; i++) {
+        randomRange *= 1000000000;
+        for (int j = 0; j < 10000; j++) {
+            mpz_class rand1 = r.get_z_range(randomRange); 
+            mpz_class rand2 = r.get_z_range(randomRange); 
+
+            std::string s1 =  rand1.get_str ();
+            std::string s2 =  rand2.get_str ();
+
+            bint b1 = s1.c_str();
+            bint b2 = s2.c_str();
+
+//            std::cout << "i:            " << i << std::endl; 
+//            std::cout << "b1:           " << b1 << std::endl; 
+//            std::cout << "b2:           " << b2 << std::endl; 
+
+            mpz_class expected = rand1 * rand2;
+//            std::cout << "Expect:       " << expected  << std::endl; 
+
+            bint res = b1.mul_bn(b2);
+//            std::cout << "Got:          " << res << std::endl; 
+
+            bint x = bint(expected.get_str().c_str());
+
+            if (x != res) {
+                std::cout << "FAIL." << std::endl;
+                std::cout << "i:            " << i << std::endl; 
+                std::cout << "b1:           " << b1 << std::endl; 
+                std::cout << "b2:           " << b2 << std::endl; 
+                std::cout << "Expect:       " << expected  << std::endl; 
+                std::cout << "Got:          " << res << std::endl; 
+                return;
+            }
+        }
+    }
+    std::cout << "PASS." << std::endl;
+}
+
 int main (void)
 {
     std::cout << "DIGITS = " << DIGITS << std::endl;
@@ -1024,6 +1071,8 @@ int main (void)
     test_35();
     test_36();
     test_37();
+
+    test_38();
 
     return 0;
 }
