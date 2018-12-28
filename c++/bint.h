@@ -15,8 +15,10 @@
 //#define NDEBUG
 #include <cassert>
 
-constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
-constexpr uint64_t BASE = pow(10, DIGITS);
+typedef int64_t bintel_t;
+
+constexpr int DIGITS = 9;                  // Decimal digits in each big integer array element.
+constexpr bintel_t BASE = pow(10, DIGITS);
 constexpr int STACK_VALUE_SIZE = 128;
 constexpr int ON2_CUTOFF = 16;
 
@@ -48,8 +50,8 @@ class bint {
 #endif
     }
 
-    inline uint64_t parseDigits(const char *s, int len) {
-        uint64_t num = 0;
+    inline bintel_t parseDigits(const char *s, int len) {
+        bintel_t num = 0;
         for (int i = 0; i < len; i++) {
             num = num * 10 + *s++ - '0';
         }
@@ -75,7 +77,7 @@ class bint {
 #if DEBUG
         allocString++;
 #endif
-        bzero(value, width * sizeof(uint64_t));
+        bzero(value, width * sizeof(bintel_t));
 
         int w = width - 1;
         if (d2) {
@@ -148,14 +150,14 @@ class bint {
         }
     }
 
-    inline uint64_t* allocate(size_t n) {
+    inline bintel_t* allocate(size_t n) {
         if (n <= STACK_VALUE_SIZE) {
             value = valueOnstack;
             return valueOnstack;
         } else {
             value = nullptr;
 #if DEBUG
-            allocBytes += n * sizeof(uint64_t);
+            allocBytes += n * sizeof(bintel_t);
             if (n < 2) {
                 allocs[0]++;
             } else if (n < 4) {
@@ -193,11 +195,11 @@ class bint {
             }
             allocations++;
 #endif
-            return new uint64_t[n];
+            return new bintel_t[n];
         }
     }
 
-    inline void deallocate(uint64_t* d) {
+    inline void deallocate(bintel_t* d) {
         if (value != valueOnstack) {
             delete[] d;
         }
@@ -217,7 +219,7 @@ class bint {
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    inline const bint low(uint64_t mid) const {
+    inline const bint low(int32_t mid) const {
         assert(width > 1);
         assert(mid < width);
 
@@ -228,7 +230,7 @@ class bint {
         return low;
     }
 
-    inline const bint high(uint64_t mid) const {
+    inline const bint high(int32_t mid) const {
         assert(width > 1);
         assert(mid < width);
 
@@ -243,7 +245,7 @@ class bint {
         if (rhs.width != width) {
             return false;
         }
-        if (memcmp(this->value, rhs.value, width * sizeof(uint64_t)) != 0) {
+        if (memcmp(this->value, rhs.value, width * sizeof(bintel_t)) != 0) {
             return false;
         }
         return true;
@@ -267,12 +269,12 @@ class bint {
         bint sum(a->width + 1);
         sum.width--;
 
-        uint64_t i = 0;
-        uint64_t s = 0;
-        uint64_t carry = 0;
-        uint64_t *aPtr = a->value;
-        uint64_t *bPtr = b->value;
-        uint64_t *sPtr = sum.value;
+        int32_t  i = 0;
+        bintel_t s = 0;
+        bintel_t carry = 0;
+        bintel_t *aPtr = a->value;
+        bintel_t *bPtr = b->value;
+        bintel_t *sPtr = sum.value;
         while (i < b->width) {
             s = *aPtr++ + *bPtr++ + carry;
             carry = (s >= BASE);
@@ -300,7 +302,7 @@ class bint {
         assert(aShift >= bShift);
 
         // Make a result big enough with room for overflow
-        uint64_t newWidth;
+        int32_t newWidth;
         if ((a.width + aShift) > (b.width + bShift)) {
             newWidth = a.width + aShift + 1;
         } else {
@@ -312,15 +314,15 @@ class bint {
         assert(result.width >= b.width + bShift);
 
         // Move c into the result
-        memcpy(result.value, c.value, c.width * sizeof (uint64_t));
-        bzero(result.value + c.width, (result.width - c.width) * sizeof (uint64_t));
+        memcpy(result.value, c.value, c.width * sizeof (bintel_t));
+        bzero(result.value + c.width, (result.width - c.width) * sizeof (bintel_t));
 
         // Add b into the result with offset bShift
-        uint64_t s = 0;
-        uint64_t carry = 0;
-        uint64_t i = 0;
-        uint64_t *bPtr = b.value;
-        uint64_t *rPtr = result.value + bShift;
+        bintel_t s = 0;
+        bintel_t carry = 0;
+        bintel_t *bPtr = b.value;
+        bintel_t *rPtr = result.value + bShift;
+        int32_t i = 0;
         while (i < b.width) {
             s = *rPtr + *bPtr + carry;
             carry = (s >= BASE);
@@ -345,7 +347,7 @@ class bint {
         s = 0;
         carry = 0;
         i = 0;
-        uint64_t *aPtr = a.value;
+        bintel_t *aPtr = a.value;
         rPtr = result.value + aShift;
         while (i < a.width) {
             s = *rPtr + *aPtr + carry;
@@ -385,14 +387,14 @@ class bint {
         // Make a result of the same size as this
         bint difference(this->width);
 
-        uint64_t borrow = 0;
-        uint64_t i = 0;
-        uint64_t *aPtr = this->value;
-        uint64_t *bPtr = b.value;
-        uint64_t *dPtr = difference.value;
+        bintel_t borrow = 0;
+        bintel_t *aPtr = this->value;
+        bintel_t *bPtr = b.value;
+        bintel_t *dPtr = difference.value;
+        int32_t i = 0;
         while (i < b.width) {
             *aPtr -= borrow;
-            borrow = (int64_t(*aPtr) < int64_t(*bPtr));
+            borrow = *aPtr < *bPtr;
             *dPtr = *aPtr + (BASE * borrow) - *bPtr;
             dPtr++;
             aPtr++;
@@ -401,7 +403,7 @@ class bint {
         }
         while (i < this->width) {
             *aPtr -= borrow;
-            borrow = (int64_t(*aPtr) < 0);
+            borrow = *aPtr < 0;
             *dPtr = *aPtr + (BASE * borrow);
             dPtr++;
             aPtr++;
@@ -414,12 +416,12 @@ class bint {
     }
 
     // FIXME: How come it's faster to use this routine than insert the code inline below?
-    inline bint verySimpleMul(uint64_t k) const {
+    inline bint verySimpleMul(bintel_t k) const {
         assert(width == 1 && "Width must be 1 for verySimpleMul");
         // Make a product wide enough for the result with overflow
         bint product(width + 1);
 
-        uint64_t p = value[0] * k;
+        bintel_t p = value[0] * k;
         if (p < BASE) {
             product.value[0] = p;
             product.width--;
@@ -430,17 +432,17 @@ class bint {
         return product;
     }
 
-    inline bint simpleMul(uint64_t k) const {
+    inline bint simpleMul(bintel_t k) const {
         // Make a product wide enough for the result with overflow
         bint product(width + 1);
         product.width--;
 
-        uint64_t carry = 0;
-        uint64_t* vPtr = value;
-        uint64_t* pPtr = product.value;
+        bintel_t carry = 0;
+        bintel_t* vPtr = value;
+        bintel_t* pPtr = product.value;
 
-        for (uint64_t i = 0; i < width; i++) {
-            uint64_t p = *vPtr * k + carry;
+        for (int32_t i = 0; i < width; i++) {
+            bintel_t p = *vPtr * k + carry;
             if (p < BASE) {
                 *pPtr = p;
                 carry = 0;
@@ -475,16 +477,16 @@ class bint {
         // Make a result wide enough for the final product 
         bint result = bint(this->width + b.width + 1);
         
-        uint64_t maxResultWidth = this->width + b.width + 1;
+        int32_t maxResultWidth = this->width + b.width + 1;
 
         // Summation loop
-        for (uint64_t j = 0; j < b.width; j++) {
+        for (int32_t j = 0; j < b.width; j++) {
             // Multiplication loop
-            uint64_t i = 0;
-            uint64_t carry = 0;
+            int32_t i = 0;
+            bintel_t carry = 0;
             product.width = 0;
             for (i = 0; i < this->width; i++) {
-                uint64_t p = this->value[i] * b.value[j] + carry;
+                bintel_t p = this->value[i] * b.value[j] + carry;
                 if (p < BASE) {
                     product.value[i] = p;
                     carry = 0;
@@ -503,7 +505,7 @@ class bint {
             // Shift and add product into the result
             carry = 0;
             i = 0;
-            uint64_t s = 0;
+            bintel_t s = 0;
             result.width = j;
             while (i < product.width) {
                 s = result.value[i + j] + product.value[i] + carry;
@@ -590,9 +592,9 @@ class bint {
         return os;
     }
   private:
-    uint64_t *value;
-    uint64_t valueOnstack[STACK_VALUE_SIZE];
-    uint64_t width;
+    bintel_t *value;
+    bintel_t valueOnstack[STACK_VALUE_SIZE];
+    int32_t  width;
     const bint *parent;
 };
 
