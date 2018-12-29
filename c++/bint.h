@@ -20,8 +20,10 @@ typedef uint64_t bintel_t;
 
 constexpr int DIGITS = 9;                  // Decimal digits in each big integer array element.
 constexpr bintel_t BASE = pow(10, DIGITS);
+
 constexpr int STACK_VALUE_SIZE = 128;
-constexpr int ON2_CUTOFF = 16;
+constexpr int ON2_CUTOFF = 53;
+constexpr int CARRY_DELAY = 18;
 
 #if DEBUG
 uint64_t allocs[17];
@@ -473,7 +475,7 @@ class bint {
             for (int32_t j = 0; j < b.width; ++j) {
                 x.value[i + j] += this->value[i] * b.value[j];
             }
-            if ((this->width - i) % 50 == 1 ) {
+            if ((this->width - i) % CARRY_DELAY == 1 ) {
                 for (int32_t k = 0; k <= x.width; ++k) {
                     if( x.value[k] >= BASE ) {
                         const bintel_t c = x.value[k] / BASE;
