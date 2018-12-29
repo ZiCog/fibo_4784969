@@ -22,10 +22,19 @@
  *    Simplified the print function.
  *    Declared immutable items as const.
  *    Removed multiple call sequences of delbn() (earler calls were ignored).
- *    Used exact width integer types.
+ *    Changed to exact width integer types.
  *    More minor changes to fix compiler warnings.
  *    Removed extra jmp from carry settings in Karatsuba multiply.
  *    Changed some function names for slightly better readability.
+ *
+ *  Version 4:  Jeremy Hall - December, 2018
+ *    Optional overflow check in mul_bn().
+ *    Thresholds altered to avoid overflow.
+ *    Subtract final carry fixed.
+ *    Accepts N from the command line (defaulting to 4784969).
+ *    Removed memset from copy_bn().
+ *    Removed two calls to free_bn() from fibo().
+ *    Compiles cleanly as C++17
  */
 
 #include <stdio.h>
@@ -33,10 +42,10 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <math.h>
-#include <time.h>
 
-#define N 4784969
+static int N = 4784969;
 
+typedef uint32_t dword;
 typedef uint64_t qword;
 
 #define base 1000000000ULL
@@ -45,7 +54,7 @@ typedef uint64_t qword;
 
 #define PHI (1+sqrt(5.0))/2
 
-static const int bn_size = (int)(N * log10(PHI) / 9 + 4);
+static int bn_size;
 
 #define min(a,b) (a < b ? a : b)
 #define max(a,b) (a > b ? a : b)
@@ -57,37 +66,19 @@ typedef struct {
 
 static qword *bp;
 
-static qword *
-fmalloc( const int len ) {
-    qword * const r = bp;
-    bp += len;
-    return r;
-}
-
-static void
-ffree( const bignum a ) {
-    bp = a.d;
-}
-
-static bignum
-trim_bn( bignum x ) {
-    if( x.n == 0 )
-        return x;
-    int i;
-    for( i = x.n - 1; i >= 0; --i )
-        if( x.d[i] != 0 )
-            break;
-    x.n = i + 1;
-    return x;
-}
-
 static bignum
 new_bn( const int digits ) {
     bignum x;
-    x.d = fmalloc( digits );
-    memset( x.d, 0, (size_t)digits * sizeof(qword) );
+    x.d = bp;
+    memset( bp, 0, (size_t)digits * sizeof(qword) );
     x.n = 0;
+    bp += digits;
     return x;
+}
+
+static void
+free_bn( const bignum a ) {
+    bp = a.d;
 }
 
 static bignum
@@ -106,12 +97,24 @@ print_bn( const bignum x ) {
     printf("\n");
 }
 
+static bignum
+trim_bn( bignum x ) {
+    if( x.n )
+    {
+        int i;
+        for( i = x.n - 1; i >= 0; --i )
+            if( x.d[i] != 0 )
+                break;
+        x.n = i + 1;
+    }
+    return x;
+}
+
 static void
 copy_bn( bignum * const a, bignum b ) {
     b = trim_bn(b);
-    if( a->n > b.n )
-        memset( a->d + b.n, 0, (size_t)(a->n - b.n) * sizeof(qword) );
-    memcpy( a->d, b.d, (size_t)(a->n = b.n) * sizeof(qword) );
+    a->d[a->n = b.n] = 0;
+    memcpy( a->d, b.d, (size_t)b.n * sizeof(qword) );
 }
 
 static bignum
@@ -142,8 +145,9 @@ static void
 sub_bn( bignum a, const bignum b ) {
     if( b.n == 0 )
         return;
-    uint32_t c = 0;
-    for( int i = 0; i < b.n; ++i ) {
+    int i;
+    dword c = 0;
+    for( i = 0; i < b.n; ++i ) {
         const qword sum = b.d[i] + c;
         c = 0;
         if( a.d[i] < sum ) {
@@ -152,7 +156,15 @@ sub_bn( bignum a, const bignum b ) {
         }
         a.d[i] -= sum;
     }
-    a.d[b.n] -= c;
+    while( c ) {
+        if( 1 > a.d[i] ) {
+            a.d[i] += base - 1;
+        } else {
+            a.d[i] -= 1;
+            c = 0;
+        }
+        ++i;
+    }
 }
 
 static bignum
@@ -162,9 +174,23 @@ mul_bn( const bignum a, const bignum b ) {
     bignum x = new_bn( a.n + b.n + 1 );
     x.n = a.n + b.n - 1;
     for( int i = 0; i < a.n; ++i ) {
-        for( int j = 0; j < b.n; ++j )
+        for( int j = 0; j < b.n; ++j ) {
+#if 1
             x.d[i+j] += a.d[i] * b.d[j];
-        if( (a.n - i) % 50 == 1 )
+#else
+            if( a.d[i] > UINT64_MAX / b.d[j] ) {
+                fprintf( stderr, "Multiply wrap in mul_bn() at %d\n", __LINE__ );
+                exit(1);
+            }
+            const qword tmp = a.d[i] * b.d[j];
+            if( tmp > UINT64_MAX - x.d[i+j] ) {
+                fprintf( stderr, "Addition wrap in mul_bn() at %d\n", __LINE__ );
+                exit(1);
+            }
+            x.d[i+j] += tmp;
+#endif
+        }
+        if( (a.n - i) % 16 == 1 )
             for( int k = 0; k <= x.n; ++k )
                 if( x.d[k] >= base ) {
                     const qword c = x.d[k] / base;
@@ -182,7 +208,7 @@ mul_karatsuba( const bignum a, const bignum b ) {
     if( a.n == 0 || b.n == 0 )
         return new_bn(1);
 
-    if( min( a.n, b.n ) < 49 )
+    if( min( a.n, b.n ) < 44 )
         return mul_bn( a, b );
 
     int i, k;
@@ -190,7 +216,7 @@ mul_karatsuba( const bignum a, const bignum b ) {
     bignum z2, z1a, z1b, z1, z0;
     bignum x = new_bn( a.n + b.n + 1 );
 
-    qword c;
+    dword c;
     const int n = max( a.n, b.n ) / 2;
     a0.d = a.d;
     a0.n = min( n, a.n );
@@ -250,7 +276,7 @@ mul_karatsuba( const bignum a, const bignum b ) {
         if( x.n < k )
             x.n = k;
     }
-    ffree(z0);
+    free_bn(z0);
     return x;
 }
 
@@ -273,7 +299,6 @@ fibo( const int n, bignum * const a, bignum * const b ) {
         bignum tbL2apbR = mul_karatsuba( tb, t2apb );
         copy_bn( a, taapbb );
         copy_bn( b, tbL2apbR );
-        ffree(t2a);
     } else {
             // [a,b] = [a*(b*2-a),a*a+b*b]
         bignum t2bma = add_bn( tb, tb );
@@ -281,29 +306,26 @@ fibo( const int n, bignum * const a, bignum * const b ) {
         bignum taL2bmaR = mul_karatsuba( ta, t2bma );
         copy_bn( a, taL2bmaR );
         copy_bn( b, taapbb );
-        ffree(t2bma);
     }
-    ffree(taa);
-}
-
-void timeIt(int n) {
-    double startTime;
-    double endTime;
-    double elapsedTime;
-    bignum a, b;
-
-    startTime = (float)clock()/CLOCKS_PER_SEC;
-
-    fibo( n - 1, &a, &b );
-
-    endTime = (float)clock()/CLOCKS_PER_SEC;
-    elapsedTime = endTime - startTime;
-    printf("%d, %f\n", n, elapsedTime);
+    free_bn(taa);
 }
 
 int
-main( void ) {
-    if( (bp = malloc( (size_t)bn_size * ALLOC_DEPTH * sizeof(qword) )) == NULL ) {
+main( int argc, const char *argv[] ) {
+
+    if( argc > 1 ) {
+        char *tail;
+        const long arg = strtol( argv[1], &tail, 10 );
+        if( *tail != '\0' || arg > INT32_MAX ) {
+            fprintf( stderr, "Invalid Fibonacci number\n" );
+            return EXIT_FAILURE;
+        }
+        N = (int)arg;
+    }
+
+    bn_size = (int)(N * log10(PHI) / 9 + 4);
+
+    if( (bp = (qword*)malloc( (size_t)bn_size * ALLOC_DEPTH * sizeof(qword) )) == NULL ) {
         fprintf(stderr,"Out of memory!\n");
         return EXIT_FAILURE;
     }
@@ -311,10 +333,8 @@ main( void ) {
         printf( "%d\n", N );
         return EXIT_SUCCESS;
     }
-    timeIt(4784969);
-
-    for (int n = 2; n <= 1024 * 1024 * 32; n *= 2) {
-        timeIt(n);
-    }
+    bignum a, b;
+    fibo( N - 1, &a, &b );
+    print_bn(b);
     return EXIT_SUCCESS;
 }
