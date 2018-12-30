@@ -1,5 +1,6 @@
 #include <gmpxx.h>
 #include <time.h> 
+
 #include "bint.h"
 
 // Construct, NULL value
@@ -388,27 +389,6 @@ void test_19 (void)
     std::cout << "res: " << res << std::endl;
 }
 
-// simpleMul
-void test_20_1 (void)
-{
-    std::cout << std::endl << "Test 20_1: " << std::endl;
-
-    bint a = "2";
-    std::cout << "a: " << a << std::endl;
-    bint res1 = a.simpleMul(3);
-    std::cout << "res1: " << res1 << std::endl;
-
-    bint b = "2222222222222222222222222222";
-    std::cout << "b: " << a << std::endl;
-    bint res2 = b.simpleMul(3);
-    std::cout << "res2: " << res2 << std::endl;
-
-    bint c = "9999999999999999999999999999";
-    std::cout << "b: " << c << std::endl;
-    bint res3 = c.simpleMul(9);
-    std::cout << "res3: " << res3 << std::endl;
-}
-
 // mul, the base case, one element in value, no overflow
 void test_20 (void)
 {
@@ -790,87 +770,9 @@ mpz_class pow(mpz_class x, int n)  {
     return result;
 }
 
-
-// naiveMull()
 void test_34 (void)
 {
     std::cout << std::endl << "Test 34: " << std::endl;
-    {
-        bint x = "2";
-        bint y = "3";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 0: " << res << std::endl;
-    }
-    {
-        bint x = "222222222222222222";
-        bint y = "3";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 1: " << res << std::endl;
-    }
-    {
-        bint x = "2";
-        bint y = "333333333333333333";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 2: " << res << std::endl;
-    }
-    {
-        bint x = "222222222222222222222222222222222222";
-        bint y = "3";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 3: " << res << std::endl;
-    }
-    {
-        bint x = "2";
-        bint y = "333333333333333333333333333333333333";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 4: " << res << std::endl;
-    }
-    {
-        bint x = "999999999999999999999999999999999999";
-        bint y = "9";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 5: " << res << std::endl;
-    }
-    {
-        bint x = "9";
-        bint y = "999999999999999999999999999999999999";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 6: " << res << std::endl;
-    }
-    {
-        bint x = "111111111111111111222222222222222222";
-        bint y = "333333333333333333444444444444444444";
-
-        bint res = x.naiveMul(y);
-
-        std::cout << "test_34, 7: " << std::endl;
-        std::cout << "Expect:" << "37037037037037037086419753086419752975308641975308641901234567901234568" << std::endl;
-        std::cout << "       " << res << std::endl;
-
-    }
-    {
-        std::cout << "test_34, 8: " << std::endl;
-        std::cout << "Expect:" << "1371742112482853227251943301326017369608291418991007451912818167962200896357262612406645354671543971955494572778539856729157126047858558146624" << std::endl;
-        bint x = "37037037037037037086419753086419752975308641975308641901234567901234568";
-
-        bint res = x.naiveMul(x);
-
-        std::cout << "       " << res << std::endl;
-    }
 }
 
 // operator*() random fuzzing
@@ -940,49 +842,11 @@ void test_36 (void)
     std::cout << "PASS." << std::endl;
 }
 
-// naiveMul() random fuzzing
 void test_37 (void)
 {
-    std::cout << "Test 37: ";
-
-    gmp_randclass  r(gmp_randinit_default);
-
-    mpz_class randomRange = 1;
-    for (int i = 1; i <= 1000; i++) {
-        randomRange *= 10;
-//        std::cout << "Random range: " << randomRange << std::endl;
-
-        for (int j = 0; j < 10; j++) {
-            mpz_class rand1 = r.get_z_range(randomRange); 
-            mpz_class rand2 = r.get_z_range(randomRange); 
-
-            std::string s1 =  rand1.get_str ();
-            std::string s2 =  rand2.get_str ();
-
-            bint b1 = s1.c_str();
-            bint b2 = s2.c_str();
-
-//            std::cout << "b1:           " << b1 << std::endl; 
-//            std::cout << "b2:           " << b2 << std::endl; 
-
-            mpz_class expected = rand1 * rand2;
-//            std::cout << "Expect:       " << expected  << std::endl; 
-
-            bint res = b1.naiveMul(b2);
-//            std::cout << "Got:          " << res << std::endl; 
-
-            bint x = bint(expected.get_str().c_str());
-
-            if (x != res) {
-                std::cout << "FAIL." << std::endl;
-                return;
-            }
-        }
-    }
-    std::cout << "PASS." << std::endl;
 }
 
-// mul_bn() random fuzzing
+// o2nMul() random fuzzing
 void test_38 (void)
 {
     std::cout << "Test 38: ";
@@ -1010,7 +874,7 @@ void test_38 (void)
             mpz_class expected = rand1 * rand2;
 //            std::cout << "Expect:       " << expected  << std::endl; 
 
-            bint res = b1.mul_bn(b2);
+            bint res = b1.o2nMul(b2);
 //            std::cout << "Got:          " << res << std::endl; 
 
             bint x = bint(expected.get_str().c_str());
@@ -1053,7 +917,6 @@ int main (void)
     test_17();   
     test_18();   
 //    test_19();   // FAILS: As it should!
-    test_20_1(); 
     test_20();   
     test_21();   
     test_22();
@@ -1071,7 +934,6 @@ int main (void)
     test_35();
     test_36();
     test_37();
-
     test_38();
 
     return 0;
