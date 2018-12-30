@@ -18,18 +18,14 @@ void timeIt(int n) {
     endTime = (float)clock()/CLOCKS_PER_SEC;
     elapsedTime = endTime - startTime;
 
-//    gmp_printf( "%Zd\n", res );
+    gmp_printf( "%Zd\n", res );
 
     printf("%d, %f\n", n, elapsedTime);
 }
 
 int main( void )
 {
-//    timeIt(4784969);
-
-    for (int n = 2; n <= 1024 * 1024 * 256; n *= 2) {
-        timeIt(n);
-    }
+    timeIt(4784969);
 
     return (0);
 }
