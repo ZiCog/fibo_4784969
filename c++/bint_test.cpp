@@ -1,35 +1,30 @@
 #include <gmpxx.h>
-#include <time.h> 
+#include <time.h>
 
 #include "bint.h"
 
 // Construct, NULL value
-void test_01 (void)
-{
+void test_01(void) {
     std::cout << std::endl << "Test 01: " << std::endl;
 
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         bint x = bint();
         std::cout << "x: " << x << std::endl;
     }
 }
 
 // Construct from size_t
-void test_02 (void)
-{
+void test_02(void) {
     std::cout << std::endl << "Test 02: " << std::endl;
 
-    for (int i = 0; i < 8; i++)
-    {
+    for (int i = 0; i < 8; i++) {
         bint x = bint(i + 1);
         std::cout << "x: " << x << std::endl;
     }
 }
 
 // Construct from string
-void test_03 (void)
-{
+void test_03(void) {
     std::cout << std::endl << "Test 03: " << std::endl;
 
     bint x = "1111111222222233333334444444";
@@ -49,8 +44,7 @@ void test_03 (void)
 }
 
 // Sum, zero + zero
-void test_04 (void)
-{
+void test_04(void) {
     {
         std::cout << std::endl << "Test 04_a: " << std::endl;
 
@@ -103,21 +97,14 @@ void test_04 (void)
     }
 }
 
-// 
-void test_05 (void)
-{
-    std::cout << std::endl << "Test 05: " << std::endl;
-}
+//
+void test_05(void) { std::cout << std::endl << "Test 05: " << std::endl; }
 
 //
-void test_06 (void)
-{
-    std::cout << std::endl << "Test 06: " << std::endl;
-}
+void test_06(void) { std::cout << std::endl << "Test 06: " << std::endl; }
 
 // Sum, same size
-void test_07 (void)
-{
+void test_07(void) {
     std::cout << std::endl << "Test 07: " << std::endl;
 
     bint x = "1111111111111111";
@@ -129,8 +116,7 @@ void test_07 (void)
 }
 
 // Sum, small big
-void test_08 (void)
-{
+void test_08(void) {
     std::cout << std::endl << "Test 08: " << std::endl;
 
     bint x = "11111111";
@@ -142,8 +128,7 @@ void test_08 (void)
 }
 
 // Sum, big + small
-void test_09 (void)
-{
+void test_09(void) {
     std::cout << std::endl << "Test 09: " << std::endl;
 
     bint x = "1111111111111111";
@@ -155,8 +140,7 @@ void test_09 (void)
 }
 
 // Sum, small + big with carry
-void test_10 (void)
-{
+void test_10(void) {
     std::cout << std::endl << "Test 10: " << std::endl;
 
     bint x = "11111111";
@@ -168,8 +152,7 @@ void test_10 (void)
 }
 
 // Sum, big + small with carry
-void test_11 (void)
-{
+void test_11(void) {
     std::cout << std::endl << "Test 11: " << std::endl;
 
     bint x = "9999999999999999";
@@ -181,8 +164,7 @@ void test_11 (void)
 }
 
 // Chain operations
-void test_12 (void)
-{
+void test_12(void) {
     std::cout << std::endl << "Test 12: " << std::endl;
 
     bint x = "0";
@@ -199,78 +181,68 @@ void test_12 (void)
 }
 
 // A counter
-void test_13 (void)
-{
+void test_13(void) {
     std::cout << std::endl << "Test 13: " << std::endl;
 
     bint x = "0";
     bint one = "1";
 
-    for (int i = 0; i < 1000000; i++)
-    {
+    for (int i = 0; i < 1000000; i++) {
         x = x + one;
     }
     std::cout << "x: " << x << std::endl;
 }
 
-bint fibo_recursive(int n)
-{
-    switch (n)
-    {
-        case 0:
-            return bint("0");
-            break;
-        case 1:
-            return bint("1");
-            break;
-        case 2:
-            return bint("1");
-            break;
-        default:
-            return fibo_recursive(n - 2) + fibo_recursive(n - 1);
+bint fibo_recursive(int n) {
+    switch (n) {
+    case 0:
+        return bint("0");
+        break;
+    case 1:
+        return bint("1");
+        break;
+    case 2:
+        return bint("1");
+        break;
+    default:
+        return fibo_recursive(n - 2) + fibo_recursive(n - 1);
     }
 }
 
 // Recursive fibo
-void test_14 (void)
-{
+void test_14(void) {
     std::cout << std::endl << "Test 14: " << std::endl;
 
     bint f = fibo_recursive(14);
     std::cout << "f: " << f << std::endl;
 }
 
-void fibo()
-{
+void fibo() {
     bint f0 = "0";
     bint f1 = "1";
     bint f2;
-    
-    //int k = 4784969;
+
+    // int k = 4784969;
     int k = 20000;
 
     int n = 2;
-    while (1) 
-    {
+    while (1) {
         f2 = f0 + f1;
-        if (n == k)
-        {
+        if (n == k) {
             std::cout << "fibo " << n << " = ";
             std::cout << f2 << std::endl;
             break;
         }
         n++;
         f0 = f1 + f2;
-        if (n == k)
-        {
+        if (n == k) {
             std::cout << "fibo " << n << " = ";
             std::cout << f0 << std::endl;
             break;
         }
         n++;
         f1 = f2 + f0;
-        if (n == k)
-        {
+        if (n == k) {
             std::cout << "fibo " << n << " = ";
             std::cout << f1 << std::endl;
             break;
@@ -280,16 +252,14 @@ void fibo()
 }
 
 // Schoolboy fibo
-void test_15 (void)
-{
+void test_15(void) {
     std::cout << std::endl << "Test 15: " << std::endl;
 
     fibo();
 }
 
 // low / high
-void test_16 (void)
-{
+void test_16(void) {
     std::cout << std::endl << "Test 16: " << std::endl;
 
     bint x = "999999999999999999"
@@ -306,8 +276,7 @@ void test_16 (void)
 }
 
 // Sub, same size
-void test_17 (void)
-{
+void test_17(void) {
     {
         std::cout << std::endl << "Test 17: " << std::endl;
 
@@ -331,8 +300,12 @@ void test_17 (void)
     {
         std::cout << std::endl << "Test 17_c: " << std::endl;
 
-        bint x = "999999999999999999""999999999999999999""000000000000000000""000000000000000000";
-        bint y = "999999999999999999""999999999999999999";
+        bint x = "999999999999999999"
+                 "999999999999999999"
+                 "000000000000000000"
+                 "000000000000000000";
+        bint y = "999999999999999999"
+                 "999999999999999999";
         std::cout << "x: " << x << std::endl;
         std::cout << "y: " << y << std::endl;
         bint res = x - y;
@@ -341,8 +314,12 @@ void test_17 (void)
     {
         std::cout << std::endl << "Test 17_d: " << std::endl;
 
-        bint x = "999999999999999999""000000000000000000""000000000000000000""000000000000000000";
-        bint y = "999999999999999999""999999999999999999";
+        bint x = "999999999999999999"
+                 "000000000000000000"
+                 "000000000000000000"
+                 "000000000000000000";
+        bint y = "999999999999999999"
+                 "999999999999999999";
         std::cout << "x: " << x << std::endl;
         std::cout << "y: " << y << std::endl;
         bint res = x - y;
@@ -362,8 +339,7 @@ void test_17 (void)
 }
 
 // Sub, shorter from longer
-void test_18 (void)
-{
+void test_18(void) {
     std::cout << std::endl << "Test 18: " << std::endl;
 
     bint x = "4444444444444444";
@@ -377,8 +353,7 @@ void test_18 (void)
 }
 
 // Sub, longer from shorter (expect assertion failure)
-void test_19 (void)
-{
+void test_19(void) {
     std::cout << std::endl << "Test 19: " << std::endl;
 
     bint x = "44444";
@@ -390,8 +365,7 @@ void test_19 (void)
 }
 
 // mul, the base case, one element in value, no overflow
-void test_20 (void)
-{
+void test_20(void) {
     std::cout << std::endl << "Test 20: " << std::endl;
     {
         bint x = "2";
@@ -428,8 +402,7 @@ void test_20 (void)
 }
 
 // mul, the base case, one element in value, with overflow
-void test_21 (void)
-{
+void test_21(void) {
     std::cout << std::endl << "Test 21: " << std::endl;
 
     bint x = "9";
@@ -441,8 +414,7 @@ void test_21 (void)
 }
 
 // mul, testing spilt, four elements into 1
-void test_22 (void)
-{
+void test_22(void) {
     std::cout << std::endl << "Test 22: " << std::endl;
 
     bint x = "1234";
@@ -456,8 +428,7 @@ void test_22 (void)
 }
 
 // mul, with big integers
-void test_23 (void)
-{
+void test_23(void) {
     std::cout << std::endl << "Test 23: " << std::endl;
 
     bint x = "99999999";
@@ -471,8 +442,7 @@ void test_23 (void)
 }
 
 // mul, with big integers
-void test_24 (void)
-{
+void test_24(void) {
     std::cout << std::endl << "Test 24: " << std::endl;
 
     bint x = "12345678";
@@ -486,8 +456,7 @@ void test_24 (void)
 }
 
 // mul, with big integers
-void test_25 (void)
-{
+void test_25(void) {
     std::cout << std::endl << "Test 25: " << std::endl;
 
     bint x = "3463463462345678";
@@ -496,11 +465,10 @@ void test_25 (void)
     std::cout << "x: " << x << std::endl;
     std::cout << "y: " << y << std::endl;
 
-
-    double startTime = (float)clock()/CLOCKS_PER_SEC;
+    double startTime = (float)clock() / CLOCKS_PER_SEC;
 
     bint res = x * y;
-    double endTime = (float)clock()/CLOCKS_PER_SEC;
+    double endTime = (float)clock() / CLOCKS_PER_SEC;
     double timeElapsed = endTime - startTime;
     std::cout << "Elapsted time: " << timeElapsed << std::endl;
 
@@ -510,8 +478,7 @@ void test_25 (void)
 }
 
 // mul, with big integers
-void test_26 (void)
-{
+void test_26(void) {
     std::cout << std::endl << "Test 26: " << std::endl;
 
     bint two = "2";
@@ -519,16 +486,14 @@ void test_26 (void)
 
     std::cout << "two: " << two << std::endl;
 
-    for (int i = 0; i < 1000; i++)
-    {   
+    for (int i = 0; i < 1000; i++) {
         res = res * two;
     }
     std::cout << "res: " << res << std::endl;
 }
 
 // mul, with big integers
-void test_27 (void)
-{
+void test_27(void) {
     std::cout << std::endl << "Test 27: " << std::endl;
 
     bint two = "2";
@@ -536,8 +501,7 @@ void test_27 (void)
 
     std::cout << "two: " << two << std::endl;
 
-    for (int i = 0; i < 1000; i++)
-    {
+    for (int i = 0; i < 1000; i++) {
         res1 = res1 * two;
     }
     std::cout << "res1: " << res1 << std::endl;
@@ -551,49 +515,42 @@ bint zero = "0";
 bint one = "1";
 bint two = "2";
 */
-int isEven(int n)
-{
-    return (n & 1) == 0;
-}
+int isEven(int n) { return (n & 1) == 0; }
 
-bint fibok (int n)
-{
-    switch (n)
-    {
-        case 0:
-            return bint("0");
-        case 1:
-            return bint("1");
-        case 2:
-            return bint("1");
-        default:
-            int k = (n / 2);
-            bint fk = fibok(k);
-            bint fk1 = fibok(k + 1);
-            if (isEven(n))
-            {
-                bint x = fk1 * bint("2") - fk;
-                bint res = fk * x;
-                return res;
-            }
-            bint t1 = fk * fk;
-            bint t2 = fk1 * fk1;
-            bint res = t1 + t2;
+bint fibok(int n) {
+    switch (n) {
+    case 0:
+        return bint("0");
+    case 1:
+        return bint("1");
+    case 2:
+        return bint("1");
+    default:
+        int k = (n / 2);
+        bint fk = fibok(k);
+        bint fk1 = fibok(k + 1);
+        if (isEven(n)) {
+            bint x = fk1 * bint("2") - fk;
+            bint res = fk * x;
             return res;
+        }
+        bint t1 = fk * fk;
+        bint t2 = fk1 * fk1;
+        bint res = t1 + t2;
+        return res;
     }
 }
 
 // mul, via calculating all fibo up to 20000
-void test_28 (void)
-{
+void test_28(void) {
     std::cout << "Test 28: ";
 
     for (int i = 0; i <= 20000; i++) {
-        bint res = fibok  (i);
+        bint res = fibok(i);
 
-//        std::cout << i << ", ";
-//        std::cout << res;
-//        std::cout << std::endl;
+        //        std::cout << i << ", ";
+        //        std::cout << res;
+        //        std::cout << std::endl;
 
         mpz_t f;
         mpz_init(f);
@@ -616,18 +573,17 @@ void timeIt(int n) {
     double endTime;
     double elapsedTime;
 
-    startTime = (float)clock()/CLOCKS_PER_SEC;
+    startTime = (float)clock() / CLOCKS_PER_SEC;
 
     bint res = fibok(n);
 
-    endTime = (float)clock()/CLOCKS_PER_SEC;
+    endTime = (float)clock() / CLOCKS_PER_SEC;
     elapsedTime = endTime - startTime;
 
     std::cout << n << " , " << elapsedTime << std::endl;
 }
 
-void test_29 (void)
-{
+void test_29(void) {
     std::cout << std::endl << "Test 29: " << std::endl;
 
     for (int n = 2; n <= 1024 * 1024 * 32; n *= 2) {
@@ -636,8 +592,8 @@ void test_29 (void)
 }
 
 // This is the way ejolson did it. It's a bit slower than fibok above
-static void fibo_ejolson(int n, bint& a, bint& b) {
-    if( n == 0 ) {
+static void fibo_ejolson(int n, bint &a, bint &b) {
+    if (n == 0) {
         a = bint("0");
         b = bint("1");
         return;
@@ -646,19 +602,18 @@ static void fibo_ejolson(int n, bint& a, bint& b) {
     bint taa = a * a;
     bint tbb = b * b;
     bint taapbb = taa + tbb;
-    if(n & 1) {
+    if (n & 1) {
         // [a, b] = [a*a + b*b, b*(2*a + b)]
         b = b * (a + a + b);
         a = taapbb;
     } else {
         // [a, b] = [a*(b*2 - a), a*a + b*b]
-        a = a * (b + b -  a);
+        a = a * (b + b - a);
         b = taapbb;
     }
 }
 
-void test_30 (void)
-{
+void test_30(void) {
     std::cout << std::endl << "Test 30: ";
 
     bint res;
@@ -667,7 +622,7 @@ void test_30 (void)
 
     fibo_ejolson(n, res, b);
 
-//    std::cout << res << std::endl;
+    //    std::cout << res << std::endl;
 
     mpz_t f;
     mpz_init(f);
@@ -683,25 +638,26 @@ void test_30 (void)
     std::cout << "PASS." << std::endl;
 }
 
-bint factorial(bint n)
-{
+bint factorial(bint n) {
     if (n == bint("0"))
         return bint("1");
     else
-        return(n * factorial(n - bint("1")));
+        return (n * factorial(n - bint("1")));
 }
 
-void test_31 (void)
-{
+void test_31(void) {
     std::cout << std::endl << "Test 31: " << std::endl;
 
     bint res = factorial(bint("100"));
-    std::cout << "Expect: " << "93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000" << std::endl;
+    std::cout << "Expect: "
+              << "9332621544394415268169923885626670049071596826438162146859296"
+                 "3895217599993229915608941463976156518286253697920827223758251"
+                 "185210916864000000000000000000000000"
+              << std::endl;
     std::cout << "        " << res << std::endl;
 }
 
-void test_32 (void)
-{
+void test_32(void) {
     std::cout << std::endl << "Test 32: " << std::endl;
 
     bint a = "440047129495446";
@@ -709,57 +665,61 @@ void test_32 (void)
     bint c = "26819189637968393739987639";
     int aShift = 2;
     int bShift = 1;
-    //result.width = 4
-    //a.width =      1
-    //b.width =      2
+    // result.width = 4
+    // a.width =      1
+    // b.width =      2
     bint res0 = a.shiftAndAdd(a, b, c, aShift, bShift);
     std::cout << "shiftAndAdd: " << res0 << std::endl;
 
-/*
+    /*
 
-    bint a = "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
-             "111111111111111111""111111111111111111""111111111111111111""111111111111111111";
-    bint b = "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
-             "222222222222222222""222222222222222222""222222222222222222""222222222222222222";
-    bint c = "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"   
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
-             "333333333333333333""333333333333333333""333333333333333333";
+        bint a =
+       "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111""111111111111111111"
+                 "111111111111111111""111111111111111111""111111111111111111""111111111111111111";
+        bint b =
+       "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222""222222222222222222"
+                 "222222222222222222""222222222222222222""222222222222222222""222222222222222222";
+        bint c =
+       "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333""333333333333333333""333333333333333333"
+                 "333333333333333333""333333333333333333""333333333333333333";
 
-    bint res0 = a.shiftAndAdd(a, b, c, 36, 0);              // 35 works here!
-    std::cout << "shiftAndAdd: " << res0 << std::endl;
-*/
+        bint res0 = a.shiftAndAdd(a, b, c, 36, 0);              // 35 works
+       here!
+        std::cout << "shiftAndAdd: " << res0 << std::endl;
+    */
 }
 
-mpz_class pow(mpz_class x, int n)  {
+mpz_class pow(mpz_class x, int n) {
     if (n == 0) {
         return mpz_class("1");
     }
@@ -770,29 +730,25 @@ mpz_class pow(mpz_class x, int n)  {
     return result;
 }
 
-void test_34 (void)
-{
-    std::cout << std::endl << "Test 34: " << std::endl;
-}
+void test_34(void) { std::cout << std::endl << "Test 34: " << std::endl; }
 
 // operator*() random fuzzing
-void test_35 (void)
-{
+void test_35(void) {
     std::cout << std::endl << "Test 35: ";
 
-    gmp_randclass  r(gmp_randinit_default);
+    gmp_randclass r(gmp_randinit_default);
 
     mpz_class randomRange = 1;
     for (int i = 1; i <= 1000; i++) {
         randomRange *= 10;
-//        std::cout << "Random range: " << randomRange << std::endl;
+        //        std::cout << "Random range: " << randomRange << std::endl;
 
         for (int j = 0; j < 10; j++) {
-            mpz_class rand1 = r.get_z_range(randomRange); 
-            mpz_class rand2 = r.get_z_range(randomRange); 
+            mpz_class rand1 = r.get_z_range(randomRange);
+            mpz_class rand2 = r.get_z_range(randomRange);
 
-            std::string s1 =  rand1.get_str ();
-            std::string s2 =  rand2.get_str ();
+            std::string s1 = rand1.get_str();
+            std::string s2 = rand2.get_str();
 
             bint b1 = s1.c_str();
             bint b2 = s2.c_str();
@@ -800,10 +756,11 @@ void test_35 (void)
             mpz_class expected = rand1 * rand2;
             bint res = b1 * b2;
 
-//            std::cout << "b1:           " << b1 << std::endl; 
-//            std::cout << "b2:           " << b2 << std::endl; 
-//            std::cout << "Expect:       " << expected << std::endl; 
-//            std::cout << "Got:          " << res << std::endl; 
+            //            std::cout << "b1:           " << b1 << std::endl;
+            //            std::cout << "b2:           " << b2 << std::endl;
+            //            std::cout << "Expect:       " << expected <<
+            //            std::endl;
+            //            std::cout << "Got:          " << res << std::endl;
 
             bint x = bint(expected.get_str().c_str());
 
@@ -817,8 +774,7 @@ void test_35 (void)
 }
 
 // operator*() extreme limit
-void test_36 (void)
-{
+void test_36(void) {
     std::cout << "Test 36: ";
 
     for (int i = 0; i < 64; i++) {
@@ -828,9 +784,9 @@ void test_36 (void)
         mpz_class expected = p * p;
         bint res = b * b;
 
-//        std::cout << "i: " << i << ", b: " << b << std::endl; 
-//        std::cout << "Expect b * b : " << expected << std::endl; 
-//        std::cout << "Got:           " << res << std::endl;
+        //        std::cout << "i: " << i << ", b: " << b << std::endl;
+        //        std::cout << "Expect b * b : " << expected << std::endl;
+        //        std::cout << "Got:           " << res << std::endl;
 
         bint x = bint(expected.get_str().c_str());
 
@@ -842,50 +798,48 @@ void test_36 (void)
     std::cout << "PASS." << std::endl;
 }
 
-void test_37 (void)
-{
-}
+void test_37(void) {}
 
 // o2nMul() random fuzzing
-void test_38 (void)
-{
+void test_38(void) {
     std::cout << "Test 38: ";
 
-    gmp_randclass  r(gmp_randinit_default);
+    gmp_randclass r(gmp_randinit_default);
 
     mpz_class randomRange = 1;
 
     for (int i = 0; i < 43; i++) {
         randomRange *= 1000000000;
         for (int j = 0; j < 10000; j++) {
-            mpz_class rand1 = r.get_z_range(randomRange); 
-            mpz_class rand2 = r.get_z_range(randomRange); 
+            mpz_class rand1 = r.get_z_range(randomRange);
+            mpz_class rand2 = r.get_z_range(randomRange);
 
-            std::string s1 =  rand1.get_str ();
-            std::string s2 =  rand2.get_str ();
+            std::string s1 = rand1.get_str();
+            std::string s2 = rand2.get_str();
 
             bint b1 = s1.c_str();
             bint b2 = s2.c_str();
 
-//            std::cout << "i:            " << i << std::endl; 
-//            std::cout << "b1:           " << b1 << std::endl; 
-//            std::cout << "b2:           " << b2 << std::endl; 
+            //            std::cout << "i:            " << i << std::endl;
+            //            std::cout << "b1:           " << b1 << std::endl;
+            //            std::cout << "b2:           " << b2 << std::endl;
 
             mpz_class expected = rand1 * rand2;
-//            std::cout << "Expect:       " << expected  << std::endl; 
+            //            std::cout << "Expect:       " << expected  <<
+            //            std::endl;
 
             bint res = b1.o2nMul(b2);
-//            std::cout << "Got:          " << res << std::endl; 
+            //            std::cout << "Got:          " << res << std::endl;
 
             bint x = bint(expected.get_str().c_str());
 
             if (x != res) {
                 std::cout << "FAIL." << std::endl;
-                std::cout << "i:            " << i << std::endl; 
-                std::cout << "b1:           " << b1 << std::endl; 
-                std::cout << "b2:           " << b2 << std::endl; 
-                std::cout << "Expect:       " << expected  << std::endl; 
-                std::cout << "Got:          " << res << std::endl; 
+                std::cout << "i:            " << i << std::endl;
+                std::cout << "b1:           " << b1 << std::endl;
+                std::cout << "b2:           " << b2 << std::endl;
+                std::cout << "Expect:       " << expected << std::endl;
+                std::cout << "Got:          " << res << std::endl;
                 return;
             }
         }
@@ -893,32 +847,31 @@ void test_38 (void)
     std::cout << "PASS." << std::endl;
 }
 
-int main (void)
-{
+int main(void) {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
 
-    test_01();   
-    test_02();   
-    test_03();   
-    test_04();   
-    test_05();   
-    test_06();   
-    test_07();   
-    test_08();   
-    test_09();   
-    test_10();   
-    test_11();   
-    test_12();   
+    test_01();
+    test_02();
+    test_03();
+    test_04();
+    test_05();
+    test_06();
+    test_07();
+    test_08();
+    test_09();
+    test_10();
+    test_11();
+    test_12();
     test_13();
-    test_14();   
+    test_14();
     test_15();
-    test_16();   
-    test_17();   
-    test_18();   
-//    test_19();   // FAILS: As it should!
-    test_20();   
-    test_21();   
+    test_16();
+    test_17();
+    test_18();
+    //    test_19();   // FAILS: As it should!
+    test_20();
+    test_21();
     test_22();
     test_23();
     test_24();
@@ -926,7 +879,7 @@ int main (void)
     test_26();
     test_27();
     test_28();
-//    test_29();  // Too long to run
+    //    test_29();  // Too long to run
     test_30();
     test_31();
     test_32();
@@ -938,4 +891,3 @@ int main (void)
 
     return 0;
 }
-

@@ -1,6 +1,7 @@
 #ifndef BINT_H
 #define BINT_H
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
@@ -8,9 +9,8 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
-#include <type_traits>
 #include <strings.h>
-#include <algorithm>
+#include <type_traits>
 
 // Uncomment to disable assert()
 //#define NDEBUG
@@ -22,7 +22,7 @@
 
 typedef uint64_t bintel_t;
 
-constexpr int DIGITS = 9;                  // Decimal digits in each big integer array element.
+constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 constexpr bintel_t BASE = pow(10, DIGITS);
 
 constexpr int STACK_VALUE_SIZE = 128;
@@ -77,12 +77,13 @@ class bint {
     }
 
     // Move constructor.
-    bint(bint&& other) {
-        static_assert(std::is_move_constructible<bint>::value, "Not move constructible.");
+    bint(bint &&other) {
+        static_assert(std::is_move_constructible<bint>::value,
+                      "Not move constructible.");
         width = other.width;
         parent = other.parent;
         if (other.value == other.valueOnstack) {
-            memcpy (valueOnstack, other.valueOnstack, sizeof(valueOnstack));
+            memcpy(valueOnstack, other.valueOnstack, sizeof(valueOnstack));
             value = valueOnstack;
         } else {
             value = other.value;
@@ -94,16 +95,15 @@ class bint {
     }
 
     // Move assignment operator.
-    bint& operator=(bint&& other)
-    {
-        static_assert(std::is_move_assignable<bint>::value, "Not move assignable.");
+    bint &operator=(bint &&other) {
+        static_assert(std::is_move_assignable<bint>::value,
+                      "Not move assignable.");
 
-        if (this != &other)
-        {
+        if (this != &other) {
             width = other.width;
             parent = other.parent;
             if (other.value == other.valueOnstack) {
-                memcpy (valueOnstack, other.valueOnstack, sizeof(valueOnstack));
+                memcpy(valueOnstack, other.valueOnstack, sizeof(valueOnstack));
                 value = valueOnstack;
             } else {
                 deallocate(value);
@@ -119,7 +119,7 @@ class bint {
 
     inline ~bint() {
         if (parent == 0) {
-            //assert(value != 0);
+            // assert(value != 0);
             deallocate(value);
         }
     }
@@ -135,7 +135,7 @@ class bint {
         memcpy(value, k.value, width * sizeof value[0]);
     }
 
-    bool operator== (const bint &rhs) const {
+    bool operator==(const bint &rhs) const {
         if (rhs.width != width) {
             return false;
         }
@@ -145,9 +145,7 @@ class bint {
         return true;
     }
 
-    bool operator!= (const bint &rhs) const {
-        return !(*this == rhs);
-    }
+    bool operator!=(const bint &rhs) const { return !(*this == rhs); }
 
     inline bint operator+(const bint &n) const {
         // Ensure "a" operand is longer than "b" operand
@@ -163,7 +161,7 @@ class bint {
         bint sum(a->width + 1);
         sum.width--;
 
-        int32_t  i = 0;
+        int32_t i = 0;
         bintel_t s = 0;
         bintel_t carry = 0;
         bintel_t *aPtr = a->value;
@@ -194,7 +192,8 @@ class bint {
     inline bint operator-(const bint &b) const {
         // Demand this operand is wider than the a operand
         if (this->width < b.width) {
-            std::cout << "!!!!! this width: " << this->width << " is less than b width: " << b.width << std::endl;
+            std::cout << "!!!!! this width: " << this->width
+                      << " is less than b width: " << b.width << std::endl;
             std::cout << "!!!!! this: " << *this << " b: " << b << std::endl;
         }
         assert(this->width >= b.width);
@@ -224,14 +223,16 @@ class bint {
             aPtr++;
             i++;
         }
-        // If there is a borrow here we have a problem, we can't handle negative numbers
+        // If there is a borrow here we have a problem, we can't handle negative
+        // numbers
         assert(borrow == 0);
 
         return difference;
     }
 
     inline bint operator*(const bint &b) const {
-        // The base case(s), only one element in each value, just do the multiply
+        // The base case(s), only one element in each value, just do the
+        // multiply
         if ((width == 1) && (b.width == 1)) {
             bint product(2);
 
@@ -241,11 +242,11 @@ class bint {
                 product.width--;
             } else {
                 product.value[0] = p % BASE;
-                product.value[1] =  p / BASE;
+                product.value[1] = p / BASE;
             }
             return product;
         }
-        if (std::min(width, b.width ) <= 49) {
+        if (std::min(width, b.width) <= 49) {
             return o2nMul(b);
         }
 
@@ -267,7 +268,7 @@ class bint {
         const bint s2 = z1 - z2 - z0;
 
         bint result = shiftAndAdd(z2, s2, z0, m2 * 2, m2);
-        assert ((result.width != 1) || (result.value[result.width - 1] != 0));
+        assert((result.width != 1) || (result.value[result.width - 1] != 0));
         return result;
     }
 
@@ -283,7 +284,7 @@ class bint {
         return os;
     }
 
-private:
+  private:
     inline bintel_t parseDigits(const char *s, int len) {
         bintel_t num = 0;
         for (int i = 0; i < len; i++) {
@@ -292,7 +293,7 @@ private:
         return num;
     }
 
-    inline bintel_t* allocate(size_t n) {
+    inline bintel_t *allocate(size_t n) {
         if (n <= STACK_VALUE_SIZE) {
             value = valueOnstack;
             return valueOnstack;
@@ -302,7 +303,7 @@ private:
         }
     }
 
-    inline void deallocate(bintel_t* d) {
+    inline void deallocate(bintel_t *d) {
         if (value != valueOnstack) {
             delete[] d;
         }
@@ -331,7 +332,8 @@ private:
     }
 
     // Calculate:  a.shift(n) + b.shift(n/2) + c;
-    inline bint shiftAndAdd(const bint &a, const bint &b, const bint &c, int aShift, int bShift) const {
+    inline bint shiftAndAdd(const bint &a, const bint &b, const bint &c,
+                            int aShift, int bShift) const {
         assert(aShift >= bShift);
 
         // Make a result big enough with room for overflow
@@ -347,8 +349,9 @@ private:
         assert(result.width >= b.width + bShift);
 
         // Move c into the result
-        memcpy(result.value, c.value, c.width * sizeof (bintel_t));
-        bzero(result.value + c.width, (result.width - c.width) * sizeof (bintel_t));
+        memcpy(result.value, c.value, c.width * sizeof(bintel_t));
+        bzero(result.value + c.width,
+              (result.width - c.width) * sizeof(bintel_t));
 
         // Add b into the result with offset bShift
         bintel_t s = 0;
@@ -373,7 +376,8 @@ private:
             rPtr++;
             i++;
         }
-        // Propagate carry       // FIXME: There are two carries going on here. This is not right yet.
+        // Propagate carry       // FIXME: There are two carries going on here.
+        // This is not right yet.
         *rPtr++ += carry;
 
         // Add a into the result with offset aShift
@@ -399,7 +403,8 @@ private:
             rPtr++;
             i++;
         }
-        // If carry is set here we need more digits!        // FIXME: There are two carries going on here. This is not right yet.
+        // If carry is set here we need more digits!        // FIXME: There are
+        // two carries going on here. This is not right yet.
         if (carry) {
             *rPtr = 1;
         } else {
@@ -409,8 +414,9 @@ private:
         return result;
     }
 
-    inline bint o2nMul(const bint& b) const {
-        assert ((this->width > 0 && b.width > 0 ) && "o2nMul() requires operands wider than 0");
+    inline bint o2nMul(const bint &b) const {
+        assert((this->width > 0 && b.width > 0) &&
+               "o2nMul() requires operands wider than 0");
 
         bint x = bint(this->width + b.width + 1);
         x.width = this->width + b.width - 1;
@@ -418,9 +424,9 @@ private:
             for (int32_t j = 0; j < b.width; ++j) {
                 x.value[i + j] += this->value[i] * b.value[j];
             }
-            if ((this->width - i) % CARRY_DELAY == 1 ) {
+            if ((this->width - i) % CARRY_DELAY == 1) {
                 for (int32_t k = 0; k <= x.width; ++k) {
-                    if( x.value[k] >= BASE ) {
+                    if (x.value[k] >= BASE) {
                         const bintel_t c = x.value[k] / BASE;
                         x.value[k] %= BASE;
                         x.value[k + 1] += c;
@@ -437,7 +443,7 @@ private:
   private:
     bintel_t *value;
     bintel_t valueOnstack[STACK_VALUE_SIZE];
-    int32_t  width;
+    int32_t width;
     const bint *parent;
 };
 #endif // BINT_H
