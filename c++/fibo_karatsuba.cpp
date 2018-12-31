@@ -71,7 +71,6 @@ const bint fiboOmp (int n, int level) {
     
     int k = (n / 2);
 
-    omp_set_nested(true);
     if (level < 4) {
 
         int nthreads, tid;
@@ -125,7 +124,7 @@ int main(int argc, char *argv[]) {
     int n = 4784969;
     bint res; 
 
-    if (argc == 2) {
+    if (argc >= 2) {
         n = atol(argv[1]);
     }
 
@@ -143,7 +142,10 @@ int main(int argc, char *argv[]) {
     memo[2] = one;
 
     if (useOmp) {
-        res = fiboOmp(n, 0);
+        int procs = omp_get_num_procs();    
+        std::cout << "Using OMP on " << procs << " cores." << std::endl;
+        omp_set_nested(true);
+	res = fiboOmp(n, 0);
     } else {
         res = fibo(n);
     }
