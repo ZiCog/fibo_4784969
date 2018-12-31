@@ -53,75 +53,75 @@ const bint fibo (int n) {
     return memo[n] = (two * a + b) * (two * a - b) - two;
 }
 
+int threads = 0;
+
 // Fibo as above with OMP
-const bint fiboOmp (int n, int level) {
+const bint fiboOmp (int n) {
     bint a;
     bint b;
     bint res;
-    bool found = false;
 
-    #pragma omp critical
-    if (memo.find(n) != memo.end()) {
-        res = memo[n];
-        found = true;    
-    }
-    if (found) {
+    if (n == 0) {
+        res = zero;
         return res;
     }
-    
+    if (n == 1) {
+        res = one;
+        return res;
+    }
+
     int k = (n / 2);
 
-    if (level < 4) {
+    int t;
+    #pragma omp atomic read
+    t = threads;
+    if (t <= 16) {
 
-        int nthreads, tid;
-        #pragma omp parallel shared(k, a, b, memo, nthreads, level) private(n, tid)
+        int tid;
+        #pragma omp atomic
+        threads++;
+        #pragma omp parallel shared(k, a, b, memo, threads) private(tid, n)
         {
-
             tid = omp_get_thread_num();
             #pragma omp sections
             {
                 #pragma omp section
                 {
                     #pragma omp critical
-                    std::cout << "Thread " << tid << " doing section 1" << std::endl;
+                    std::cout << "Thread " << tid << " doing section 1" << '\n';
 
-                    a = fiboOmp(k, level + 1);
+                    a = fiboOmp(k);
                 }
                 #pragma omp section
                 {
                     #pragma omp critical
-                    std::cout << "Thread " << tid << " doing section 2" << std::endl;
+                    std::cout << "Thread " << tid << " doing section 2" << '\n';
 
-                    b = fiboOmp(k - 1, level + 1);
+                    b = fiboOmp(k - 1);
                 }
             }  // End of sections
         }  //  End of parallel section
+        #pragma omp atomic
+        threads--;
     } else {
-        a = fiboOmp(k, level + 1);
-        b = fiboOmp(k - 1, level + 1);
+        a = fiboOmp(k);
+        b = fiboOmp(k - 1);
     }
 
-    // NOTE: We removed memo here for a two times slow down!
     if (isEven(n)) {
         res = a * (two * b + a);
-        #pragma omp critical
-        memo[n] = res;
         return res;
     }
     if ((n % 4) == 1) {
         res = (two * a + b) * (two * a - b) + two;
-        #pragma omp critical
-        memo[n] = res;
         return res;
     }
     res = (two * a + b) * (two * a - b) - two;
-    #pragma omp critical
-    memo[n] = res;
     return res;
 }
 
 int main(int argc, char *argv[]) {
-    int n = 4784969;
+    int n = 4784969;   // The first Fibonacci number with a million digits
     bint res; 
 
     if (argc >= 2) {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
         int procs = omp_get_num_procs();    
         std::cout << "Using OMP on " << procs << " cores." << std::endl;
         omp_set_nested(true);
-	res = fiboOmp(n, 0);
+	res = fiboOmp(n);
     } else {
         res = fibo(n);
     }
