@@ -132,7 +132,6 @@ int main(int argc, char *argv[]) {
     bool useOmp = false;
     if ((argc == 3) && (strncmp(argv[2], command, strlen(command)) == 0)) {
         useOmp = true;
-        std::cout << "Using OMP:" << std::endl;
     }
 
     // Initialize the fibo's memo.
