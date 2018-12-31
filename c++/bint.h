@@ -27,7 +27,7 @@ constexpr bintel_t BASE = pow(10, DIGITS);
 
 constexpr int STACK_VALUE_SIZE = 128;
 constexpr int ON2_CUTOFF = 53;
-constexpr int CARRY_DELAY = 18;
+constexpr int CARRY_DELAY = 16;
 
 class bint {
   public:
@@ -190,13 +190,7 @@ class bint {
     }
 
     inline bint operator-(const bint &b) const {
-        // Demand this operand is wider than the a operand
-        if (this->width < b.width) {
-            std::cout << "!!!!! this width: " << this->width
-                      << " is less than b width: " << b.width << std::endl;
-            std::cout << "!!!!! this: " << *this << " b: " << b << std::endl;
-        }
-        assert(this->width >= b.width);
+        assert((this->width >= b.width) && "operator-() requires operand a wider or same as operand b");
 
         // Make a result of the same size as this
         bint difference(this->width);
@@ -223,10 +217,7 @@ class bint {
             aPtr++;
             i++;
         }
-        // If there is a borrow here we have a problem, we can't handle negative
-        // numbers
-        assert(borrow == 0);
-
+        assert((borrow == 0) && "operator-() requires operand b less than operand a");
         return difference;
     }
 
@@ -424,7 +415,8 @@ class bint {
             for (int32_t j = 0; j < b.width; ++j) {
                 x.value[i + j] += this->value[i] * b.value[j];
             }
-            if ((this->width - i) % CARRY_DELAY == 1) {
+//            if ((this->width - i) % CARRY_DELAY == 1) {
+            if (((this->width - i) & 0x0f) == 1) {
                 for (int32_t k = 0; k <= x.width; ++k) {
                     if (x.value[k] >= BASE) {
                         const bintel_t c = x.value[k] / BASE;
