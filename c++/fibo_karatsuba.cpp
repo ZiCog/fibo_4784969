@@ -1,6 +1,7 @@
 #include <time.h>
 #include <unordered_map>
 #include <time.h>
+#include <omp.h>
 
 #include "bint.h"
 
@@ -52,10 +53,12 @@ const bint fibo (int n) {
     return memo[n] = (two * a + b) * (two * a - b) - two;
 }
 
-bint timeIt(int n) {
-    double endTime;
-    double elapsedTime;
-    double startTime = clock() / CLOCKS_PER_SEC;
+int main(int argc, char *argv[]) {
+    int n = 4784969;
+
+    if (argc == 2) {
+        n = atol(argv[1]);
+    }
 
     // Initialize the fibo's memo.
     memo.clear();
@@ -64,38 +67,7 @@ bint timeIt(int n) {
     memo[2] = one;
 
     bint res = fibo(n);
-//    fiboEjOlson(n - 1);
-//    bint res = b;
-
-    endTime = (float)clock()/CLOCKS_PER_SEC;
-    elapsedTime = endTime - startTime;
-#if DEBUG
-//    std::cout << "Compute time: " << elapsedTime << std::endl;
-#endif
-    return res;
-}
-
-int main(int argc, char *argv[]) {
-    bint res = timeIt(4784969);
     std::cout << res << std::endl;
 
-#if DEBUG
-    std::cout << "allocWithWidth: " << allocWithWidth << std::endl;
-    std::cout << "allocCopy: " << allocCopy << std::endl;
-    std::cout << "allocString: " << allocString << std::endl;
-    std::cout << "allocEquals: " << allocEquals << std::endl;
-    std::cout << "allocEqualString: " << allocEqualsString << std::endl;
-    std::cout << "allocHigh: " << allocHigh << std::endl;
-    std::cout << "allocLow: " << allocLow << std::endl;
-    std::cout << "allocShift: " << allocShift << std::endl;
-    std::cout << "allocGrow: " << allocGrow << std::endl;
-    std::cout << "allocBytes: " << allocBytes << std::endl;
-    std::cout << "allocations: " << allocations << std::endl;
-    std::cout << "mulCount: " << mulCount << std::endl;
-
-    for (int i = 0; i < 17; i++) {
-        std::cout << allocs[i] << std::endl;
-    }
-#endif
     return 0;
 }
