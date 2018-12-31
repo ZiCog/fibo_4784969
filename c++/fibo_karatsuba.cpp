@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <time.h>
 #include <omp.h>
-
+#include <string.h>
 #include "bint.h"
 
 //using fint = bint<>;
@@ -53,11 +53,87 @@ const bint fibo (int n) {
     return memo[n] = (two * a + b) * (two * a - b) - two;
 }
 
+// Fibo as above with OMP
+const bint fiboOmp (int n, int level) {
+    bint a;
+    bint b;
+    bint res;
+    bool found = false;
+
+    #pragma omp critical
+    if (memo.find(n) != memo.end()) {
+        res = memo[n];
+        found = true;    
+    }
+    if (found) {
+        return res;
+    }
+    
+    int k = (n / 2);
+
+    omp_set_nested(true);
+    if (level < 4) {
+
+        int nthreads, tid;
+        #pragma omp parallel shared(k, a, b, memo, nthreads, level) private(n, tid)
+        {
+
+            tid = omp_get_thread_num();
+            #pragma omp sections
+            {
+                #pragma omp section
+                {
+                    #pragma omp critical
+                    std::cout << "Thread " << tid << " doing section 1" << std::endl;
+
+                    a = fiboOmp(k, level + 1);
+                }
+                #pragma omp section
+                {
+                    #pragma omp critical
+                    std::cout << "Thread " << tid << " doing section 2" << std::endl;
+
+                    b = fiboOmp(k - 1, level + 1);
+                }
+            }  // End of sections
+        }  //  End of parallel section
+    } else {
+        a = fiboOmp(k, level + 1);
+        b = fiboOmp(k - 1, level + 1);
+    }
+
+    // NOTE: We removed memo here for a two times slow down!
+    if (isEven(n)) {
+        res = a * (two * b + a);
+        #pragma omp critical
+        memo[n] = res;
+        return res;
+    }
+    if ((n % 4) == 1) {
+        res = (two * a + b) * (two * a - b) + two;
+        #pragma omp critical
+        memo[n] = res;
+        return res;
+    }
+    res = (two * a + b) * (two * a - b) - two;
+    #pragma omp critical
+    memo[n] = res;
+    return res;
+}
+
 int main(int argc, char *argv[]) {
     int n = 4784969;
+    bint res; 
 
     if (argc == 2) {
         n = atol(argv[1]);
+    }
+
+    const char* command = "omp";
+    bool useOmp = false;
+    if ((argc == 3) && (strncmp(argv[2], command, strlen(command)) == 0)) {
+        useOmp = true;
+        std::cout << "Using OMP:" << std::endl;
     }
 
     // Initialize the fibo's memo.
@@ -66,7 +142,12 @@ int main(int argc, char *argv[]) {
     memo[1] = one;
     memo[2] = one;
 
-    bint res = fibo(n);
+    if (useOmp) {
+        res = fiboOmp(n, 0);
+    } else {
+        res = fibo(n);
+    }
+
     std::cout << res << std::endl;
 
     return 0;
