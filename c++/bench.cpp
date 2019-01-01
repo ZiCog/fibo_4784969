@@ -38,15 +38,14 @@ const bint fibo (int n) {
 static void BM_fibo(benchmark::State& state) {
 	bint res;
 
-	// Initialize the fibo's memo.
-	memo.clear();
-	memo[0] = zero;
-	memo[1] = one;
-	memo[2] = one;
-
 	for (auto _ : state)
-		for (int i = 0; i < 1000; i++) {
-			res = fibo(4784969);
+		for (int i = 0; i < 10; i++) {
+            // Initialize the fibo's memo.
+            memo.clear();
+            memo[0] = zero;
+            memo[1] = one;
+            memo[2] = one;
+            benchmark::DoNotOptimize(fibo(4784969));
 		}
 }
 BENCHMARK(BM_fibo)->Unit(benchmark::kMillisecond);
