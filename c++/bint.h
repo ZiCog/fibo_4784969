@@ -186,9 +186,16 @@ class bint {
             sum.value[i] = 1;
             sum.width++;
         }
+        while ((sum.width > 1) && (sum.value[sum.width - 1] == 0)){
+            sum.width--;
+        }
+        if (sum.width > 1) {
+            assert((sum.value[sum.width - 1] != 0));
+        }
         return sum;
     }
 
+/*
     inline bint operator-(const bint &b) const {
         assert((this->width >= b.width) && "operator-() requires operand a wider or same as operand b");
 
@@ -218,6 +225,44 @@ class bint {
             i++;
         }
         assert((borrow == 0) && "operator-() requires operand b less than operand a");
+        while ((difference.width > 1) && (difference.value[difference.width - 1] == 0)){
+            difference.width--;
+        }
+
+        if (difference.width > 1) {
+            assert((difference.value[difference.width - 1] != 0));
+        }
+        return difference;
+    }
+*/
+inline bint operator-(const bint &b) const {
+        assert((this->width >= b.width) && "operator-() requires operand a wider or same as operand b");
+
+        // Make a result of the same size as this
+        bint difference(this->width);
+
+        bintel_t borrow = 0;
+        int32_t i = 0;
+        while (i < b.width) {
+            bintel_t t = this->value[i] - borrow;
+            borrow = int64_t(t) < int64_t(b.value[i]);
+            difference.value[i] = t + (BASE * borrow) - b.value[i];
+            i++;
+        }
+        while (i < this->width) {
+            bintel_t t = this->value[i] - borrow;
+            borrow = int64_t(t) < 0;
+            difference.value[i] = t + (BASE * borrow);
+            i++;
+        }
+        assert((borrow == 0) && "operator-() requires operand b less than operand a");
+        while ((difference.width > 1) && (difference.value[difference.width - 1] == 0)){
+            difference.width--;
+        }
+
+        if (difference.width > 1) {
+            assert((difference.value[difference.width - 1] != 0));
+        }
         return difference;
     }
 
@@ -259,7 +304,9 @@ class bint {
         const bint s2 = z1 - z2 - z0;
 
         bint result = shiftAndAdd(z2, s2, z0, m2 * 2, m2);
-        assert((result.width != 1) || (result.value[result.width - 1] != 0));
+        if (result.width > 1) {
+            assert((result.value[result.width - 1] != 0));
+        }
         return result;
     }
 

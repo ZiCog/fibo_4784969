@@ -1,5 +1,6 @@
 #include <gmpxx.h>
 #include <time.h>
+#include <unordered_map>
 
 #include "bint.h"
 
@@ -847,6 +848,52 @@ void test_38(void) {
     std::cout << "PASS." << std::endl;
 }
 
+const bint zero = "0";
+const bint one = "1";
+const bint two = "2";
+
+std::unordered_map<uint64_t, bint> memo;
+
+// A known broken calculation
+const bint broken () {
+
+    bint a = "701408733";
+    bint b = "433494437";
+
+    std::cout << "a = " << a << '\n';
+    std::cout << "b = " << b << '\n';
+
+    bint twoa = two * a;
+    return (twoa + b) * (two * a - b) + two;
+}
+
+// broken()
+void test_39(void) {
+    std::cout << "Test 39: ";
+
+    const char* sa = "701408733";
+    const char* sb = "433494437";
+    const bint a = sa; 
+    const bint b = sb;
+    const bint twoa = two * a;
+
+    bint res = twoa - b;
+    bint x = (two * a - b);
+
+    if (x != res) {
+        std::cout << "FAIL." << '\n';
+        return;
+    }
+
+    // Check subtract did not corrupt it's operands
+    if ((a != bint(sa)) || (b != bint(sb)) || (twoa != two * a)) {
+        std::cout << "FAIL." << '\n';
+        return;
+    }
+    std::cout << "PASS." << std::endl;
+}
+
+
 int main(void) {
     std::cout << "DIGITS = " << DIGITS << std::endl;
     std::cout << "BASE = " << BASE << std::endl;
@@ -888,6 +935,6 @@ int main(void) {
     test_36();
     test_37();
     test_38();
-
+    test_39();
     return 0;
 }
