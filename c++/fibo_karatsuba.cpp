@@ -10,7 +10,7 @@ const bint two = "2";
 
 std::unordered_map<uint64_t, bint> memo;
 
-int isEven(int n) { return (n & 1) == 0; }
+inline int isEven(int n) { return (n & 1) == 0; }
 
 // This Fibonacci version derived from ejolson's doubling formula C example.
 bint a;
@@ -34,6 +34,7 @@ static void fiboEjOlson(const int n) {
 
 // This Fibonacci version derived from Paeryn's Haskell example.
 const bint fibo (int n) {
+  //  std::cout << n << '\n';
     if (memo.find(n) != memo.end()) {
         return memo[n];    
     }
@@ -44,10 +45,11 @@ const bint fibo (int n) {
     if (isEven(n)) {
         return memo[n] = a * (two * b + a);
     }
+    bint twoa = two * a;
     if ((n % 4) == 1) {
-        return memo[n] = (two * a + b) * (two * a - b) + two;
+        return memo[n] = (twoa + b) * (twoa - b) + two;
     }
-    return memo[n] = (two * a + b) * (two * a - b) - two;
+    return memo[n] = (twoa + b) * (twoa - b) - two;
 }
 
 int main(int argc, char *argv[]) {
