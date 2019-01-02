@@ -147,14 +147,11 @@ class bint {
 
     bool operator!=(const bint &rhs) const { return !(*this == rhs); }
 
-    inline bint operator+(const bint &n) const {
-        // Ensure "a" operand is longer than "b" operand
-        // FIXME: Perhaps we could simple add reveresed operands here?
+    inline bint operator+(const bint &b) const {
+        // Ensure lhs operand is longer than rhs operand
         const bint *a = this;
-        const bint *b = &n;
-        if (n.width > width) {
-            a = &n;
-            b = this;
+        if (b.width > width) {
+            return b + *this;
         }
 
         // Make a result of the same size as operand "a" with room for overflow
@@ -164,21 +161,18 @@ class bint {
         int32_t i = 0;
         bintel_t s = 0;
         bintel_t carry = 0;
-        bintel_t *aPtr = a->value;
-        bintel_t *bPtr = b->value;
-        bintel_t *sPtr = sum.value;
-        while (i < b->width) {
-            s = *aPtr++ + *bPtr++ + carry;
+        while (i < b.width) {
+            s = a->value[i] + b.value[i] + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
-            *sPtr++ = s;
+            sum.value[i] = s;
             i++;
         }
         while (i < a->width) {
-            s = *aPtr++ + carry;
+            s = a->value[i] + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
-            *sPtr++ = s;
+            sum.value[i] = s;
             i++;
         }
         // If carry is set here we need more digits!
@@ -195,46 +189,6 @@ class bint {
         return sum;
     }
 
-/*
-    inline bint operator-(const bint &b) const {
-        assert((this->width >= b.width) && "operator-() requires operand a wider or same as operand b");
-
-        // Make a result of the same size as this
-        bint difference(this->width);
-
-        bintel_t borrow = 0;
-        bintel_t *aPtr = this->value;
-        bintel_t *bPtr = b.value;
-        bintel_t *dPtr = difference.value;
-        int32_t i = 0;
-        while (i < b.width) {
-            *aPtr -= borrow;
-            borrow = int64_t(*aPtr) < int64_t(*bPtr);
-            *dPtr = *aPtr + (BASE * borrow) - *bPtr;
-            dPtr++;
-            aPtr++;
-            bPtr++;
-            i++;
-        }
-        while (i < this->width) {
-            *aPtr -= borrow;
-            borrow = int64_t(*aPtr) < 0;
-            *dPtr = *aPtr + (BASE * borrow);
-            dPtr++;
-            aPtr++;
-            i++;
-        }
-        assert((borrow == 0) && "operator-() requires operand b less than operand a");
-        while ((difference.width > 1) && (difference.value[difference.width - 1] == 0)){
-            difference.width--;
-        }
-
-        if (difference.width > 1) {
-            assert((difference.value[difference.width - 1] != 0));
-        }
-        return difference;
-    }
-*/
 inline bint operator-(const bint &b) const {
         assert((this->width >= b.width) && "operator-() requires operand a wider or same as operand b");
 
