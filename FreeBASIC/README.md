@@ -1,4 +1,29 @@
-# The 4784969th Fibonacci number in FreeBASIC
+# The 4784969th Fibonacci number in BASIC
+
+## classic.bas
+
+classic.bas is a fibo(4784969) calculator written in classic style line numbered BASIC. Should be runnable on any 
+8 bit BASICs and others (Provided one takes the fibo of smaller numbers of course)
+
+By ejolson in this forum post https://www.raspberrypi.org/forums/viewtopic.php?f=62&t=227343&start=975#p1411197
+
+Build and run with FreeBASIC using the qb language option: 
+
+    $ fbc -O 3 -lang qb -fpu sse -fpmode fast classic.bas
+    michael@monster:/mnt/c/Users/michael/Documents/fibo_4784969/FreeBASIC$ time ./classic | head -c 32 ; time ./classic | tail -c 32
+    10727395641800477229364813596225
+    real    0m24.902s
+    user    0m5.797s
+    sys     0m19.094s
+    4856539211500699706378405156269
+
+    real    0m26.359s
+    user    0m6.766s
+    sys     0m20.281s
+
+## fibo.bas
+
+fibo.bas is a fibo(4784969) calculator written for FreeBASIC 
 
 By ejolson in this forum post https://www.raspberrypi.org/forums/viewtopic.php?f=62&t=227343&start=450
 
