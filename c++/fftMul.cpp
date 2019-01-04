@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include <cfenv>
 
 // Uncomment to disable assert()
 //#define NDEBUG
@@ -16,9 +17,9 @@ using std::vector;
 //constexpr double BASE = pow(10, DIGITS);
 //constexpr double invBASE = 1 / BASE;
 
-#define BASE 100.0l
-#define invBASE 0.01l
-#define DIGITS 2
+#define BASE 10000.0l
+#define invBASE 0.0001l
+#define DIGITS 4
 
 //#define BASE 10000
 //#define invBASE 0.0001l
@@ -45,6 +46,7 @@ vector<double> fftMul (const vector<complex<double>> a, const vector<complex<dou
         result[i] = conv[i].real();
     }
 
+    std::cout << "Normalize: " << '\n';
     // Convert to normal form (0 <= result[i] < BASE)
     // Adapted from here: http://numbers.computation.free.fr/Constants/Programs/BigInt.c
     long i = 0;
@@ -74,10 +76,16 @@ int main (int argc, char* argv[]) {
 	vector<complex<double> > op1;
 	vector<complex<double> > op2;
 
+    // Enable floating point exceptions. Note: Only works at -O0
+    feenableexcept(FE_INVALID   | 
+                   FE_DIVBYZERO | 
+                   FE_OVERFLOW  | 
+                   FE_UNDERFLOW);
+
     // Make operands with half a million 9's each
-    int width = 1024 * 256;
+    int width = 1024 * 128 * 2;
     for (int i = 0; i < width; i++) {
-        const complex<double> x = {99, 0};
+        const complex<double> x = {8999, 0};
         op1.push_back(x);
         op2.push_back(x);
     }
@@ -105,9 +113,9 @@ int main (int argc, char* argv[]) {
         std::cout << "NULL";
     } else {
         std::cout << result[result.size() - 1];
-        for (int i = result.size() - 2; i >= 0; i--) {
-            std::cout << std::setfill('0') << std::setw(DIGITS) << result[i];
-        }
+//        for (int i = result.size() - 2; i >= 0; i--) {
+//            std::cout << std::setfill('0') << std::setw(DIGITS) << result[i];
+//        }
     }
     std::cout << '\n';
 }
