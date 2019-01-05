@@ -1,53 +1,41 @@
 // 
 // Google benchmark for fibo
 //
-// Compile with: g++ -O2 -o bench bench.cpp -lbenchmark -lpthread
+// Compile with: g++ -O2 -o bench bench.cpp fibo.cpp -lbenchmark -lpthread
 //
 #include <benchmark/benchmark.h>
-#include <unordered_map>
 
 #include "bint.h"
+#include "fibo.h"
 
-const bint zero = "0";
-const bint one = "1";
-const bint two = "2";
-
-std::unordered_map<uint64_t, bint> memo;
-
-int isEven(int n) { return (n & 1) == 0; }
-
-// This Fibonacci version derived from Paeryn's Haskell example.
-const bint fibo (int n) {
-    if (memo.find(n) != memo.end()) {
-        return memo[n];    
-    }
-
-    int k = (n / 2);
-    const bint a = fibo(k);
-    const bint b = fibo(k - 1);
-    if (isEven(n)) {
-        return memo[n] = a * (two * b + a);
-    }
-    if ((n % 4) == 1) {
-        return memo[n] = (two * a + b) * (two * a - b) + two;
-    }
-    return memo[n] = (two * a + b) * (two * a - b) - two;
-}
+bool fiboInitialized = false;
 
 // Define fibo benchmark
 static void BM_fibo(benchmark::State& state) {
-	bint res;
-
-	for (auto _ : state)
-		for (int i = 0; i < 10; i++) {
-            // Initialize the fibo's memo.
-            memo.clear();
-            memo[0] = zero;
-            memo[1] = one;
-            memo[2] = one;
-            benchmark::DoNotOptimize(fibo(4784969));
+	int n = state.range(0);
+	for (auto _ : state) {
+		if (!fiboInitialized) {
+	      	fiboInit();
+			fiboInitialized = true;
 		}
+	      benchmark::DoNotOptimize(fibo(n));
+	}
 }
-BENCHMARK(BM_fibo)->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_fibo)->Arg(4784969)->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_fibo)->RangeMultiplier(2)->RangeMultiplier(2)->Range(1<<4, 1<<25)->Complexity()->Unit(benchmark::kMillisecond);
+
+// Define fibo benchmark
+static void BM_fiboEjOlson(benchmark::State& state) {
+	int n = state.range(0);
+	for (auto _ : state) {
+            fiboEjOlson(n);
+	}
+}
+
+BENCHMARK(BM_fiboEjOlson)->Arg(4784969)->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_fiboEjOlson)->RangeMultiplier(2)->RangeMultiplier(2)->Range(1<<4, 1<<25)->Complexity()->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();
