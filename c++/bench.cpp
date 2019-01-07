@@ -18,24 +18,38 @@ static void BM_fibo(benchmark::State& state) {
 	      	fiboInit();
 			fiboInitialized = true;
 		}
-	      benchmark::DoNotOptimize(fibo(n));
+	    benchmark::DoNotOptimize(fibo(n));
 	}
 }
 
 BENCHMARK(BM_fibo)->Arg(4784969)->Unit(benchmark::kMillisecond);
+//BENCHMARK(BM_fibo)->RangeMultiplier(2)->Range(1<<4, 1<<27)->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_fibo)->RangeMultiplier(2)->RangeMultiplier(2)->Range(1<<4, 1<<25)->Complexity()->Unit(benchmark::kMillisecond);
+bint a;
+bint b;
 
 // Define fibo benchmark
 static void BM_fiboEjOlson(benchmark::State& state) {
 	int n = state.range(0);
 	for (auto _ : state) {
-            fiboEjOlson(n);
+            fiboEjOlson(n, a, b);
 	}
 }
 
 BENCHMARK(BM_fiboEjOlson)->Arg(4784969)->Unit(benchmark::kMillisecond);
+//BENCHMARK(BM_fiboEjOlson)->RangeMultiplier(2)->Range(1<<4, 1<<27)->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_fiboEjOlson)->RangeMultiplier(2)->RangeMultiplier(2)->Range(1<<4, 1<<25)->Complexity()->Unit(benchmark::kMillisecond);
+// Define fibo benchmark
+static void BM_fiboEjOlsonNew(benchmark::State& state) {
+	int n = state.range(0);
+	for (auto _ : state) {
+            fiboNew(n, b);
+	}
+}
+
+BENCHMARK(BM_fiboEjOlsonNew)->Arg(4784969)->Unit(benchmark::kMillisecond);
+//BENCHMARK(BM_fiboEjOlson)->RangeMultiplier(2)->Range(1<<4, 1<<27)->Unit(benchmark::kMillisecond);
+
+
 
 BENCHMARK_MAIN();

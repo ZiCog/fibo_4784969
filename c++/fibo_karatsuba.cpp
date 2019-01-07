@@ -13,7 +13,8 @@ int main(int argc, char *argv[]) {
 
     fiboInit();
 
-    res = fibo(n);
+    fiboNew(n, res);
+    //res = fibo(n);
 
     std::cout << res << std::endl;
 
