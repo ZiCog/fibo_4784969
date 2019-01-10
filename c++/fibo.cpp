@@ -39,29 +39,22 @@ void fiboNewWork(int n, bint& a, bint& b) {
     fiboNewWork (n / 2, a, b);
     if (n % 2 == 0) {
         // [a, b] = [a*(2*b-a), b*(2*b-a)-(-1)^k]
-        bint t1 = b + b;
-        bint t2 = t1 - a;
-        t1 = a * t2;
-        bint t3 = b * t2;
+        bint t = two * b - a;
+        a = a * t;
         if (n % 4 == 0) {
-            t3 = t3 - one;       // FIXME:  t3 - 1 silently fails. Why?
+            b = b * t - one;
         } else {
-            t3 = t3 + one;
+            b = b * t + one;
         }
-        a = t1;
-        b = t3;
     } else {
-        bint t1 = a + a;
-        bint t2 = t1 + b;
-        t1 = b * t2;
-        bint t3 = a * t2;
+        // [a, b] = [a*(2*a+b)+(-1)^k, b*(2*a+b)]
+        bint t = two * a + b;
+        b = b * t;
         if ((n % 4) == 1) {
-            t3 = t3 + one;
+            a = a * t + one;
         } else {
-            t3 = t3 - one;
+            a = a * t - one;
         }
-        a = t3;
-        b = t1;
     }
     return;
 }
@@ -76,25 +69,19 @@ void fiboNew(int n, bint& b) {
         b = bint("1");
         return;
     }
-    static bint a;
+    bint a;
     fiboNewWork((n - 1) / 2, a, b);
     if (n % 2 == 0) {
         // b=b*(2*a+b)
-        bint t1 = a + a;
-        bint t2 = t1 + b;
-        t1 = b * t2;
-        b = t1;
+        b = b * (a + a + b);
     } else {
         // b=b*(2*b-a)-(-1)^k
-        bint t1 = b + b;
-        bint t2 = t1 - a;
-        bint t3 = b * t2;
+        bint t = b * (b + b - a);
         if (n % 4 == 1) {
-            t3 = t3 - one;
+            b = t - one;
         } else {
-            t3 = t3 + one;
+            b = t + one;
         }
-        b = t3;
     }
     return;
 }
