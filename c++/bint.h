@@ -11,6 +11,8 @@
 #include <math.h>
 #include <strings.h>
 #include <type_traits>
+#include <thread>
+#include <future>
 
 // Uncomment to disable assert()
 //#define NDEBUG
@@ -252,11 +254,21 @@ inline bint operator-(const bint &b) const {
         const bint high2 = b.high(m2);
         const bint low2 = b.low(m2);
 
+        bint z0;
+        bint z1;
+        bint z2;
         // Do da karatsaba shuffle, yabba dabba do.
-        const bint z0 = low1 * low2;
-        const bint z1 = (low1 + high1) * (low2 + high2);
-        const bint z2 = high1 * high2;
-
+        if ((low1.width > (1<<11)) && (low2.width > (1<<11))) { 
+            auto f0 = std::async([low1, low2  ](){return(low1 * low2)  ;});
+            auto f2 = std::async([high1, high2](){return(high1 * high2);});
+            z1 = (low1 + high1) * (low2 + high2);
+            z2 = f2.get();
+            z0 = f0.get();
+        } else {
+            z0 = low1 * low2;
+            z1 = (low1 + high1) * (low2 + high2);
+            z2 = high1 * high2;
+        }
         const bint s2 = z1 - z2 - z0;
 
         bint result = shiftAndAdd(z2, s2, z0, m2 * 2, m2);
