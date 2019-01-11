@@ -25,8 +25,8 @@
 typedef uint64_t bintel_t;
 
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
-constexpr bintel_t BASE = pow(10, DIGITS);
-//constexpr bintel_t BASE = 1000000000;
+//constexpr bintel_t BASE = pow(10, DIGITS);
+constexpr bintel_t BASE = 1000000000;
 
 
 constexpr int STACK_VALUE_SIZE = 128;
