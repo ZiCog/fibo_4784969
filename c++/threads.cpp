@@ -30,8 +30,8 @@ bint power(int n)
 static void BM_mulThreaded(benchmark::State& state) {
 	int n = state.range(0);
 	for (auto _ : state) {
-		auto future1 = std::async(power, n);
-		auto future2 = std::async(power, n);
+		auto future1 = std::async([n](){return power(n);});
+		auto future2 = std::async([n](){return power(n);});
 		benchmark::DoNotOptimize(res1 = future1.get());
 		benchmark::DoNotOptimize(res2 = future2.get());
 	}
