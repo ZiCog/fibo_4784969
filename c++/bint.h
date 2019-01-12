@@ -13,6 +13,7 @@
 #include <type_traits>
 #include <thread>
 #include <future>
+#include <omp.h>
 
 // Uncomment to disable assert()
 //#define NDEBUG
@@ -27,7 +28,6 @@ typedef uint64_t bintel_t;
 constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
 //constexpr bintel_t BASE = pow(10, DIGITS);
 constexpr bintel_t BASE = 1000000000;
-
 
 constexpr int STACK_VALUE_SIZE = 128;
 constexpr int ON2_CUTOFF = 53;
@@ -258,8 +258,10 @@ inline bint operator-(const bint &b) const {
         bint z1;
         bint z2;
         // Do da karatsaba shuffle, yabba dabba do.
+
+#ifdef USE_ASYNC
         if ((low1.width > (1<<11)) && (low2.width > (1<<11))) { 
-            auto f0 = std::async([low1, low2  ](){return(low1 * low2)  ;});
+            auto f0 = std::async([low1, low2]() {return(low1 * low2);});
             auto f2 = std::async([high1, high2](){return(high1 * high2);});
             z1 = (low1 + high1) * (low2 + high2);
             z2 = f2.get();
@@ -269,6 +271,29 @@ inline bint operator-(const bint &b) const {
             z1 = (low1 + high1) * (low2 + high2);
             z2 = high1 * high2;
         }
+#elif USE_OMP
+        if ((low1.width > (1<<8)) && (low2.width > (1<<8))) { 
+            #pragma omp task default(shared)
+            z0 = low1 * low2;
+
+            #pragma omp task default(shared)
+            z1 = (low1 + high1) * (low2 + high2);
+
+            #pragma omp task default(shared)
+            z2 = high1 * high2;
+
+            #pragma omp taskwait
+        } else {
+            z0 = low1 * low2;
+            z1 = (low1 + high1) * (low2 + high2);
+            z2 = high1 * high2;
+        }
+#else
+        z0 = low1 * low2;
+        z1 = (low1 + high1) * (low2 + high2);
+        z2 = high1 * high2;
+#endif
+
         const bint s2 = z1 - z2 - z0;
 
         bint result = shiftAndAdd(z2, s2, z0, m2 * 2, m2);
