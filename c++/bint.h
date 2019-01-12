@@ -11,9 +11,15 @@
 #include <math.h>
 #include <strings.h>
 #include <type_traits>
+
+#ifdef USE_ASYNC
 #include <thread>
 #include <future>
+#endif
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 // Uncomment to disable assert()
 //#define NDEBUG
