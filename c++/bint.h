@@ -31,9 +31,21 @@
 
 typedef uint64_t bintel_t;
 
-constexpr int DIGITS = 9; // Decimal digits in each big integer array element.
-//constexpr bintel_t BASE = pow(10, DIGITS);
-constexpr bintel_t BASE = 1000000000;
+// Provide pow as constexpr as clang does not allow pow in constexpr
+constexpr double cexp_pow(double base, int exp) {
+    if (exp < 0.0) {
+        base = 1.0 / base;
+        exp = -exp;
+    }
+    double result = 1.0;
+    for (int i = 0; i < exp; ++i) {
+        result = result * base;
+    }
+    return result;
+}
+
+constexpr int DIGITS = 9;                       // Decimal digits in each big integer array element.
+constexpr bintel_t BASE = cexp_pow(10, DIGITS);
 
 constexpr int STACK_VALUE_SIZE = 128;
 constexpr int ON2_CUTOFF = 53;
