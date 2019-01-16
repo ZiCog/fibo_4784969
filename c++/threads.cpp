@@ -57,7 +57,7 @@ static void BM_powerOmp(benchmark::State& state) {
 		}
 	}
 }
-BENCHMARK(BM_powerOmp)->RangeMultiplier(2)->Range(1<<4, 1<<16)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_powerOmp)->RangeMultiplier(2)->Range(1<<4, 1<<14)->Unit(benchmark::kMillisecond);
 
 // Define std::async threaded power() benchmark
 static void BM_powerAsync(benchmark::State& state) {
@@ -72,7 +72,7 @@ static void BM_powerAsync(benchmark::State& state) {
 		benchmark::DoNotOptimize(res3 = future3.get());
 	}
 }
-BENCHMARK(BM_powerAsync)->RangeMultiplier(2)->Range(1<<4, 1<<16)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_powerAsync)->RangeMultiplier(2)->Range(1<<4, 1<<14)->Unit(benchmark::kMillisecond);
 
 // Define serial() power benchmark
 static void BM_powerSer(benchmark::State& state) {
@@ -84,6 +84,6 @@ static void BM_powerSer(benchmark::State& state) {
 		benchmark::DoNotOptimize(res4 = power(n));
 	}
 }
-BENCHMARK(BM_powerSer)->RangeMultiplier(2)->Range(1<<4, 1<<16)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_powerSer)->RangeMultiplier(2)->Range(1<<4, 1<<14)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();
