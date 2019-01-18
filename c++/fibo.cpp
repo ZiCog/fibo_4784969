@@ -41,19 +41,21 @@ void fiboNewWork(int n, bint& a, bint& b) {
         // [a, b] = [a*(2*b-a), b*(2*b-a)-(-1)^k]
         bint t = two * b - a;
         a = a * t;
+        b = b * t;
         if (n % 4 == 0) {
-            b = b * t - one;
+            b = b - one;
         } else {
-            b = b * t + one;
+            b = b + one;
         }
     } else {
         // [a, b] = [a*(2*a+b)+(-1)^k, b*(2*a+b)]
         bint t = two * a + b;
         b = b * t;
+        a = a * t;
         if ((n % 4) == 1) {
-            a = a * t + one;
+            a = a + one;
         } else {
-            a = a * t - one;
+            a = a - one;
         }
     }
     return;
