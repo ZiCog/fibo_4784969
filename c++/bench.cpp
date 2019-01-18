@@ -27,9 +27,7 @@ static void BM_fibo(benchmark::State& state) {
 //BENCHMARK(BM_fibo)->Arg(4784969)->Unit(benchmark::kMillisecond);
 //BENCHMARK(BM_fibo)->RangeMultiplier(2)->Range(1<<4, 1<<MAX_POW_2)->Unit(benchmark::kMillisecond);
 
-bint a;
-bint b;
-
+/*
 // Define fibo benchmark
 static void BM_fiboEjOlson(benchmark::State& state) {
 	int n = state.range(0);
@@ -37,19 +35,44 @@ static void BM_fiboEjOlson(benchmark::State& state) {
             fiboEjOlson(n, a, b);
 	}
 }
-
+*/
 //BENCHMARK(BM_fiboEjOlson)->Arg(4784969)->Unit(benchmark::kMillisecond);
 //BENCHMARK(BM_fiboEjOlson)->RangeMultiplier(2)->Range(1<<4, 1<<MAX_POW_2)->Unit(benchmark::kMillisecond);
 
+
 // Define fibo benchmark
-static void BM_fiboEjOlsonNew(benchmark::State& state) {
+static void BM_fiboEjOlsonNewSer(benchmark::State& state) {
 	int n = state.range(0);
 	for (auto _ : state) {
-            fiboNew(n, b);
+            bint a;
+            bint b;
+		
+	    fiboNew(n, b);
 	}
 }
 
-BENCHMARK(BM_fiboEjOlsonNew)->Arg(4784969)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_fiboEjOlsonNewSer)->Arg(4784969)->Unit(benchmark::kMillisecond);
+//BENCHMARK(BM_fiboEjOlsonNew)->RangeMultiplier(2)->Range(1<<4, 1<<MAX_POW_2)->Unit(benchmark::kMillisecond);
+
+
+// Define fibo benchmark
+static void BM_fiboEjOlsonNewOmp(benchmark::State& state) {
+	int n = state.range(0);
+	for (auto _ : state) {
+            #pragma omp parallel
+	    {
+		#pragma omp single
+		{
+                    bint a;
+                    bint b;
+		
+	            fiboNew(n, b);
+		}
+	    }
+	}
+}
+
+BENCHMARK(BM_fiboEjOlsonNewOmp)->Arg(4784969)->Unit(benchmark::kMillisecond);
 //BENCHMARK(BM_fiboEjOlsonNew)->RangeMultiplier(2)->Range(1<<4, 1<<MAX_POW_2)->Unit(benchmark::kMillisecond);
 
 
