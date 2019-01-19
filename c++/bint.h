@@ -1,19 +1,11 @@
 #ifndef BINT_H
 #define BINT_H
 
-#include <algorithm>
-#include <cassert>
-#include <cstdint>
 #include <cstring>
-#include <ctype.h>
 #include <iomanip>
 #include <iostream>
-#include <math.h>
-#include <strings.h>
-#include <type_traits>
 
 #ifdef USE_ASYNC
-#include <thread>
 #include <future>
 #endif
 

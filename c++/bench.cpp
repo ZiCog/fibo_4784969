@@ -1,7 +1,7 @@
 // 
 // Google benchmark for fibo
 //
-// Compile with: g++ -O2 -o bench bench.cpp fibo.cpp -lbenchmark -lpthread
+// Compile with: g++ -O2 -fopenmp -DUSE_OMP -o bench bench.cpp fibo.cpp -lbenchmark -lpthread
 //
 #include <benchmark/benchmark.h>
 
