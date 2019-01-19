@@ -470,7 +470,7 @@ inline bint operator-(const bint &b) const {
                 x.value[i + j] += this->value[i] * b.value[j];
             }
 //            if ((this->width - i) % CARRY_DELAY == 1) {
-            if (((this->width - i) & 0x0f) == 1) {
+            if (((this->width - i) & 0x01f) == 1) {
                 for (int32_t k = 0; k <= x.width; ++k) {
                     if (x.value[k] >= BASE) {
                         const bintel_t c = x.value[k] / BASE;
