@@ -4,6 +4,9 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
+
+
 
 #ifdef USE_ASYNC
 #include <future>
@@ -20,6 +23,8 @@
 #ifdef TEST
 #define private public
 #endif
+
+#define bzero(p, size)     (void)memset((p), 0, (size))
 
 typedef uint64_t bintel_t;
 
@@ -183,6 +188,7 @@ class bint {
             i++;
         }
         while (i < a->width) {
+            if (!carry) break;
             s = a->value[i] + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
@@ -203,7 +209,46 @@ class bint {
         return sum;
     }
 
-inline bint operator-(const bint &b) const {
+    inline bint& operator++()
+    {
+        bintel_t carry = 1;
+        bintel_t s;
+        // Actual increment takes place here
+        for (int i = 0; i < this->width; i++) {
+            s = this->value[i];
+            s += carry;
+            carry = (s >= BASE);
+            s -= BASE * carry;
+            this->value[i] = s;
+            if (carry == 0) {
+                break;
+            }
+        }
+        assert ((carry != 0) && "operator++ has overflowed."); 
+        return *this;
+    }
+
+    inline bint  operator++(int)
+    {
+        bint tmp(*this); // copy
+        operator++(); // Pre-increment
+        return tmp;   // Return old value
+    }
+
+    inline bint & operator--()
+    {
+        // Actual decrement takes place here
+        return *this;
+    }
+
+    inline bint  operator--(int)
+    {
+        bint tmp(*this); // copy
+        operator--(); // Pre-decrement
+        return tmp;   // Return old value
+    }
+
+    inline bint operator-(const bint &b) const {
         assert((this->width >= b.width) && "operator-() requires operand a wider or same as operand b");
 
         // Make a result of the same size as this
@@ -414,6 +459,7 @@ inline bint operator-(const bint &b) const {
             i++;
         }
         while (i < result.width - bShift - 1) {
+            if (!carry) break;
             s = (*rPtr) + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
@@ -441,6 +487,7 @@ inline bint operator-(const bint &b) const {
             i++;
         }
         while (i < result.width - aShift - 1) {
+            if (!carry) break;
             s = *rPtr + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
@@ -470,7 +517,7 @@ inline bint operator-(const bint &b) const {
                 x.value[i + j] += this->value[i] * b.value[j];
             }
 //            if ((this->width - i) % CARRY_DELAY == 1) {
-            if (((this->width - i) & 0x01f) == 1) {
+            if (((this->width - i) & 0x1f) == 1) {
                 for (int32_t k = 0; k <= x.width; ++k) {
                     if (x.value[k] >= BASE) {
                         const bintel_t c = x.value[k] / BASE;
