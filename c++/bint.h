@@ -188,7 +188,6 @@ class bint {
             i++;
         }
         while (i < a->width) {
-            if (!carry) break;
             s = a->value[i] + carry;
             carry = (s >= BASE);
             s -= BASE * carry;
