@@ -1,0 +1,48 @@
+#!/usr/bin/racket
+#lang racket
+
+(define (fibowork n)
+    (cond [(equal? n 0) '(0 1)
+    ][else
+        (let ([y (fibowork (quotient n 2))]) 
+        (let ([a (car y)] [b (cadr y)])
+            (cond [(even? n)
+                (let ([t1 (- (+ b b) a)])
+                (cond [(equal? (modulo n 4) 0)
+                    (list (* a t1) (sub1 (* b t1)))
+                ][else
+                    (list (* a t1) (add1 (* b t1)))
+                ]))
+            ][else
+                (let ([t1 (+ (+ a a) b)])
+                (cond [(equal? (modulo n 4) 1)
+                    (list (add1 (* a t1)) (* b t1))
+                ][else
+                    (list (sub1 (* a t1)) (* b t1))
+                ]))
+            ])
+        ))
+    ])
+)
+
+(define (fiboEJO n)
+    (cond [(< n 2) n
+    ][else
+        (let ([y (fibowork (quotient (- n 1) 2))]) 
+        (let ([a (car y)] [b (cadr y)])
+            (cond [(even? n)
+                (let ([t1 (+ (+ a a) b)])
+                    (* b t1))
+            ][else
+                (let ([t1 (- (+ b b) a)])
+                (cond [(equal? (modulo n 4) 1)
+                    (sub1 (* b t1))
+                ][else
+                    (add1 (* b t1))
+                ]))
+            ])
+        ))
+    ])
+)
+
+(fiboEJO 4784969)
