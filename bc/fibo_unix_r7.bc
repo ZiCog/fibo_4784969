@@ -1,0 +1,26 @@
+define f(n){
+    if(n==0){
+        a=0; b=1;
+        return(a);
+    }
+    y=f(n/2);
+    if(n%2==0){
+        t=2*b-a; a=a*t; b=b*t;
+        if(n%4==0) {
+            b=b-1; 
+            return(a); 
+        }
+        b=b+1;
+        return(a);
+    } 
+    t=2*a+b; a=a*t; b=b*t;
+    if(n%4==1){ 
+        a=a+1; 
+        return(a); 
+    }
+    a=a-1;
+    return(a);
+}
+f(7499);
+quit;
+
