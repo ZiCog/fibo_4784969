@@ -17,3 +17,13 @@ Sadly we have no instructions for building or running this. We don't have an Ell
 You may be able to get an Elliot 803 emulator from here: http://peteronion.org.uk/Elliott/
 
 
+
+##  Thu Apr 25, 2019 12:26 pm
+
+You may remember way back on page 5 I posted some Algol-60 for computing (relatively) large Fibonacci numbers on the Elliott 803.
+
+Well last weekend that code was actually useful ! It showed up a memory fault on the real Elliott 803 that the store test programmes failed to detect !
+
+So as far as I'm concerned computing large Fibonacci numbers IS useful :-)
+
+PeterO
