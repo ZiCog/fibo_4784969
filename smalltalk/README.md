@@ -1,3 +1,25 @@
+# fibo.cs
+
+fibo.cs will calculate fibo(4784969) when run by the Squeak Smalltalk VM from the command line.
+
+For example:
+
+    $ time ./bin/squeak -vm-display-null -headless -nosound shared/Squeak5.2-18229-64bit.image  /home/heater/Squeak5.2-18229-64bit-201810190412-Linux/fibo.cs 2>/dev/null | head -c 32
+    10727395641800477229364813596225
+    real    0m31.213s
+    user    0m31.168s
+    sys     0m0.132s
+    $ time ./bin/squeak -vm-display-null -headless -nosound shared/Squeak5.2-18229-64bit.image  /home/heater/Squeak5.2-18229-64bit-201810190412-Linux/fibo.cs 2>/dev/null | tail -c 32
+    4856539211500699706378405156269
+
+    real    0m31.279s
+    user    0m31.208s
+    sys     0m0.140s
+    $ 
+
+# fibo.st
+
+
 Gentlemen,
 
 After a long and difficult research and development period Heater Labs is proud to announce a world first, a break though in software engineering that will upend your very conception of what computing means. 
