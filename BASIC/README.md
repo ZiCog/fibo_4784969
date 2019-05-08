@@ -67,3 +67,30 @@ https://www.raspberrypi.org/forums/viewtopic.php?f=62&t=227343&start=825#p140725
     user    0m24.469s
     sys     0m2.188s
 
+# Visual Basic
+
+Author: ejolson
+
+Origin: https://www.raspberrypi.org/forums/viewtopic.php?p=1418137#p1418137
+
+Post:
+
+I have finished writing visual.bas, a version of the Fibonacci code in Visual Basic. This program is based on the FreeBASIC fibo.bas program with syntax modifications so it will compile and the addition of the missing Karasuba algorithm. The program was compiled using the open source vbnc compiler running in the mono environment with the optimizer turned on and integer range checking turned off. The best out of three runs are reported here:
+Code: Select all
+
+Pi Zero timings of the Fibonacci code
+
+                   BUILD TIME    RUN TIME     TOTAL
+serial                7.459       24.195     31.654
+fibonacci             5.060       80.946     86.006
+fibo_karatserial     56.154       40.090     96.244
+integervol           17.886       87.556    105.442
+visual               14.146      164.411    177.557
+classic              10.851      217.004    227.855
+
+    $ time vbnc /optimize /removeintchecks visual.bas
+    $ time mono visual.exe >visual.txt
+
+It should be noted that visual.bas is not compiled into a native ARM executable but instead into some sort of machine-independent intermediate code. This intermediate code is subsequently interpreted by the mono just-in-time compiler. It would be interesting to know how Microsoft's implementation of Visual Basic compares in terms of efficiency. Could one compile visual.bas using the official Microsoft compiler and then run the resulting intermediate code under mono on Raspbian? What about the other way around? How do the two implementations of Visual Basic compare on x86?
+
+For reference the code is... visual.bas
