@@ -67,7 +67,7 @@ https://www.raspberrypi.org/forums/viewtopic.php?f=62&t=227343&start=825#p140725
     user    0m24.469s
     sys     0m2.188s
 
-# Visual Basic
+## Visual Basic
 
 Author: ejolson
 
@@ -94,3 +94,33 @@ classic              10.851      217.004    227.855
 It should be noted that visual.bas is not compiled into a native ARM executable but instead into some sort of machine-independent intermediate code. This intermediate code is subsequently interpreted by the mono just-in-time compiler. It would be interesting to know how Microsoft's implementation of Visual Basic compares in terms of efficiency. Could one compile visual.bas using the official Microsoft compiler and then run the resulting intermediate code under mono on Raspbian? What about the other way around? How do the two implementations of Visual Basic compare on x86?
 
 For reference the code is... visual.bas
+
+## BBC Basic
+
+## DOES NOT WORK
+
+File: fibo_bbc.bas
+
+Author: ScriptBasic
+
+Origin: https://www.raspberrypi.org/forums/viewtopic.php?f=34&t=238001&start=325#p1465884
+
+Post:
+
+Here is the final ScriptBasic version of the Fibonacci Classic in QuickBasic and run on FreeBASIC to allow the 1 mil digits. So far BBC BASIC and ScriptBasic are the only known BASIC interpreters able to run the code. It would be great if someone would give this a try in another QB compatible BASIC interpreter.
+
+FWIW: In theory, ScriptBasic could do a 2 mil digit run due to array size can be as large as available memory. I can't imagine how long that would take to run. (3500084 elements)
+
+Notes:
+
+
+
+
+
+
+
+
+
+
+
+
