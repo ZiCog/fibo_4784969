@@ -105,9 +105,11 @@ Origin: Somewhere in this forum thread: https://www.raspberrypi.org/forums/viewt
 
 Notes:
 
-classic_bbc.bas is is a slightly modified version of ejolson's clcassic.bas. A diff will show you what.
+classic_bbc.bas is ejolson's clcassic.bas with small changes to make it run under BBC Basic. A diff will show you what.
 
-Open RicharRussel's BBCBasic, set lower case source mode in the options load classic_bbc.bas, hit the run icon.
+To run it open RicharRussel's BBCBasic, set lower case source mode in the options load classic_bbc.bas, hit the run icon.
+
+The result will be displayed in an output window and written to the file fibo.dat for verification.
 
 Richard's BBCBAsic can be built from source on Debian as follows:
 

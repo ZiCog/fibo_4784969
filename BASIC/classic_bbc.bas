@@ -1,5 +1,14 @@
+      rem fibo_bbc.bas
+      rem This is the classic.bas Fibonacci(4784969) calculator
+      rem with slight modifications to run under Richard Russell's BBCBasic
+
+      rem Output to file
+      *spool fibo.dat
+
+      rem Initialization required by BBCBasic
       himem = page + 20000000
       q1 = 0 : q2 = 0
+
   100 rem classic.bas -- Compute the nth Fibonacci Number
   110 rem Written December 25, 2018 by Eric Olson
   120 rem
@@ -247,4 +256,6 @@
  8630 b7=f0-2*b8^2:if b7/b8^2<4 then b9=b9-1:goto 8620
  8640 b6=int(b7/b8):b7=b8*b6
  8700 return
+
+      *spool
  9999 end
