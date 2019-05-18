@@ -97,23 +97,46 @@ For reference the code is... visual.bas
 
 ## BBC Basic
 
-## DOES NOT WORK
+File: classic_bbc.bas
 
-File: fibo_bbc.bas
+Author: ejolson, Richard Russel
 
-Author: ScriptBasic
-
-Origin: https://www.raspberrypi.org/forums/viewtopic.php?f=34&t=238001&start=325#p1465884
-
-Post:
-
-Here is the final ScriptBasic version of the Fibonacci Classic in QuickBasic and run on FreeBASIC to allow the 1 mil digits. So far BBC BASIC and ScriptBasic are the only known BASIC interpreters able to run the code. It would be great if someone would give this a try in another QB compatible BASIC interpreter.
-
-FWIW: In theory, ScriptBasic could do a 2 mil digit run due to array size can be as large as available memory. I can't imagine how long that would take to run. (3500084 elements)
+Origin: Somewhere in this forum thread: https://www.raspberrypi.org/forums/viewtopic.php?f=34&t=238001&p=1466164#p1466190 
 
 Notes:
 
+classic_bbc.bas is ejolson's clcassic.bas with small changes to make it run under BBC Basic. A diff will show you what.
 
+To run it open RicharRussel's BBCBasic, set lower case source mode in the options load classic_bbc.bas, hit the run icon.
+
+The result will be displayed in an output window and written to the file fibo.dat for verification.
+
+Richard's BBCBAsic can be built from source on Debian as follows:
+
+    $ git clone https://github.com/rtrussell/BBCSDL.git
+    $ cd BBCSDL/
+    $ ls
+    $ vim licence.txt 
+    $ cd bin/
+    $ ls
+    $ cd linux/
+    $ ls
+    $ make
+    $ sudo apt-get install libsdl2-dev 
+    $ make
+    $ sudo apt-get install nasm
+    $ make
+    $ sudo apt-get install libsdl2-ttf-dev 
+    $ make
+    $ sudo apt-get install libsdl2-net-dev
+    $ make
+    $ ls
+    $ ./bbcsdl 
+    $ cd heater/fibo_4784969/BASIC/
+    $ ls
+    $ /home/heater/BBCSDL/bin/linux/bbcsdl fibo_bbc.bas 
+
+Then copy the executable from bin/linux to the top level BBCBAsic directory and add that to your PATH. That will get the IDE working properly.
 
 
 
