@@ -1,16 +1,43 @@
-//
-// This is a fast and big Fibonacci number calculator based on the suggestions here:
-//
-// https://www.nayuki.io/page/fast-fibonacci-algorithms
-//
+
 function isEven(n) {
   return (n & 1) === 0;
 }
 
 let memo = [BigInt(0), BigInt(1), BigInt(1)]
 
+function fiboScriptBasic (n) {
+  if (n < 2) {
+    return (1)
+  }
+  let m = BigInt(0)
+  let p = BigInt(1)
+  let q = BigInt(0)
+  for (let i = 2; i <= n; i++) {
+    m = p + q
+    q = p
+    p = m
+  }
+  return m
+}
+
+// The schoolboy iterative algorithm, just for comparison with the others below.
+function fiboIter(num) {
+  var a = BigInt(0), b = BigInt(1), temp = BigInt(0);
+
+  while (num-- > 0) {
+    temp = b;
+    b = b + a;
+    a = temp;
+  }
+  return a;
+}
+
+//
+// This is a fast and big Fibonacci number calculator based on the suggestions here:
+// https://www.nayuki.io/page/fast-fibonacci-algorithms
+//
 function fibo (n) {
-  if (memo[n]) {
+  if (typeof memo[n] != 'undefined') {
     return memo[n]
   }
   let k = (n / 2) | 0
@@ -22,7 +49,7 @@ function fibo (n) {
   return memo[n] = a ** 2n + b ** 2n
 }
 
-// Derived from Paeryn's Haslell FiboFast
+// Derived from Paeryn's Haskell FiboFast
 function fiboFast (n) {
   if (typeof memo[n] != 'undefined') {
     return memo[n]
@@ -104,13 +131,14 @@ function timeIt (f, k) {
   t = new Date()
   res = f(k)
   dur = new Date() - t
-  console.log(dur + "ms")
+  console.log(f.name.padEnd(16, ' ') + /*res + */ " in " + dur + "ms")
 }
 
-//timeIt(fibo, 4784969)
-//timeIt(fiboFast, 4784969)
-//console.log(res.toString(10))
-
-timeIt(fiboFaster, 4784969)
-console.log(res.toString(10))
-
+let n = 4784969
+for (let i = 0; i < 100; i++) {
+  timeIt(fiboScriptBasic, n)
+  timeIt(fiboIter, n)
+  timeIt(fibo, n)
+  timeIt(fiboFast, n)
+  timeIt(fiboFaster, n)
+}
