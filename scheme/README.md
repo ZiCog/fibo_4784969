@@ -30,8 +30,31 @@ This has memozation removed and the Racket specific boiler plate, square bracket
     sys     0m0.125s
 
 
+-----------------
+
+File: fibo.chibi.scm
+
+Dialect: Chibi Scheme
+
+Author: Unknown ?
+
+Origin: Derived from fibo.racket.scm by Heater.
+
+This has Racket specific boiler plate, square brackets, etc removed  
+Added import statements.
+Changed memoization to use SRFI 69 hast tables.
+
+This is slow. The memoization shaves nearly a whole minute of it's run time!
+
+    $ time chibi-scheme fibo.chibi.scm | head -c 32
+    10727395641800477229364813596225
+    real    15m21.221s
+    user    15m20.469s
+    sys     0m0.078s
 
 
+
+-----------------------
 
 Notes:
 

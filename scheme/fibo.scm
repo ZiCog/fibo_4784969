@@ -11,7 +11,7 @@
     )
 ))
 
-; Fibonnaci using the doubling formulas, good for millions of digits
+; Fibonacci using fast doubling formulas, good for millions of digits!
 (define (fibo n)
     (cond
         ((= n 0) 0)
@@ -32,7 +32,7 @@
                             (2a (* 2 a))
                             (c (* (+ 2a b) (- 2a b)))
                         )
-
+    
                         (if (= (modulo n 4) 1)
                             (+ c 2)
                             (- c 2)
@@ -44,10 +44,9 @@
     )
 )
 
-
 (let
     (
-        (f (time (fibo 4784969)))
+        (f (fibo 4784969))
     )
     (display f)
     (newline)
