@@ -57,3 +57,39 @@ This is the school boy implementation. It uses the naive iterative Fibonacci alg
 
 On the plus side. Because of the PeterO style decimal calculations printing the final result in decimal is indistinguishable from instant. Far quicker than the big integer printing of Python, JS or gmp.
 
+
+## fibogmp.c
+
+Author: ejolson
+
+Origin: https://www.raspberrypi.org/forums/viewtopic.php?t=227343&start=850
+
+
+"Here is another program that uses the doubling formulas to compute Fibonacci numbers. As this program performs big-number addition, subtraction and multiplication using the GNU multi-precision subroutine library, it serves both as a point of comparison for any programming language that uses GMP behind the scenes and also as demonstration that a naive implementation using the doubling formula achieves about 80 percent the performance of the optimized Fibonacci code already included in GMP."
+
+## fibo.c
+
+Author: ejolson
+
+Origin: ?
+
+Cheats by using the GMP fibo function. Here as reference of correctness and speed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
