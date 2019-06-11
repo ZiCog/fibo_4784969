@@ -10,7 +10,7 @@
 #include <memory.h>
 #include <string.h>
 
-// Number base used for GMP
+// Number base used for internal calculations by GMP.
 int BASE = 32;
 
 // Functions letis, addis, subis and mulis do large integer arithmetic on integers represented by strings.
@@ -25,10 +25,10 @@ void writeis(const char *s) {
 }
 
 char* letis(const char* s) {
-    size_t size = strlen(s) + 1;
-    char* res = malloc(size);
-    strncpy (res, s, size);
-    return res;
+//    size_t size = strlen(s) + 1;
+//    char* res = malloc(size);
+//    strncpy (res, s, size);
+    return strdup(s);
 }
 
 char* addis(const char* s1, const char* s2) {
