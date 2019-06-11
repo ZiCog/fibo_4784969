@@ -2,6 +2,7 @@
 // An experiment in doing integer arithmetic using GMP with all numbers represented by strings.
 //
 // By heater.
+// Modified June 11, 2019 to use base 32 strings for intermediate results.
 //
 #include <stdio.h>
 #include <gmp.h>
@@ -9,9 +10,19 @@
 #include <memory.h>
 #include <string.h>
 
-int BASE = 10;
+// Number base used for GMP
+int BASE = 32;
 
 // Functions letis, addis, subis and mulis do large integer arithmetic on integers represented by strings.
+
+void writeis(const char *s) {
+    mpz_t op1;
+    mpz_init(op1);
+    mpz_set_str (op1, s, BASE);
+    char *buf=mpz_get_str (0, 10, op1);
+    puts(buf);
+    free(buf);
+}
 
 char* letis(const char* s) {
     size_t size = strlen(s) + 1;
@@ -31,7 +42,7 @@ char* addis(const char* s1, const char* s2) {
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_add (res, op1, op2);  // result = x * y
-    return mpz_get_str (0, 10, res);
+    return mpz_get_str (0, BASE, res);
 }
 
 char* subis(const char* s1, const char* s2) {
@@ -45,7 +56,7 @@ char* subis(const char* s1, const char* s2) {
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_sub (res, op1, op2);  // result = x * y
-    return mpz_get_str (0, 10, res);
+    return mpz_get_str (0, BASE, res);
 }
 
 char* mulis(const char* s1, const char* s2) {
@@ -59,7 +70,7 @@ char* mulis(const char* s1, const char* s2) {
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_mul (res, op1, op2);  // result = x * y
-    return mpz_get_str (0, 10, res);
+    return mpz_get_str (0, BASE, res);
 }
 
 char* memo[3];
@@ -101,9 +112,8 @@ int main(int argc, char* argv[]) {
     init_memo();
 
     f = fibois(n);
-    printf("%s\n", f);
+    writeis(f);
     free(f);
 
     return (0);
 }
-
