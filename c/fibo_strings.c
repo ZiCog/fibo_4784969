@@ -20,6 +20,7 @@ void writeis(const char *s) {
     mpz_init(op1);
     mpz_set_str (op1, s, BASE);
     char *buf=mpz_get_str (0, 10, op1);
+    mpz_clear(op1);
     puts(buf);
     free(buf);
 }
@@ -42,7 +43,11 @@ char* addis(const char* s1, const char* s2) {
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_add (res, op1, op2);  // result = x * y
-    return mpz_get_str (0, BASE, res);
+    mpz_clear(op1);
+    mpz_clear(op2);
+    char* res_string = mpz_get_str (0, BASE, res); 
+    mpz_clear(res);
+    return res_string;
 }
 
 char* subis(const char* s1, const char* s2) {
@@ -56,7 +61,11 @@ char* subis(const char* s1, const char* s2) {
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_sub (res, op1, op2);  // result = x * y
-    return mpz_get_str (0, BASE, res);
+    mpz_clear(op1);
+    mpz_clear(op2);
+    char* res_string = mpz_get_str (0, BASE, res); 
+    mpz_clear(res);
+    return res_string;
 }
 
 char* mulis(const char* s1, const char* s2) {
@@ -70,7 +79,11 @@ char* mulis(const char* s1, const char* s2) {
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_mul (res, op1, op2);  // result = x * y
-    return mpz_get_str (0, BASE, res);
+    mpz_clear(op1);
+    mpz_clear(op2);
+    char* res_string = mpz_get_str (0, BASE, res); 
+    mpz_clear(res);
+    return res_string;
 }
 
 char* memo[3];
@@ -80,6 +93,13 @@ void init_memo() {
     memo[1] = letis("1");
     memo[2] = letis("1");
 }
+
+void clean_memo() {
+    free(memo[0]);
+    free(memo[1]);
+    free(memo[2]);
+}
+
 
 // Return the n'th Fibonacci number as a decimal string for integer n
 char* fibois (int n) {
@@ -91,11 +111,19 @@ char* fibois (int n) {
     int k = (n / 2);
     char* fk = fibois(k);
     char* fk1 = fibois(k + 1);
+    char* a;
+    char* b;
     if ((n % 2) == 0) {
-        res = mulis(fk, subis(mulis(fk1, "2"), fk));
+        a = addis(fk1, fk1);
+        b = subis(a, fk);
+        res = mulis(fk, b);
     } else {
-        res = addis(mulis(fk, fk), mulis(fk1, fk1));
+        a = mulis(fk, fk);
+        b = mulis(fk1, fk1);
+        res = addis(a, b);
     }
+    free(a);
+    free(b);
     free(fk);
     free(fk1);
     return res;
@@ -114,6 +142,8 @@ int main(int argc, char* argv[]) {
     f = fibois(n);
     writeis(f);
     free(f);
+
+    clean_memo();
 
     return (0);
 }
