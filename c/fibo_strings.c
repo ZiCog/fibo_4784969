@@ -13,76 +13,44 @@
 // Number base used for internal calculations by GMP.
 int BASE = 32;
 
+mpz_t op1;
+mpz_t op2;
+mpz_t res;
+
 // Functions letis, addis, subis and mulis do large integer arithmetic on integers represented by strings.
 
 void writeis(const char *s) {
-    mpz_t op1;
-    mpz_init(op1);
     mpz_set_str (op1, s, BASE);
     char *buf=mpz_get_str (0, 10, op1);
-    mpz_clear(op1);
     puts(buf);
     free(buf);
 }
 
 char* letis(const char* s) {
-//    size_t size = strlen(s) + 1;
-//    char* res = malloc(size);
-//    strncpy (res, s, size);
     return strdup(s);
 }
 
 char* addis(const char* s1, const char* s2) {
-    mpz_t op1;
-    mpz_t op2;
-    mpz_t res;
-    mpz_init(op1);
-    mpz_init(op2);
-    mpz_init(res);
-
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_add (res, op1, op2);  // result = x * y
-    mpz_clear(op1);
-    mpz_clear(op2);
     char* res_string = mpz_get_str (0, BASE, res); 
-    mpz_clear(res);
     return res_string;
 }
 
 char* subis(const char* s1, const char* s2) {
-    mpz_t op1;
-    mpz_t op2;
-    mpz_t res;
-    mpz_init(op1);
-    mpz_init(op2);
-    mpz_init(res);
-
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_sub (res, op1, op2);  // result = x * y
-    mpz_clear(op1);
-    mpz_clear(op2);
     char* res_string = mpz_get_str (0, BASE, res); 
-    mpz_clear(res);
     return res_string;
 }
 
 char* mulis(const char* s1, const char* s2) {
-    mpz_t op1;
-    mpz_t op2;
-    mpz_t res;
-    mpz_init(op1);
-    mpz_init(op2);
-    mpz_init(res);
-
     mpz_set_str (op1, s1, BASE);
     mpz_set_str (op2, s2, BASE);
     mpz_mul (res, op1, op2);  // result = x * y
-    mpz_clear(op1);
-    mpz_clear(op2);
     char* res_string = mpz_get_str (0, BASE, res); 
-    mpz_clear(res);
     return res_string;
 }
 
@@ -137,6 +105,10 @@ int main(int argc, char* argv[]) {
         n = atoi(argv[1]);
     }
 
+    mpz_init(op1);
+    mpz_init(op2);
+    mpz_init(res);
+
     init_memo();
 
     f = fibois(n);
@@ -144,6 +116,10 @@ int main(int argc, char* argv[]) {
     free(f);
 
     clean_memo();
+
+    mpz_clear(op1);
+    mpz_clear(op2);
+    mpz_clear(res);
 
     return (0);
 }
