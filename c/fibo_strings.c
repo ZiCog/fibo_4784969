@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     fibos[2] = is_let("1");
 
     char* f = fibo(n);
-    char* f10 = is_base10(f);
+    char* f10 = is_base(f, 10);
     puts(f10);
     free(f10);
     free(f);

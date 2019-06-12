@@ -16,9 +16,9 @@ static mpz_t op1;
 static mpz_t op2;
 static mpz_t res;
 
-char* is_base10(const char *s) {
+char* is_base(const char *s, int base) {
     mpz_set_str (op1, s, IS_BASE);
-    char* res_string = mpz_get_str (0, 10, op1);
+    char* res_string = mpz_get_str (0, base, op1);
     return res_string;
 }
 

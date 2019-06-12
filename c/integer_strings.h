@@ -19,7 +19,7 @@ char* is_sub(const char* s1, const char* s2);
 
 char* is_mul(const char* s1, const char* s2);
 
-char* is_base10(const char *s);
+char* is_base(const char *s, int base);
 
 void is_init();
 
