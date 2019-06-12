@@ -5,7 +5,7 @@
 // Modified June 11, 2019 to use base 32 strings for intermediate results.
 //
 #include <gmp.h>
-#include <memory.h>
+#include <string.h>
 
 #include "integer_strings.h"
 
