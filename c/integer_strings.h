@@ -9,8 +9,6 @@
 
 // Functions is_let, is_let, is_let and is_letmul do large integer arithmetic on integers represented by strings.
 
-void is_write(const char *s);
-
 char* is_let(const char* s);
 
 char* is_add(const char* s1, const char* s2);
