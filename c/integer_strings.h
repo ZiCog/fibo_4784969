@@ -7,7 +7,7 @@
 // Number base used for internal calculations by GMP.
 #define IS_BASE 32
 
-// Functions letis, addis, subis and mulis do large integer arithmetic on integers represented by strings.
+// Functions is_let, is_let, is_let and is_letmul do large integer arithmetic on integers represented by strings.
 
 void is_write(const char *s);
 
