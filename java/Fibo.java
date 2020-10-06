@@ -34,10 +34,7 @@ public class Fibo
 	public static void main(String args[]) throws Exception 
 	{ 
 		int n = 4784969;
-		while (true)
-		{ 
-			BigInteger result = fibo(n); 
-			System.out.println(".");
-		} 
+		BigInteger result = fibo(n); 
+		System.out.println(result);
 	} 
 } 
