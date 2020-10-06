@@ -1,0 +1,24 @@
+#!/usr/bin/julia
+
+"""Returns the tuple (F(n), F(n+1))."""
+function fibo(n::Int)
+    if n == 0
+        return (BigInt(0), BigInt(1))
+    else
+        a, b = fibo(div(n,2))
+	c = a * (b * BigInt(2) - a)
+	d = a * a + b * b
+        if iseven(n)
+	    return (c, d)
+	else
+            return (d, c + d)
+        end
+    end
+end
+
+n = 4784969
+f = fibo(n)[1]
+try
+    println(f)
+catch
+end
