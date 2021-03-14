@@ -1,3 +1,5 @@
+# fibo_4784969
+
 A program to compute the first one-million digits Fivonacci number
 
 This program computes the first Fibonacci number consisting of one million decimal digits,
@@ -12,7 +14,10 @@ This program utilises the extremely fast [ibig](https://crates.io/crates/ibig) l
 by Tomek Czajka. The canonical solution for big integer arithmetic would probably be
 [num-bigint](https://crates.io/crates/num-bigint), but while that crate is certainly able to
 *compute* the required number in a few tenths of seconds, converting the result to decimal form
-for printing takes a whopping 21 seconds on a Core(TM) i7-6700HQ laptop.
+for printing takes a whopping 21 seconds on a Core(TM) i7-6700HQ laptop. The `num-bigint`
+formatting implementation can certainly be improved upon: a recursive divide-and-and-conquer
+string conversion function takes the required time down to ~2s. Even then `ibig` is much faster,
+without having to write our own formatting routines.
 
 # Compilation
 
