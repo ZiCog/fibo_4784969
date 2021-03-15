@@ -21,14 +21,15 @@ This program can use a number of different backends:
   Even then `ibig` is much faster;
 * Or cheat and use the [rust bindings](https://crates.io/crates/rust-gmp) for the well known
   Gnu MP library. This backend is of course written in C, with only bindings to Rust. It is however,
-  by far the fastest, and sets a baseline for other soluations.
+  by far the fastest, and sets a baseline for other solutions;
+* The [rug](https://crates.io/crates/rug) crate, which acts as a higher level frontend to
+  several numerical libraries, in this case again for GMP.
 
 # Compilation
 
 `cargo build --release`
 
 # Run
-
 ```text
 cargo run --release
 ```
@@ -39,12 +40,9 @@ cargo run --release -- -h
 to see all options. If you want to time the program and skip the overhead of checking if the current
 binary is up to date, run the executable directly:
 ```text
-~> time ./target/release/fibo_4784969 > fibo.out
-
-real    0m0.390s
-user    0m0.386s
-sys     0m0.004s
-
+~> ./target/release/fibo_4784969 > fibo.out
+computing F(4784969): 0.110s
+printing F(4784969): 0.328s
 ~> echo `head -c 32 fibo.out`
 10727395641800477229364813596225
 ~> tail -c 33 fibo.out
@@ -52,9 +50,23 @@ sys     0m0.004s
 ```
 Use the `-b` (or `--backend`) flag to select a backend:
 ```
-~> time ./target/release/fibo_4784969 -b gmp > fibo2.out
-
-real    0m0.122s
-user    0m0.115s
-sys     0m0.007s
+~> ./target/release/fibo_4784969 -b gmp > fibo2.out
+computing F(4784969): 0.048s
+printing F(4784969): 0.090s
+```
+Or try them all:
+```
+~> for backend in ibig gmp num_bigint rug; do echo "Backend $backend:"; ./target/release/fibo_4784969 -b $backend > fibo_$backend.out; done
+Backend ibig:
+computing F(4784969): 0.108s
+printing F(4784969): 0.324s
+Backend gmp:
+computing F(4784969): 0.021s
+printing F(4784969): 0.093s
+Backend num_bigint:
+computing F(4784969): 0.137s
+printing F(4784969): 23.409s
+Backend rug:
+computing F(4784969): 0.024s
+printing F(4784969): 0.091s
 ```

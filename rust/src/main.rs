@@ -19,7 +19,9 @@
 //!   Even then `ibig` is much faster;
 //! * Or cheat and use the [rust bindings](https://crates.io/crates/rust-gmp) for the well known
 //!   Gnu MP library. This backend is of course written in C, with only bindings to Rust. It is however,
-//!   by far the fastest, and sets a baseline for other soluations.
+//!   by far the fastest, and sets a baseline for other solutions;
+//! * The [rug](https://crates.io/crates/rug) crate, which acts as a higher level frontend to
+//!   several numerical libraries, in this case again for GMP.
 //!
 //! # Compilation
 //!
@@ -36,12 +38,9 @@
 //! to see all options. If you want to time the program and skip the overhead of checking if the current
 //! binary is up to date, run the executable directly:
 //! ```text
-//! ~> time ./target/release/fibo_4784969 > fibo.out
-//!
-//! real    0m0.390s
-//! user    0m0.386s
-//! sys     0m0.004s
-//!
+//! ~> ./target/release/fibo_4784969 > fibo.out
+//! computing F(4784969): 0.110s
+//! printing F(4784969): 0.328s
 //! ~> echo `head -c 32 fibo.out`
 //! 10727395641800477229364813596225
 //! ~> tail -c 33 fibo.out
@@ -49,17 +48,76 @@
 //! ```
 //! Use the `-b` (or `--backend`) flag to select a backend:
 //! ```
-//! ~> time ./target/release/fibo_4784969 -b gmp > fibo2.out
-//!
-//! real    0m0.122s
-//! user    0m0.115s
-//! sys     0m0.007s
+//! ~> ./target/release/fibo_4784969 -b gmp > fibo2.out
+//! computing F(4784969): 0.048s
+//! printing F(4784969): 0.090s
+//! ```
+//! Or try them all:
+//! ```
+//! ~> for backend in ibig gmp num_bigint rug; do echo "Backend $backend:"; ./target/release/fibo_4784969 -b $backend > fibo_$backend.out; done
+//! Backend ibig:
+//! computing F(4784969): 0.108s
+//! printing F(4784969): 0.324s
+//! Backend gmp:
+//! computing F(4784969): 0.021s
+//! printing F(4784969): 0.093s
+//! Backend num_bigint:
+//! computing F(4784969): 0.137s
+//! printing F(4784969): 23.409s
+//! Backend rug:
+//! computing F(4784969): 0.024s
+//! printing F(4784969): 0.091s
 //! ```
 
 const NAME: &'static str = env!("CARGO_PKG_NAME");
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const AUTHOR: &'static str = env!("CARGO_PKG_AUTHORS");
 const DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
+
+/// Common trait for the operations we require to compute a Fibonacci number
+trait Number: From<u32>
+        + for <'a> std::ops::Add<&'a Self, Output=Self>
+        + for <'a> std::ops::Mul<&'a Self, Output=Self>
+        + for <'a> std::ops::Sub<&'a Self, Output=Self>
+{
+    /// The various big integer implementations can't seem to agree on what types to implement
+    /// a left shift for. We only use it for doubling a value, so provide a trait function to
+    /// do the doubling. We could possibly use addition for the same effect without having to
+    /// implement `double()` for all supported types, but that would most likely be slower.
+    fn double(&self) -> Self;
+}
+
+impl Number for ibig::UBig
+{
+    fn double(&self) -> Self
+    {
+        self << 1u8
+    }
+}
+
+impl Number for gmp::mpz::Mpz
+{
+    fn double(&self) -> Self
+    {
+        self << 1usize
+    }
+}
+
+impl Number for num_bigint::BigUint
+{
+    fn double(&self) -> Self
+    {
+        self << 1u8
+    }
+}
+
+impl Number for rug::Integer
+{
+    fn double(&self) -> Self
+    {
+        self.clone() << 1u32
+    }
+}
 
 /// Compute F<sub>k</ub> and F<sub>k+1</sub>
 ///
@@ -70,11 +128,7 @@ const DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
 /// * (F<sub>2k+1</sub>, F<sub>2k+2</sub>)
 ///   = (F<sub>k</sub>[2F<sub>k</sub>+F<sub>k+1</sub>] + (-1)<sup>k</sup>, F<sub>k+1</sub>[2F<sub>k</sub>+F<sub>k+1</sub>])
 fn fibonacci_work<T>(k: u32) -> (T, T)
-where T: From<u32>
-        + for <'a> std::ops::Add<&'a T, Output=T>
-        + for <'a> std::ops::Sub<&'a T, Output=T>,
-    for <'a> &'a T: std::ops::Mul<&'a T, Output=T>
-        + std::ops::Shl<usize, Output=T>
+where T: Number
 {
     let one = T::from(1);
 
@@ -87,13 +141,13 @@ where T: From<u32>
         let (a, b) = fibonacci_work::<T>(k / 2);
         if k % 2 == 0
         {
-            let t = (&b << 1) - &a;
-            if k % 4 == 0 { (&a*&t, &b*&t - &one) } else { (&a*&t, &b*&t + &one) }
+            let t = b.double() - &a;
+            if k % 4 == 0 { (a*&t, b*&t - &one) } else { (a*&t, b*&t + &one) }
         }
         else
         {
-            let t = (&a << 1) + &b;
-            if k % 4 == 1 { (&a*&t + &one, &b*&t) } else { (&a*&t - &one, &b*&t) }
+            let t = a.double() + &b;
+            if k % 4 == 1 { (a*&t + &one, b*&t) } else { (a*&t - &one, b*&t) }
         }
     }
 }
@@ -102,12 +156,7 @@ where T: From<u32>
 ///
 /// Compute the `k`'th Fibonacci number F<sub>k</sub>
 fn fibonacci<T>(k: u32) -> T
-where T: From<u32>
-        + for <'a> std::ops::Add<&'a T, Output=T>
-        + for <'a> std::ops::Mul<&'a T, Output=T>
-        + for <'a> std::ops::Sub<&'a T, Output=T>,
-    for <'a> &'a T: std::ops::Mul<&'a T, Output=T>
-        + std::ops::Shl<usize, Output=T>
+where T: Number
 {
     if k < 2
     {
@@ -118,15 +167,31 @@ where T: From<u32>
         let (a, b) = fibonacci_work::<T>((k-1) / 2);
         if k % 2 == 0
         {
-            ((&a << 1) + &b) * &b
+            (a.double() + &b) * &b
         }
         else
         {
             let one = T::from(1);
-            let t = ((&b << 1) - &a) * &b;
+            let t = (b.double() - &a) * &b;
             if k % 4 == 1 { t - &one } else { t + &one }
         }
     }
+}
+
+fn test_fibonacci<T>(k: u32)
+where T: Number + std::fmt::Display
+{
+    let tic = std::time::Instant::now();
+    let fk = fibonacci::<T>(k);
+    let toc = std::time::Instant::now();
+    let duration = toc.duration_since(tic);
+    eprintln!("computing F({}): {}.{:03}s", k, duration.as_secs(), duration.subsec_millis());
+
+    let tic = std::time::Instant::now();
+    println!("{}", fk);
+    let toc = std::time::Instant::now();
+    let duration = toc.duration_since(tic);
+    eprintln!("printing F({}): {}.{:03}s", k, duration.as_secs(), duration.subsec_millis());
 }
 
 fn main()
@@ -141,7 +206,7 @@ fn main()
             .value_name("BACKEND")
             .help("Choose which backend to use for the computation")
             .takes_value(true)
-            .possible_values(&["ibig", "gmp", "num_bigint"])
+            .possible_values(&["ibig", "gmp", "num_bigint", "rug"])
             .default_value("ibig")
         )
         .get_matches();
@@ -149,9 +214,10 @@ fn main()
     let k = 4784969u32;
     match matches.value_of("backend")
     {
-        Some("ibig")       => { println!("{}", fibonacci::<ibig::UBig>(k)); }
-        Some("gmp")        => { println!("{}", fibonacci::<gmp::mpz::Mpz>(k)); }
-        Some("num_bigint") => { println!("{}", fibonacci::<num_bigint::BigUint>(k)); }
+        Some("ibig")       => { test_fibonacci::<ibig::UBig>(k); },
+        Some("gmp")        => { test_fibonacci::<gmp::mpz::Mpz>(k); },
+        Some("num_bigint") => { test_fibonacci::<num_bigint::BigUint>(k); },
+        Some("rug")        => { test_fibonacci::<rug::Integer>(k); }
         _                  => { unreachable!(); }
     }
 }
