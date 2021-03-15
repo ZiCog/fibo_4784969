@@ -69,6 +69,8 @@
 //! printing F(4784969): 0.091s
 //! ```
 
+use clap::value_t;
+
 const NAME: &'static str = env!("CARGO_PKG_NAME");
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const AUTHOR: &'static str = env!("CARGO_PKG_AUTHORS");
@@ -196,6 +198,9 @@ where T: Number + std::fmt::Display
 
 fn main()
 {
+    let default_k = 4784969u32;
+    let default_k_str = default_k.to_string();
+
     let matches = clap::App::new(NAME)
         .version(VERSION)
         .author(AUTHOR)
@@ -209,9 +214,17 @@ fn main()
             .possible_values(&["ibig", "gmp", "num_bigint", "rug"])
             .default_value("ibig")
         )
+        .arg(clap::Arg::with_name("number")
+            .short("n")
+            .long("number")
+            .value_name("N")
+            .help("Compute the N'th Fibonacci number")
+            .takes_value(true)
+            .default_value(&default_k_str)
+         )
         .get_matches();
 
-    let k = 4784969u32;
+    let k = value_t!(matches, "number", u32).unwrap_or_else(|e| e.exit());
     match matches.value_of("backend")
     {
         Some("ibig")       => { test_fibonacci::<ibig::UBig>(k); },
