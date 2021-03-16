@@ -69,10 +69,10 @@ where T: Digit
         assert!(result.len() >= nmax + 1);
 
         let mut carry = T::LongDigitType::zero();
-        for ((d0, d1), dr) in self.digits.into_iter().zip(other.digits).zip(result.iter_mut())
+        for ((d0, d1), dr) in self.digits.iter().zip(other.digits).zip(result.iter_mut())
         {
-            let tmp = d0.as_long() + d1.as_long() + carry;
-            *dr = T::as_short(tmp % T::RADIX);
+            let tmp = d0.to_long() + d1.to_long() + carry;
+            *dr = T::to_short(tmp % T::RADIX);
             carry = tmp / T::RADIX;
         }
 
@@ -177,11 +177,11 @@ where T: Digit
             let mut carry = T::LongDigitType::zero();
             for (&digit0, rdigit) in self.digits.iter().zip(&mut result[offset..])
             {
-                let tmp = digit0.as_long() * digit1.as_long() + rdigit.as_long() + carry;
-                *rdigit = T::as_short(tmp % T::RADIX);
+                let tmp = digit0.to_long() * digit1.to_long() + rdigit.to_long() + carry;
+                *rdigit = T::to_short(tmp % T::RADIX);
                 carry = tmp / T::RADIX;
             }
-            result[offset+n0] = T::as_short(carry);
+            result[offset+n0] = T::to_short(carry);
         }
 
         let mut n = n0 + n1;
@@ -261,14 +261,14 @@ where T: Digit
 
     /// Return a new mutable borrow of part of these digits, starting from position `start`, upto
     /// position `end`.
-    fn part<'b>(&'b mut self, start: usize, end: usize) -> UBigMutBorrow<'b, T>
+    fn part(&mut self, start: usize, end: usize) -> UBigMutBorrow<T>
     {
         UBigMutBorrow::new(&mut self.digits[start..end])
     }
 
     /// Return a new mutable borrow of part of these digits, starting from position `start` and
     /// continuing to the end of the array.
-    fn part_from<'b>(&'b mut self, start: usize) -> UBigMutBorrow<'b, T>
+    fn part_from(&mut self, start: usize) -> UBigMutBorrow<T>
     {
         UBigMutBorrow::new(&mut self.digits[start..])
     }
@@ -320,11 +320,11 @@ where T: Digit
         let mut carry = T::LongDigitType::zero();
         for d in self.digits.iter_mut()
         {
-            let tmp = (d.as_long() << 1) + carry;
-            *d = T::as_short(tmp % T::RADIX);
+            let tmp = (d.to_long() << 1) + carry;
+            *d = T::to_short(tmp % T::RADIX);
             carry = tmp / T::RADIX;
         }
-        (!carry.is_zero()).then(|| T::as_short(carry))
+        (!carry.is_zero()).then(|| T::to_short(carry))
     }
 
     /// Add the number represented by `borrow` to this. The number of digits in `other` should
@@ -338,8 +338,8 @@ where T: Digit
         let mut carry = T::LongDigitType::zero();
         for (d0, &d1) in self.digits.iter_mut().zip(other.digits)
         {
-            let tmp = d0.as_long() + d1.as_long() + carry;
-            *d0 = T::as_short(tmp % T::RADIX);
+            let tmp = d0.to_long() + d1.to_long() + carry;
+            *d0 = T::to_short(tmp % T::RADIX);
             carry = tmp / T::RADIX;
         }
 
@@ -361,8 +361,8 @@ where T: Digit
         let mut carry = T::LongDigitType::zero();
         for (d0, &d1) in self.digits.iter_mut().zip(other.digits)
         {
-            let tmp = T::RADIX + d0.as_long() - d1.as_long() - carry;
-            *d0 = T::as_short(tmp % T::RADIX);
+            let tmp = T::RADIX + d0.to_long() - d1.to_long() - carry;
+            *d0 = T::to_short(tmp % T::RADIX);
             carry = T::LongDigitType::one() - tmp / T::RADIX;
         }
 
@@ -552,19 +552,13 @@ where T: Digit
         let n0 = self.nr_digits();
         let n1 = other.nr_digits();
         if n0 < n1 + offset
+            || self.borrowed_mut_from(offset).sub(&other.borrowed()).is_some()
         {
             Err(Error::Underflow)
         }
         else
         {
-            if self.borrowed_mut_from(offset).sub(&other.borrowed()).is_some()
-            {
-                Err(Error::Underflow)
-            }
-            else
-            {
-                Ok(self.drop_leading_zeros())
-            }
+            Ok(self.drop_leading_zeros())
         }
     }
 
@@ -638,8 +632,8 @@ where DecimalDigit<T>: Digit
         }
         else
         {
-            let d0 = DecimalDigit::as_short(d.as_long() % DecimalDigit::RADIX);
-            let d1 = DecimalDigit::as_short(d.as_long() / DecimalDigit::RADIX);
+            let d0 = DecimalDigit::to_short(d.to_long() % DecimalDigit::RADIX);
+            let d1 = DecimalDigit::to_short(d.to_long() / DecimalDigit::RADIX);
             let mut big = UBig { digits: vec![d0, d1] };
             big.drop_leading_zeros();
             big
@@ -805,9 +799,9 @@ where T: Digit + std::fmt::Display
                 let mut carry = T::zero();
                 for digit in tmp.digits.iter_mut().rev()
                 {
-                    let d = (carry.as_long() * T::RADIX) + digit.as_long();
-                    carry = T::as_short(d % T::DECIMAL_RADIX);
-                    *digit = T::as_short(d / T::DECIMAL_RADIX);
+                    let d = (carry.to_long() * T::RADIX) + digit.to_long();
+                    carry = T::to_short(d % T::DECIMAL_RADIX);
+                    *digit = T::to_short(d / T::DECIMAL_RADIX);
                 }
                 tmp.drop_leading_zeros();
                 decimal.push(carry);

@@ -87,16 +87,19 @@
 //! printing F(4784969): 0.091s
 //! ```
 
+// Clippy does not like Allman indentation.
+#![allow(clippy::suspicious_else_formatting)]
+
 mod decimal;
 mod digit;
 mod myubig;
 
 use clap::value_t;
 
-const NAME: &'static str = env!("CARGO_PKG_NAME");
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const AUTHOR: &'static str = env!("CARGO_PKG_AUTHORS");
-const DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
+const NAME: &str = env!("CARGO_PKG_NAME");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
+const DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
 
 /// Common trait for the operations we require to compute a Fibonacci number
 trait Number: From<u32>

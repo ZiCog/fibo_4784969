@@ -26,9 +26,9 @@ pub trait Digit: Copy + NumAssignOps + One + PartialOrd + Zero
     const DECIMAL_WIDTH: usize;
 
     /// Convert a digit to its wide representation
-    fn as_long(self) -> Self::LongDigitType;
+    fn to_long(self) -> Self::LongDigitType;
     /// Convert a wide digit to its normal representation. The value should be less than `RADIX`.
-    fn as_short(long: Self::LongDigitType) -> Self;
+    fn to_short(long: Self::LongDigitType) -> Self;
 }
 
 impl Digit for u8
@@ -41,12 +41,12 @@ impl Digit for u8
     const DECIMAL_MAX: Self = 99;
     const DECIMAL_WIDTH: usize = 2;
 
-    fn as_long(self) -> Self::LongDigitType
+    fn to_long(self) -> Self::LongDigitType
     {
         self as u16
     }
 
-    fn as_short(long: Self::LongDigitType) -> Self
+    fn to_short(long: Self::LongDigitType) -> Self
     {
         long as u8
     }
@@ -62,12 +62,12 @@ impl Digit for u16
     const DECIMAL_MAX: Self = 9_999;
     const DECIMAL_WIDTH: usize = 4;
 
-    fn as_long(self) -> Self::LongDigitType
+    fn to_long(self) -> Self::LongDigitType
     {
         self as u32
     }
 
-    fn as_short(long: Self::LongDigitType) -> Self
+    fn to_short(long: Self::LongDigitType) -> Self
     {
         long as u16
     }
@@ -83,12 +83,12 @@ impl Digit for u32
     const DECIMAL_MAX: Self = 999_999_999;
     const DECIMAL_WIDTH: usize = 9;
 
-    fn as_long(self) -> Self::LongDigitType
+    fn to_long(self) -> Self::LongDigitType
     {
         self as u64
     }
 
-    fn as_short(long: Self::LongDigitType) -> Self
+    fn to_short(long: Self::LongDigitType) -> Self
     {
         long as u32
     }
@@ -104,12 +104,12 @@ impl Digit for u64
     const DECIMAL_MAX: Self = 9_999_999_999_999_999_999;
     const DECIMAL_WIDTH: usize = 19;
 
-    fn as_long(self) -> Self::LongDigitType
+    fn to_long(self) -> Self::LongDigitType
     {
         self as u128
     }
 
-    fn as_short(long: Self::LongDigitType) -> Self
+    fn to_short(long: Self::LongDigitType) -> Self
     {
         long as u64
     }

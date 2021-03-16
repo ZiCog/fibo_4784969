@@ -84,14 +84,14 @@ where T: Digit
     const DECIMAL_MAX: Self = DecimalDigit(T::DECIMAL_MAX);
     const DECIMAL_WIDTH: usize = T::DECIMAL_WIDTH;
 
-    fn as_long(self) -> Self::LongDigitType
+    fn to_long(self) -> Self::LongDigitType
     {
-        self.0.as_long()
+        self.0.to_long()
     }
 
-    fn as_short(long: Self::LongDigitType) -> Self
+    fn to_short(long: Self::LongDigitType) -> Self
     {
-        DecimalDigit(T::as_short(long))
+        DecimalDigit(T::to_short(long))
     }
 }
 
