@@ -22,7 +22,7 @@ where T: Digit
 {
     /// Cutoff length for switching from long multiplication to Karatsuba multiplication.
     /// NOTE: Should be at least 4.
-    const KARATSUBA_CUTOFF: usize = 32;
+    const KARATSUBA_CUTOFF: usize = 16;
 
     /// Create a new borrow of digits `digits`
     fn new(digits: &'a [T]) -> Self
@@ -113,13 +113,15 @@ where T: Digit
     /// Returns the number of digits in the product.
     fn multiply_into(&self, other: &Self, result: &mut [T]) -> usize
     {
-        assert!(result.len() >= self.nr_digits() + other.nr_digits(), "Not enough space to store the result");
+        let n0 = self.nr_digits();
+        let n1 = other.nr_digits();
+        assert!(result.len() >= n0 + n1, "Not enough space to store the result");
 
         if self.is_empty() || other.is_empty()
         {
             0
         }
-        else if self.nr_digits() >= Self::KARATSUBA_CUTOFF && other.nr_digits() >= Self::KARATSUBA_CUTOFF
+        else if n0 >= Self::KARATSUBA_CUTOFF && n1 >= Self::KARATSUBA_CUTOFF
         {
             let work_size = Self::calc_karatsuba_work_size(self.nr_digits().max(other.nr_digits()));
             let mut work = vec![T::zero(); work_size];
@@ -140,13 +142,15 @@ where T: Digit
     /// Returns the number of digits in the product.
     fn multiply_into_work(&self, other: &Self, result: &mut [T], work: &mut [T]) -> usize
     {
-        assert!(result.len() >= self.nr_digits() + other.nr_digits(), "Not enough space to store the result");
+        let n0 = self.nr_digits();
+        let n1 = other.nr_digits();
+        assert!(result.len() >= n0 + n1, "Not enough space to store the result");
 
         if self.is_empty() || other.is_empty()
         {
             0
         }
-        else if self.nr_digits() >= Self::KARATSUBA_CUTOFF && other.nr_digits() >= Self::KARATSUBA_CUTOFF
+        else if n0 >= Self::KARATSUBA_CUTOFF && n1 >= Self::KARATSUBA_CUTOFF
         {
             self.multiply_karatsuba_into(other, result, work)
         }
@@ -164,21 +168,22 @@ where T: Digit
     {
         let n0 = self.nr_digits();
         let n1 = other.nr_digits();
+        let mut n = n0 + n1;
 
-        result[..n0+n1].fill(T::zero());
+        result[..n].fill(T::zero());
         for (offset, &digit1) in other.digits.iter().enumerate()
         {
+            let ldigit1 = digit1.to_long();
             let mut carry = T::LongDigitType::zero();
             for (&digit0, rdigit) in self.digits.iter().zip(&mut result[offset..])
             {
-                let tmp = digit0.to_long() * digit1.to_long() + rdigit.to_long() + carry;
+                let tmp = digit0.to_long() * ldigit1 + rdigit.to_long() + carry;
                 *rdigit = T::to_short(tmp % T::RADIX);
                 carry = tmp / T::RADIX;
             }
             result[offset+n0] = T::to_short(carry);
         }
 
-        let mut n = n0 + n1;
         while n > 0  && result[n-1].is_zero()
         {
             n -= 1;
