@@ -30,12 +30,6 @@ where T: Digit
         UBigBorrow { digits }
     }
 
-    /// Return a new borrow of the least significant digits up to digit `end`
-    fn part_upto(&self, end: usize) -> Self
-    {
-        UBigBorrow { digits: &self.digits[..end] }
-    }
-
     /// Split this borrow into two new borrows before digit `pos`
     fn split_at(&self, pos: usize) -> (Self, Self)
     {
@@ -200,7 +194,7 @@ where T: Digit
     fn multiply_karatsuba_into(&self, other: &Self, result: &mut [T], work: &mut [T]) -> usize
     {
         let n0 = self.nr_digits();
-        let n1 = self.nr_digits();
+        let n1 = other.nr_digits();
         let nmax = n0.max(n1);
         assert!(n0 >= 4 && n1 >= 4, "Number of digits should be at least 4 for Karatsuba multiplication");
         assert!(work.len() >= Self::calc_karatsuba_work_size(nmax), "Insufficient work space");
@@ -233,8 +227,14 @@ where T: Digit
             nz1 -= 1;
         }
 
-        let n = 2*split + nz2;
-        UBigMutBorrow::new(result).add_at_offset(n, &UBigBorrow::new(&z1[..nz1]), split)
+        let carry = UBigMutBorrow::new(&mut result[split..]).add(&UBigBorrow::new(&z1[..nz1]));
+        assert!(carry.is_none());
+        let mut n = n0 + n1;
+        while n > 0 && result[n-1].is_zero()
+        {
+            n -= 1;
+        }
+        n
     }
 }
 
@@ -257,13 +257,6 @@ where T: Digit
     fn nr_digits(&self) -> usize
     {
         self.digits.len()
-    }
-
-    /// Return a new mutable borrow of part of these digits, starting from position `start`, upto
-    /// position `end`.
-    fn part(&mut self, start: usize, end: usize) -> UBigMutBorrow<T>
-    {
-        UBigMutBorrow::new(&mut self.digits[start..end])
     }
 
     /// Return a new mutable borrow of part of these digits, starting from position `start` and
@@ -367,40 +360,6 @@ where T: Digit
         }
 
         if !carry.is_zero() { self.part_from(n1).dec() } else { None }
-    }
-
-    /// Add the number represented by `other` to this number, starting at position `offset`
-    /// (effectively) adding `other * r<sup>offset</sup>`, where `r` is the radix of this number).
-    /// It is assumed that only the first `n0` digits in `self` are used, and that the remaining
-    /// digits should be considered zero (though they do not actually have to be so). The result
-    /// of the addition should be able to fit in this borrowed slice. Returns the number of digits
-    /// used after the addition.
-    fn add_at_offset(&mut self, n0: usize, other: &UBigBorrow<T>, offset: usize) -> usize
-    {
-        let n1 = other.nr_digits();
-        assert!(n1 + offset < self.nr_digits());
-
-        if n0 <= offset
-        {
-            self.digits[n0..offset].fill(T::zero());
-            self.digits[offset..offset+n1].copy_from_slice(other.digits);
-            offset + n1
-        }
-        else
-        {
-            let mut n = n0;
-            if n0 < n1 + offset
-            {
-                self.digits[n0..n1+offset].copy_from_slice(&other.digits[n0-offset..]);
-                n = n1 + offset;
-            }
-            if let Some(carry) = self.part(offset, n).add(&other.part_upto((n0-offset).min(n1)))
-            {
-                self.digits[n] = carry;
-                n += 1;
-            }
-            n
-        }
     }
 }
 
