@@ -177,9 +177,9 @@ where T: Digit
             let mut carry = T::LongDigitType::zero();
             for (&digit0, rdigit) in self.digits.iter().zip(&mut result[offset..])
             {
-                let tmp = digit0.to_long() * ldigit1 + rdigit.to_long() + carry;
-                *rdigit = T::to_short(tmp % T::RADIX);
-                carry = tmp / T::RADIX;
+                carry += digit0.to_long() * ldigit1 + rdigit.to_long();
+                *rdigit = T::to_short(carry % T::RADIX);
+                carry /= T::RADIX;
             }
             result[offset+n0] = T::to_short(carry);
         }
@@ -210,23 +210,20 @@ where T: Digit
         let (low1, high1) = other.split_at(split.min(n1));
 
         let (sum0, sum1) = result.split_at_mut(split+1);
-        let nsum0 = low0.add_into(&high0, sum0);                              // low0 + high0
-        let nsum1 = low1.add_into(&high1, sum1);                              // low1 + high1
+        let nsum0 = low0.add_into(&high0, sum0);                    // low0 + high0
+        let nsum1 = low1.add_into(&high1, sum1);                    // low1 + high1
 
         let (z1, new_work) = work.split_at_mut(2*split+2);
-        let mut nz1 = UBigBorrow::new(&sum0[..nsum0])                         // (low0+high0)*(low1+high1)
+        let mut nz1 = UBigBorrow::new(&sum0[..nsum0])               // (low0+high0)*(low1+high1)
             .multiply_into_work(&UBigBorrow::new(&sum1[..nsum1]), z1, new_work);
         result[..n0+n1].fill(T::zero());
         let (z0, z2) = result.split_at_mut(2*split);
-        let nz0 = low0.multiply_into_work(&low1, z0, new_work);               // low0*low1
-        let nz2 = high0.multiply_into_work(&high1, z2, new_work);             // high0*high1
+        let nz0 = low0.multiply_into_work(&low1, z0, new_work);     // low0*low1
+        let nz2 = high0.multiply_into_work(&high1, z2, new_work);   // high0*high1
 
-        UBigMutBorrow::new(&mut z1[..nz1]).sub(&UBigBorrow::new(&z2[..nz2])); // low0*low1 + low0*high1 ...
-        while z1[nz1-1].is_zero()                                             // ... + high0*low1
-        {
-            nz1 -= 1;
-        }
-        UBigMutBorrow::new(&mut z1[..nz1]).sub(&UBigBorrow::new(&z0[..nz0])); // low0*high1 + high0*low1
+        let mut bz1 = UBigMutBorrow::new(&mut z1[..nz1]);
+        bz1.sub(&UBigBorrow::new(&z2[..nz2]));
+        bz1.sub(&UBigBorrow::new(&z0[..nz0]));                      // low0*high1 + high0*low1
         while z1[nz1-1].is_zero()
         {
             nz1 -= 1;
@@ -369,7 +366,7 @@ where T: Digit
 }
 
 /// Structure describing an unsigned big integer
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UBig<T>
 {
     /// The digits making up the number
@@ -543,6 +540,24 @@ where T: Digit
             UBig { digits }
         }
     }
+
+    /// Raise this number to the power `exp`, and return the result
+    pub fn pow(&self, exp: u32) -> Self
+    {
+        let mut power = self.clone();
+        let mut result = Self::one();
+        let mut n = exp;
+        while n > 0
+        {
+            if n % 2 != 0
+            {
+                result *= &power;
+            }
+            n >>= 1;
+            power = &power * &power;
+        }
+        result
+    }
 }
 
 impl<T> num_traits::Zero for UBig<T>
@@ -605,6 +620,79 @@ where DecimalDigit<T>: Digit
     }
 }
 
+impl<T> PartialOrd for UBig<T>
+where T: Digit + Ord
+{
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering>
+    {
+        Some(self.cmp(other))
+    }
+}
+
+impl<T> Ord for UBig<T>
+where T: Digit + Ord
+{
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering
+    {
+        self.nr_digits().cmp(&other.nr_digits())
+            .then_with(|| self.digits().iter().rev().cmp(other.digits.iter().rev()))
+    }
+}
+
+impl<T> std::ops::AddAssign<UBig<T>> for UBig<T>
+where T: Digit
+{
+    fn add_assign(&mut self, other: Self)
+    {
+        *self += &other;
+    }
+}
+
+impl<T> std::ops::AddAssign<&UBig<T>> for UBig<T>
+where T: Digit
+{
+    fn add_assign(&mut self, other: &UBig<T>)
+    {
+        self.add_assign_big(other);
+    }
+}
+
+impl<T> std::ops::SubAssign<UBig<T>> for UBig<T>
+where T: Digit
+{
+    fn sub_assign(&mut self, other: Self)
+    {
+        *self -= &other;
+    }
+}
+
+impl<T> std::ops::SubAssign<&UBig<T>> for UBig<T>
+where T: Digit
+{
+    fn sub_assign(&mut self, other: &UBig<T>)
+    {
+        self.sub_assign_big(other).expect("Underflow while subtracting UBig");
+    }
+}
+
+impl<T> std::ops::MulAssign<UBig<T>> for UBig<T>
+where T: Digit
+{
+    fn mul_assign(&mut self, other: Self)
+    {
+        *self *= &other;
+    }
+}
+
+impl<T> std::ops::MulAssign<&UBig<T>> for UBig<T>
+where T: Digit
+{
+    fn mul_assign(&mut self, other: &UBig<T>)
+    {
+        *self = self.mul_big(other);
+    }
+}
+
 impl<T> std::ops::Add<UBig<T>> for UBig<T>
 where T: Digit
 {
@@ -646,7 +734,7 @@ where T: Digit
     fn add(self, other: &'b UBig<T>) -> Self::Output
     {
         let mut res = self.clone();
-        res.add_assign_big(other);
+        res += other;
         res
     }
 }
@@ -692,7 +780,7 @@ where T: Digit
     fn sub(self, other: &'b UBig<T>) -> Self::Output
     {
         let mut res = self.clone();
-        res.sub_assign_big(other).expect("Underflow while subtracting UBig");
+        res -= other;
         res
     }
 }
@@ -835,6 +923,34 @@ mod tests
     }
 
     #[test]
+    fn test_cmp()
+    {
+        assert!(UBig::<u32>::zero() == UBig::<u32>::zero());
+        assert!(!(UBig::<u32>::zero() < UBig::<u32>::zero()));
+        assert!(!(UBig::<u32>::zero() > UBig::<u32>::zero()));
+
+        assert!(UBig::<u32>::zero() != UBig::<u32>::one());
+        assert!(!(UBig::<u32>::one() < UBig::<u32>::zero()));
+        assert!(UBig::<u32>::one() > UBig::<u32>::zero());
+
+        assert!(UBig::<u32>::one() == UBig::<u32>::one());
+        assert!(!(UBig::<u32>::one() < UBig::<u32>::one()));
+        assert!(!(UBig::<u32>::one() > UBig::<u32>::one()));
+
+        assert!(UBig::<u32>::one() != UBig::<u32>::from(1234567));
+        assert!(UBig::<u32>::one() < UBig::<u32>::from(1234567));
+        assert!(!(UBig::<u32>::one() > UBig::<u32>::from(1234567)));
+
+        assert!(UBig::<u32>::new(vec![0xffffffff]) != UBig::<u32>::new(vec![0, 1]));
+        assert!(UBig::<u32>::new(vec![0xffffffff]) < UBig::<u32>::new(vec![0, 1]));
+        assert!(!(UBig::<u32>::new(vec![0xffffffff]) > UBig::<u32>::new(vec![0, 1])));
+
+        assert!(UBig::<u32>::new(vec![0, 0xffffffff]) != UBig::<u32>::new(vec![0xffffffff, 1]));
+        assert!(!(UBig::<u32>::new(vec![0, 0xffffffff]) < UBig::<u32>::new(vec![0xffffffff, 1])));
+        assert!(UBig::<u32>::new(vec![0, 0xffffffff]) > UBig::<u32>::new(vec![0xffffffff, 1]));
+    }
+
+    #[test]
     fn test_inc()
     {
         assert_eq!(UBig::<u32>::zero().inc().digits(), &[1]);
@@ -844,7 +960,7 @@ mod tests
     }
 
     #[test]
-    fn test_add()
+    fn test_add_assign_big()
     {
         assert_eq!(UBig::<u32>::zero().add_assign_big(&UBig::zero()).digits(), &[] as &[u32]);
         assert_eq!(UBig::<u32>::zero().add_assign_big(&UBig::one()).digits(), &[1]);
@@ -861,7 +977,7 @@ mod tests
     }
 
     #[test]
-    fn test_sub()
+    fn test_sub_assign_big()
     {
         assert_eq!(UBig::zero().sub_assign_big(&UBig::zero()).map(|b| b.digits()), Ok(&[] as &[u32]));
         assert_eq!(UBig::<u32>::zero().sub_assign_big(&UBig::one()).map(|b| b.digits()), Err(Error::Underflow));
@@ -910,5 +1026,15 @@ mod tests
         let n0 = UBig { digits: vec![0x6du8, 0x37, 0xf2, 0x1b, 0xac, 0x04, 0xcd, 0x56] };
         let n1 = UBig { digits: vec![0x88u8, 0x15, 0xca, 0xb1, 0x58, 0x08, 0x9f, 0x83, 0x76] };
         assert_eq!(n0.mul_big(&n1).digits(), &[0xe8, 0x62, 0x3b, 0xd0, 0xa3, 0x94, 0x1e, 0xfe, 0x61, 0x1b, 0xbf, 0x55, 0xe3, 0xfc, 0x20, 0x2f, 0x28]);
+    }
+
+    #[test]
+    fn test_pow()
+    {
+        assert_eq!(UBig::<u32>::from(10u32).pow(9).digits(), &[1_000_000_000]);
+        assert_eq!(UBig::<u32>::from(10u32).pow(12).digits(), &[3567587328, 232]);
+        assert_eq!(UBig::<u32>::from(36271781).pow(21).digits(), &[3008407573, 437248632, 877668550, 1371464925, 595590382, 510297384, 2424483593, 2908282777, 21647999, 1544316138, 619778902, 209469078, 3614109898, 31575924, 1137819568, 3598877581, 42032]);
+        assert_eq!(UBig::<u32>::one().pow(88192891).digits(), &[1]);
+        assert_eq!(UBig::<u32>::zero().pow(88192891).digits(), &[] as &[u32]);
     }
 }

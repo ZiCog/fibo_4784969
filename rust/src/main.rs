@@ -116,22 +116,13 @@ trait Number: From<u32>
 
 type Dec32 = decimal::DecimalDigit<u32>;
 
-impl Number for myubig::UBig<u32>
+impl<T> Number for myubig::UBig<T>
+where T: crate::digit::Digit, myubig::UBig<T>: From<u32>
 {
     fn double(&self) -> Self
     {
         let mut res = self.clone();
-        myubig::UBig::<u32>::double(&mut res);
-        res
-    }
-}
-
-impl Number for myubig::UBig<Dec32>
-{
-    fn double(&self) -> Self
-    {
-        let mut res = self.clone();
-        myubig::UBig::<Dec32>::double(&mut res);
+        myubig::UBig::<T>::double(&mut res);
         res
     }
 }
