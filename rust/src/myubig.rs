@@ -1,5 +1,5 @@
 use crate::decimal::DecimalDigit;
-use crate::digit::Digit;
+use crate::digit::{Digit, LongDigit};
 use num_traits::{Zero, One};
 
 /// Error type for big integer operations
@@ -7,7 +7,11 @@ use num_traits::{Zero, One};
 pub enum Error
 {
     /// Attempt to subtract a larger number from a smaller one
-    Underflow
+    Underflow,
+    /// Attempting an operation that would overflow a digit
+    Overflow,
+    /// Attempt to divide by zero
+    DivideByZero
 }
 
 /// Structure used for implementing arithmetic operations on an immutable borrow of big integer digits
@@ -66,7 +70,7 @@ where T: Digit
         for ((d0, d1), dr) in self.digits.iter().zip(other.digits).zip(result.iter_mut())
         {
             let tmp = d0.to_long() + d1.to_long() + carry;
-            *dr = T::to_short(tmp % T::RADIX);
+            *dr = (tmp % T::RADIX).to_short();
             carry = tmp / T::RADIX;
         }
 
@@ -115,21 +119,24 @@ where T: Digit
     {
         let n0 = self.nr_digits();
         let n1 = other.nr_digits();
-        assert!(result.len() >= n0 + n1, "Not enough space to store the result");
 
         if self.is_empty() || other.is_empty()
         {
             0
         }
-        else if n0 >= Self::KARATSUBA_CUTOFF && n1 >= Self::KARATSUBA_CUTOFF
-        {
-            let work_size = Self::calc_karatsuba_work_size(self.nr_digits().max(other.nr_digits()));
-            let mut work = vec![T::zero(); work_size];
-            self.multiply_karatsuba_into(other, result, &mut work)
-        }
         else
         {
-            self.multiply_long_into(other, result)
+            assert!(result.len() >= n0 + n1, "Not enough space to store the result");
+            if n0 >= Self::KARATSUBA_CUTOFF && n1 >= Self::KARATSUBA_CUTOFF
+            {
+                let work_size = Self::calc_karatsuba_work_size(n0.max(n1));
+                let mut work = vec![T::zero(); work_size];
+                self.multiply_karatsuba_into(other, result, &mut work)
+            }
+            else
+            {
+                self.multiply_long_into(other, result)
+            }
         }
     }
 
@@ -144,19 +151,23 @@ where T: Digit
     {
         let n0 = self.nr_digits();
         let n1 = other.nr_digits();
-        assert!(result.len() >= n0 + n1, "Not enough space to store the result");
 
         if self.is_empty() || other.is_empty()
         {
             0
         }
-        else if n0 >= Self::KARATSUBA_CUTOFF && n1 >= Self::KARATSUBA_CUTOFF
-        {
-            self.multiply_karatsuba_into(other, result, work)
-        }
         else
         {
-            self.multiply_long_into(other, result)
+            assert!(result.len() >= n0 + n1, "Not enough space to store the result (need {} digits, got {})",
+                n0+n1, result.len());
+            if n0 >= Self::KARATSUBA_CUTOFF && n1 >= Self::KARATSUBA_CUTOFF
+            {
+                self.multiply_karatsuba_into(other, result, work)
+            }
+            else
+            {
+                self.multiply_long_into(other, result)
+            }
         }
     }
 
@@ -178,10 +189,10 @@ where T: Digit
             for (&digit0, rdigit) in self.digits.iter().zip(&mut result[offset..])
             {
                 carry += digit0.to_long() * ldigit1 + rdigit.to_long();
-                *rdigit = T::to_short(carry % T::RADIX);
+                *rdigit = (carry % T::RADIX).to_short();
                 carry /= T::RADIX;
             }
-            result[offset+n0] = T::to_short(carry);
+            result[offset+n0] = carry.to_short();
         }
 
         while n > 0  && result[n-1].is_zero()
@@ -224,7 +235,7 @@ where T: Digit
         let mut bz1 = UBigMutBorrow::new(&mut z1[..nz1]);
         bz1.sub(&UBigBorrow::new(&z2[..nz2]));
         bz1.sub(&UBigBorrow::new(&z0[..nz0]));                      // low0*high1 + high0*low1
-        while z1[nz1-1].is_zero()
+        while nz1 > 0 && z1[nz1-1].is_zero()
         {
             nz1 -= 1;
         }
@@ -316,10 +327,10 @@ where T: Digit
         for d in self.digits.iter_mut()
         {
             let tmp = (d.to_long() << 1) + carry;
-            *d = T::to_short(tmp % T::RADIX);
+            *d = (tmp % T::RADIX).to_short();
             carry = tmp / T::RADIX;
         }
-        (!carry.is_zero()).then(|| T::to_short(carry))
+        (!carry.is_zero()).then(|| carry.to_short())
     }
 
     /// Add the number represented by `borrow` to this. The number of digits in `other` should
@@ -334,7 +345,7 @@ where T: Digit
         for (d0, &d1) in self.digits.iter_mut().zip(other.digits)
         {
             let tmp = d0.to_long() + d1.to_long() + carry;
-            *d0 = T::to_short(tmp % T::RADIX);
+            *d0 = (tmp % T::RADIX).to_short();
             carry = tmp / T::RADIX;
         }
 
@@ -357,7 +368,7 @@ where T: Digit
         for (d0, &d1) in self.digits.iter_mut().zip(other.digits)
         {
             let tmp = T::RADIX + d0.to_long() - d1.to_long() - carry;
-            *d0 = T::to_short(tmp % T::RADIX);
+            *d0 = (tmp % T::RADIX).to_short();
             carry = T::LongDigitType::one() - tmp / T::RADIX;
         }
 
@@ -382,6 +393,19 @@ where T: Digit
         let mut num = UBig { digits };
         num.drop_leading_zeros();
         num
+    }
+
+    /// Create a new single digit number
+    fn from_digit(digit: T) -> Self
+    {
+        if digit.is_zero()
+        {
+            Self::zero()
+        }
+        else
+        {
+            UBig { digits: vec![digit] }
+        }
     }
 
     /// Return the number of digits in this number
@@ -476,7 +500,7 @@ where T: Digit
         self.add_assign_at_offset(other, 0)
     }
 
-    /// Add `other * r<sup>offset</sup>` to this number, where `r` is the radix of this number.
+    /// Add `other * r`<sup>`offset`</sup> to this number, where `r` is the radix of this number.
     fn add_assign_at_offset(&mut self, other: &Self, offset: usize) -> &mut Self
     {
         let n0 = self.nr_digits();
@@ -505,7 +529,7 @@ where T: Digit
         self.sub_assign_at_offset(other, 0)
     }
 
-    /// Subtract `other * r<sup>offset</sup>` from this number, where `r` is the radix of this
+    /// Subtract `other * r`<sup>`offset`</sup> from this number, where `r` is the radix of this
     /// number. Returns an `Underflow` error when the number to be subtracted is larger than
     /// `self`.
     fn sub_assign_at_offset(&mut self, other: &Self, offset: usize) -> Result<&mut Self, Error>
@@ -538,6 +562,175 @@ where T: Digit
             let n = self.borrowed().multiply_into(&other.borrowed(), &mut digits);
             digits.truncate(n);
             UBig { digits }
+        }
+    }
+
+    /// Multiply this number by `n`
+    pub fn mul_assign_digit(&mut self, n: T) -> &mut Self
+    {
+        let long_n = n.to_long();
+        let mut carry = T::LongDigitType::zero();
+        for digit in self.digits.iter_mut()
+        {
+            carry += digit.to_long() * long_n;
+            *digit = (carry % T::RADIX).to_short();
+            carry /= T::RADIX;
+        }
+        if !carry.is_zero()
+        {
+            self.digits.push(carry.to_short());
+        }
+        self
+    }
+
+    /// Divide this number by `n`, and return the remainder. Returns a `DivideByZero` error
+    /// when `n` is zero.
+    pub fn div_rem_assign_digit(&mut self, n: T) -> Result<T, Error>
+    {
+        if n.is_zero()
+        {
+            Err(Error::DivideByZero)
+        }
+        else
+        {
+            let den = n.to_long();
+            let mut carry = T::LongDigitType::zero();
+            for digit in self.digits.iter_mut().rev()
+            {
+                let d = (carry * T::RADIX) + digit.to_long();
+                carry = d % den;
+                *digit = (d / den).to_short();
+            }
+            self.drop_leading_zeros();
+
+            Ok(carry.to_short())
+        }
+    }
+
+    /// Shift this number `shift` bits left, effectively multiplying it by 2<sup>`shift`</sup>.
+    /// Shift should not be greater than the the number of bits the digit type can hold,
+    /// i.e. `shift <= log2(T::RADIX)`.
+    fn shl_assign_small(&mut self, shift: u32) -> Result<&mut Self, Error>
+    {
+        if shift > T::zero().max_shift()
+        {
+            Err(Error::Overflow)
+        }
+        else
+        {
+            let mut carry = T::LongDigitType::zero();
+            for digit in self.digits.iter_mut()
+            {
+                carry += digit.to_long() << shift as usize;
+                *digit = (carry % T::RADIX).to_short();
+                carry /= T::RADIX;
+            }
+            if !carry.is_zero()
+            {
+                self.digits.push(carry.to_short());
+            }
+            Ok(self)
+        }
+    }
+
+    /// Shift this number `shift` bits right, effectively dividing it by 2<sup>`shift`</sup>.
+    /// Shift should not be greater than the the number of bits the digit type can hold,
+    /// i.e. `shift <= log2(T::RADIX)`.
+    fn shr_assign_small(&mut self, shift: u32) -> Result<&mut Self, Error>
+    {
+        if shift > T::zero().max_shift()
+        {
+            Err(Error::Overflow)
+        }
+        else
+        {
+            let one = T::LongDigitType::one();
+            let mask = (one << (shift as usize - 1)) | ((one << (shift as usize - 1)) - one);
+            let mut carry = T::LongDigitType::zero();
+            for digit in self.digits.iter_mut().rev()
+            {
+                let d = (carry * T::RADIX) + digit.to_long();
+                carry = d & mask;
+                *digit = (d >> shift as usize).to_short();
+            }
+            self.drop_leading_zeros();
+            Ok(self)
+        }
+    }
+
+    /// Calculate the quotient and remainder of dividing `self` by `other`. If `other` is zero,
+    /// a `DivideByZero` is returned.
+    pub fn div_rem_big(&self, other: &Self) -> Result<(Self, Self), Error>
+    where T: Ord
+    {
+        if other.is_zero()
+        {
+            Err(Error::DivideByZero)
+        }
+        else if self < other
+        {
+            Ok((Self::zero(), self.clone()))
+        }
+        else if other.nr_digits() == 1
+        {
+            let mut quot = self.clone();
+            let rem = quot.div_rem_assign_digit(*other.digits.last().unwrap())?;
+            Ok((quot, UBig::from_digit(rem)))
+        }
+        else
+        {
+            let shift = other.digits.last().unwrap().max_shift();
+
+            let mut rem = self.clone();
+            let _ = rem.shl_assign_small(shift);
+            let mut den = other.clone();
+            let _ = den.shl_assign_small(shift);
+
+            let n0 = rem.nr_digits();
+            let n1 = den.nr_digits();
+            if n0 == n1
+            {
+                Ok((Self::one(), self - other))
+            }
+            else
+            {
+                let nq = n0 - n1 + 1;
+                let mut quot_digits = vec![T::zero(); nq];
+
+                let den_msd = den.digits[n1-1].to_long();
+
+                rem.digits.push(T::zero());
+                for i in 0..nq
+                {
+                    let num_digs = &mut rem.digits[n0-n1-i..n0-i+1];
+                    let num_msd = num_digs[n1].to_long() * T::RADIX + num_digs[n1-1].to_long();
+
+                    let mut d = (num_msd / den_msd).to_short();
+                    let mut dden = den.clone();
+                    dden.mul_assign_digit(d);
+                    if dden.nr_digits() >= n1+1
+                        && dden.digits.iter().rev().cmp(num_digs.iter().rev()) == std::cmp::Ordering::Greater
+                    {
+                        dden -= &den;
+                        d -= T::one();
+                        if dden.nr_digits() >= n1+1
+                            && dden.digits.iter().rev().cmp(num_digs.iter().rev()) == std::cmp::Ordering::Greater
+                        {
+                            dden -= &den;
+                            d -= T::one();
+                        }
+                    }
+                    quot_digits[nq-i-1] = d;
+                    UBigMutBorrow::new(num_digs).sub(&dden.borrowed());
+                }
+
+                let mut quot = Self::new(quot_digits);
+                quot.drop_leading_zeros();
+                rem.drop_leading_zeros();
+                let _ = rem.shr_assign_small(shift);
+
+                Ok((quot, rem))
+            }
         }
     }
 
@@ -588,14 +781,7 @@ where T: Digit
 {
     fn from(n: T) -> Self
     {
-        if n.is_zero()
-        {
-            UBig::zero()
-        }
-        else
-        {
-            UBig { digits: vec![n] }
-        }
+        Self::from_digit(n)
     }
 }
 
@@ -611,8 +797,8 @@ where DecimalDigit<T>: Digit
         }
         else
         {
-            let d0 = DecimalDigit::to_short(d.to_long() % DecimalDigit::RADIX);
-            let d1 = DecimalDigit::to_short(d.to_long() / DecimalDigit::RADIX);
+            let d0 = (d.to_long() % DecimalDigit::RADIX).to_short();
+            let d1 = (d.to_long() / DecimalDigit::RADIX).to_short();
             let mut big = UBig { digits: vec![d0, d1] };
             big.drop_leading_zeros();
             big
@@ -830,7 +1016,28 @@ where T: Digit
 }
 
 impl<T> std::fmt::Display for UBig<T>
-where T: Digit + std::fmt::Display
+where T: Digit + Ord + std::fmt::Display
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        match self.nr_digits()
+        {
+            0 => f.pad("0"),
+            1 => f.pad(&self.digits[0].to_string()),
+            n => {
+                let exp = ((n-1) * T::HEXADECIMAL_WIDTH * 301 + 499) / 500;
+                let ten = (T::one() << 3) + (T::one() << 1);
+                let pow10 = Self::from(ten).pow(exp as u32);
+                let (high, low) = self.div_rem_big(&pow10).unwrap();
+                let s = format!("{}{:0>width$}", high, low, width=exp);
+                f.pad(&s)
+            }
+        }
+    }
+}
+
+impl<T> std::fmt::LowerHex for UBig<T>
+where T: Digit + std::fmt::LowerHex
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
@@ -838,30 +1045,12 @@ where T: Digit + std::fmt::Display
         {
             write!(f, "0")
         }
-        else if self.nr_digits() == 1
-        {
-            write!(f, "{}", self.digits[0])
-        }
         else
         {
-            let mut decimal = vec![];
-            let mut tmp = self.clone();
-            while !tmp.is_zero()
+            std::fmt::LowerHex::fmt(self.digits.last().unwrap(), f)?;
+            for dd in self.digits.iter().rev().skip(1)
             {
-                let mut carry = T::zero();
-                for digit in tmp.digits.iter_mut().rev()
-                {
-                    let d = (carry.to_long() * T::RADIX) + digit.to_long();
-                    carry = T::to_short(d % T::DECIMAL_RADIX);
-                    *digit = T::to_short(d / T::DECIMAL_RADIX);
-                }
-                tmp.drop_leading_zeros();
-                decimal.push(carry);
-            }
-            write!(f, "{}", decimal.last().unwrap())?;
-            for dd in decimal.iter().rev().skip(1)
-            {
-                write!(f, "{:0width$}", dd, width=T::DECIMAL_WIDTH)?;
+                write!(f, "{:0width$x}", dd, width=T::HEXADECIMAL_WIDTH)?;
             }
             Ok(())
         }
