@@ -395,7 +395,7 @@ where T: Digit
         num
     }
 
-    /// Create a new single digit number
+    /// Create a new single digit number from `digit`
     fn from_digit(digit: T) -> Self
     {
         if digit.is_zero()
@@ -406,6 +406,19 @@ where T: Digit
         {
             UBig { digits: vec![digit] }
         }
+    }
+
+    /// Create a new single digit number from wide digit `digit`
+    fn from_long_digit(digit: T::LongDigitType) -> Self
+    {
+        let mut n = digit;
+        let mut digits = vec![];
+        while !n.is_zero()
+        {
+            digits.push((n % T::RADIX).to_short());
+            n /= T::RADIX;
+        }
+        UBig { digits }
     }
 
     /// Return the number of digits in this number
@@ -751,6 +764,23 @@ where T: Digit
         }
         result
     }
+
+    // Convert this (likely binary) number to a number with decimal digits
+    pub fn to_decimal(&self) -> UBig<DecimalDigit<T>>
+    {
+        match self.nr_digits()
+        {
+            0 => UBig::zero(),
+            1 => UBig::from(self.digits[0]),
+            n => {
+                let hn = (n + 1) / 2;
+                let low = UBig { digits: self.digits[..hn].to_vec() };
+                let high = UBig { digits: self.digits[hn..].to_vec() };
+                let scale = UBig::from_long_digit(T::RADIX).pow(hn as u32);
+                high.to_decimal() * scale + low.to_decimal()
+            }
+        }
+    }
 }
 
 impl<T> num_traits::Zero for UBig<T>
@@ -1020,19 +1050,7 @@ where T: Digit + Ord + std::fmt::Display
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
-        match self.nr_digits()
-        {
-            0 => f.pad("0"),
-            1 => f.pad(&self.digits[0].to_string()),
-            n => {
-                let exp = ((n-1) * T::HEXADECIMAL_WIDTH * 301 + 499) / 500;
-                let ten = (T::one() << 3) + (T::one() << 1);
-                let pow10 = Self::from(ten).pow(exp as u32);
-                let (high, low) = self.div_rem_big(&pow10).unwrap();
-                let s = format!("{}{:0>width$}", high, low, width=exp);
-                f.pad(&s)
-            }
-        }
+        self.to_decimal().fmt(f)
     }
 }
 
