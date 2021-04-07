@@ -1,0 +1,14 @@
+[package]
+name = "fibo_4784969"
+description = "Program to calculate the first million-digit fibonacci number, using Rust"
+version = "0.3.0"
+authors = ["Gé Vissers"]
+edition = "2018"
+
+[dependencies]
+clap = "2.33"
+ibig = "0.2"
+num-bigint = "0.4"
+num-traits = "0.2"
+rug = "1.11"
+rust-gmp = "0.5"
