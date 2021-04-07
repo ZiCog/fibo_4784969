@@ -131,7 +131,7 @@ impl Number for ibig::UBig
 {
     fn double(&self) -> Self
     {
-        self << 1u8
+        self + self
     }
 }
 
