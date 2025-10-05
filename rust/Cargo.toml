@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 clap = "2.33"
 ibig = "0.3"
-num-bigint = "0.4"
+num-bigint = "0.4.6"
 num-traits = "0.2"
 rug = "1.11"
 rust-gmp = "0.5"
